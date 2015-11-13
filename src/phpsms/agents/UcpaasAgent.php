@@ -45,12 +45,12 @@ class UcpaasAgent extends Agent
             'token' => $this->accountToken
         ];
         $ucpaas = new \Ucpaas($config);
-        $response = $ucpaas->templateSMS($this->appId, $to, ( $tempId ?: $this->verifySmsTemplateId ) , implode(',',$data));
+        $response = $ucpaas->templateSMS($this->appId, $to, $tempId, implode(',', $data));
         $result = json_decode($response);
         if ($result != null && $result->resp->respCode == '000000') {
             $this->result['success'] = true;
         }
-        $this->result['info'] = $this->currentAgentName . ':' . $result->resp->respCode;
+        $this->result['info'] = $result->resp->respCode;
         $this->result['code'] = $result->resp->respCode;
     }
 
@@ -69,7 +69,7 @@ class UcpaasAgent extends Agent
         if ($result->resp->respCode == '000000') {
             $this->result['success'] = true;
         }
-        $this->result['info'] = $this->currentAgentName . ':' . $result->resp->respCode;
+        $this->result['info'] = $result->resp->respCode;
         $this->result['code'] = $result->resp->respCode;
         return $this->result;
     }

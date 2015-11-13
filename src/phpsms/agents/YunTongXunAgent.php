@@ -18,7 +18,7 @@ class YunTongXunAgent extends Agent
             $this->serverIP,
             $this->serverPort,
             $this->softVersion,
-            storage_path('logs/sms-log.txt')
+            null
         );
         $rest->setAccount($this->accountSid, $this->accountToken);
         $rest->setAppId($this->appId);
@@ -27,7 +27,7 @@ class YunTongXunAgent extends Agent
         if ($result != null && $result->statusCode == 0) {
             $this->result['success'] = true;
         }
-        $this->result['info'] = $this->currentAgentName . ':' . $result->statusCode;
+        $this->result['info'] = $result->statusCode;
         $this->result['code'] = $result->statusCode;
     }
 
@@ -43,7 +43,7 @@ class YunTongXunAgent extends Agent
             $this->serverIP,
             $this->serverPort,
             $this->softVersion,
-            storage_path('logs/sms-log.txt')
+            null
         );
         $rest->setAccount($this->accountSid, $this->accountToken);
         $rest->setAppId($this->appId);
@@ -64,7 +64,7 @@ class YunTongXunAgent extends Agent
             //echo "callSid:".$voiceVerify->callSid."<br/>";
             //echo "dateCreated:".$voiceVerify->dateCreated."<br/>";
         }
-        $this->result['info'] = $this->currentAgentName . ':' . $result->statusMsg;
+        $this->result['info'] = $result->statusMsg;
         $this->result['code'] = $result->statusCode;
         return $this->result;
     }

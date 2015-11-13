@@ -36,9 +36,9 @@ return [
      *
      */
     'agents' => [
+        //write you agents here
         'Luosimao' => '5 backup',
-        'YunPian'  => 'backup',
-        'Log'      => '0 backup'
+
     ]
 
 ];

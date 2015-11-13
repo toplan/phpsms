@@ -21,7 +21,7 @@ class YunPianAgent extends Agent
         if ($data['code'] == 0) {
             $this->result['success'] = true;
         }
-        $this->result['info'] = $this->currentAgentName . ':' . $data['msg'];
+        $this->result['info'] = $data['msg'];
         $this->result['code'] = $data['code'];
     }
 
@@ -42,7 +42,7 @@ class YunPianAgent extends Agent
         if ($data['code'] == 0) {
             $this->result['success'] = true;
         }
-        $this->result['info'] = $this->currentAgentName . ':' . $data['msg'];
+        $this->result['info'] = $data['msg'];
         $this->result['code'] = $data['code'];
         return $this->result;
     }

@@ -26,11 +26,10 @@ class SubMailAgent extends Agent
         $data = json_decode($response, true);
         if ($data['status'] == 'success') {
             $this->result['success'] = true;
-            $this->result['info'] = $this->currentAgentName.
-                                    ':{send_id:' . $data['send_id'].
-                                    ',sms_credits:' . $data['sms_credits'] . '}';
+            $this->result['info'] = 'send_id:' . $data['send_id'].
+                                    ',sms_credits:' . $data['sms_credits'];
         } else {
-            $this->result['info'] = $this->currentAgentName . ':' . $data['msg'];
+            $this->result['info'] = $data['msg'];
             $this->result['code'] = $data['code'];
         }
     }
@@ -38,8 +37,8 @@ class SubMailAgent extends Agent
     public function voiceVerify($to, $code)
     {
         $this->result['success'] = false;
-        $this->result['info'] = $this->currentAgentName . ':' . '';
+        $this->result['info'] = '';
         $this->result['code'] = '';
-        throw new \Exception("The agent [{$this->currentAgentName}] does not support voice verify");
+        throw new \Exception("This agent does not support voice verify");
     }
 }

@@ -18,10 +18,12 @@
     "psr-4": {
       "Toplan\\PhpSms\\": [
         "src/phpsms/",
-        "src/phpsms/agents/",
-        "src/phpsms/lib"
+        "src/phpsms/agents/"
       ]
-    }
+    },
+    "classmap": [
+      "src/phpsms/lib/"
+    ]
   },
   "minimum-stability" : "dev"
 }

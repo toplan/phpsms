@@ -45,7 +45,7 @@ class LuosimaoAgent extends Agent
         if ($data['error'] == 0) {
             $this->result['success'] = true;
         }
-        $this->result['info'] = $this->currentAgentName . ':' . $data['msg'] . "({$data['error']})";
+        $this->result['info'] = $data['msg'];
         $this->result['code'] = $data['error'];
     }
 
@@ -83,7 +83,7 @@ class LuosimaoAgent extends Agent
         if ($data['error'] == 0) {
             $this->result['success'] = true;
         }
-        $this->result['info'] = $this->currentAgentName . ':' . $data['msg'] . "({$data['error']})";
+        $this->result['info'] = $data['msg'];
         $this->result['code'] = $data['error'];
         return $this->result;
     }

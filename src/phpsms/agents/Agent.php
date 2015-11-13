@@ -29,52 +29,6 @@ Abstract class Agent
     }
 
     /**
-     * get queue worker
-     * @return mixed
-     */
-    public function getWorkerName()
-    {
-        return $this->config['smsWorker'];
-    }
-
-    /**
-     * 是否开启发送队列
-     * @return mixed
-     */
-    public function isPushToQueue()
-    {
-        return $this->config['smsSendQueue'];
-    }
-
-    /**
-     * 是否重复发送队列任务中失败的短信
-     * @return mixed
-     */
-    public function isResendFailedSmsInQueue()
-    {
-        if (isset($this->config['isResendFailedSmsInQueue'])) {
-            return $this->config['isResendFailedSmsInQueue'];
-        }
-        return false;
-    }
-
-    /**
-     * 开启发送队列
-     */
-    public function openQueue()
-    {
-        $this->config['smsSendQueue'] = true;
-    }
-
-    /**
-     * 关闭发送队列
-     */
-    public function closeQueue()
-    {
-        $this->config['smsSendQueue'] = false;
-    }
-
-    /**
      * sms send entry
      * @param       $template
      * @param       $to

@@ -232,7 +232,8 @@ class Sms
             $configData = (Array) $agentsConfig[$name];
             $task->driver("$name $options")
                  ->data($configData)
-                 ->work(function($driver, $configData){
+                 ->work(function($driver, $data){
+                     $configData = $driver->getDriverData();
                      $agent = self::getSmsAgent($driver->name, $configData);
                      $smsData = $driver->getTaskData();
                      extract($smsData);
