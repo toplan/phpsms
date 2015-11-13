@@ -1,0 +1,23 @@
+{
+  "name": "toplan/phpsms",
+  "description": "sms send library for php, support the mainstream SMS service provider",
+  "license": "MIT",
+  "version": "0.0.1",
+  "keywords": ["sms", "php sms", "phpsms"],
+  "authors": [
+    {
+      "name": "toplan",
+      "email": "toplan710@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.4.0",
+    "toplan/task-balancer": "~0.0.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Toplan\\PhpSms\\": "src/phpsms/"
+    }
+  },
+  "minimum-stability" : "dev"
+}
