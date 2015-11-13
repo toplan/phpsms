@@ -76,47 +76,17 @@ Abstract class Agent
 
     /**
      * sms send entry
-     * @param array $tempIds
+     * @param       $template
      * @param       $to
      * @param array $data
      * @param       $content
      *
      * @return array|null
      */
-    public function sms(Array $tempIds, $to, Array $data, $content)
+    public function sms($template, $to, Array $data, $content)
     {
-        $tempId = '';
-        if (isset($tempIds[$this->config['currentAgentName']])) {
-            $tempId = $tempIds[$this->config['currentAgentName']];
-        }
-        $this->sendSms($tempId, $to, $data, $content);
-        if ( ! $this->result['success'] && $this->config['nextAgentEnable']) {
-            $result = $this->tryNextAgent($tempIds, $to, $data, $content);
-            if ($result) {
-                $result['info'] = $this->result['info'] . "##" . $result['info'];
-                return $result;
-            }
-        }
+        $this->sendSms($template, $to, $data, $content);
         return $this->result;
-    }
-
-    /**
-     * resend sms by sub agent
-     * @param array $tempIds
-     * @param       $to
-     * @param array $data
-     * @param       $content
-     *
-     * @return null
-     */
-    public function tryNextAgent(Array $tempIds, $to, Array $data, $content)
-    {
-        if ( ! $this->config['nextAgentName']) {
-            return null;
-        }
-        $agent = app('SmsManager')->agent($this->config['nextAgentName']);
-        $result = $agent->sms($tempIds, $to, $data, $content);
-        return $result;
     }
 
     /**

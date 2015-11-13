@@ -16,7 +16,11 @@
   },
   "autoload": {
     "psr-4": {
-      "Toplan\\PhpSms\\": "src/phpsms/"
+      "Toplan\\PhpSms\\": [
+        "src/phpsms/",
+        "src/phpsms/agents/",
+        "src/phpsms/lib"
+      ]
     }
   },
   "minimum-stability" : "dev"

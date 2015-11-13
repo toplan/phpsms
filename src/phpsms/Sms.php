@@ -1,7 +1,270 @@
 <?php
 namespace Toplan\PhpSms;
 
+use Toplan\TaskBalance\Balancer;
+
+/**
+ * Class Sms
+ * @package Toplan\PhpSms
+ */
 class Sms
 {
+    /**
+     * sms send task name
+     */
+    const TASK = 'phpsms';
 
+    /**
+     * log agent`s name
+     */
+    const LOG_AGENT = 'Log';
+
+    /**
+     * agents instance
+     */
+    protected static $agents;
+
+    /**
+     * agents`s name
+     * @var
+     */
+    protected static $agentsName;
+
+    /**
+     * agents`s config
+     * @var
+     */
+    protected static $agentsConfig;
+
+    /**
+     * sms data
+     * @var array
+     */
+    protected static $smsData = [
+        'to' => null,
+        'templates' => [],
+        'content' => '',
+        'templateData' => [],
+    ];
+
+    /**
+     * construct
+     */
+    public function __construct()
+    {
+        self::init();
+    }
+
+    /**
+     * create sms instance and set templates
+     * @param      $agentName
+     * @param null $tempId
+     *
+     * @return Sms
+     */
+    public static function make($agentName, $tempId = null)
+    {
+        $sms = new Sms();
+        $sms->template($agentName, $tempId);
+        return $sms;
+    }
+
+    /**
+     * set the mobile number
+     * @param $mobile
+     *
+     * @return $this
+     */
+    public function to($mobile)
+    {
+        if (is_array($mobile)) {
+            $mobile = implode(',', $mobile);
+        }
+        self::$smsData['to'] = $mobile;
+        return $this;
+    }
+
+    /**
+     * set content for content sms
+     * @param $content
+     *
+     * @return $this
+     */
+    public function content($content)
+    {
+        self::$smsData['content'] = (String) $content;
+        return $this;
+    }
+
+    /**
+     * set template id for template sms
+     * @param $agentName
+     * @param $tempId
+     *
+     * @return $this
+     */
+    public function template($agentName, $tempId = null)
+    {
+        $tempIdArray = (Array) self::$smsData['templates'];
+        if ( ! is_null($tempId)) {
+            $tempIdArray["$agentName"] = $tempId;
+        } else {
+            if (is_array($agentName)) {
+                $tempIdArray = $agentName;
+            } else {
+                $firstAgentName = self::getFirstAgentName();
+                $tempIdArray["$firstAgentName"] = $agentName;
+            }
+        }
+        self::$smsData['templates'] = (Array) $tempIdArray;
+        return $this;
+    }
+
+    /**
+     * set data for template sms
+     * @param array $data
+     *
+     * @return $this
+     */
+    public function data(Array $data)
+    {
+        self::$smsData['templateData'] = $data;
+        return $this;
+    }
+
+    /**
+     * start send
+     * @return mixed
+     * @throws \Exception
+     */
+    public function send()
+    {
+        $results = Balancer::run(self::TASK, self::$smsData);
+        return $results;
+    }
+
+    /**
+     * get first agent`s name
+     * @return int|null|string
+     */
+    public static function getFirstAgentName()
+    {
+        foreach (self::$agentsName as $name => $options) {
+            return $name;
+        }
+    }
+
+    /**
+     * init
+     */
+    private static function init()
+    {
+        self::generatorTask();
+    }
+
+    /**
+     * generator a sms send task
+     * @return null
+     */
+    public static function generatorTask()
+    {
+        if (!Balancer::getTask(self::TASK)) {
+            Balancer::task(self::TASK, function($task){
+                self::createAgents($task);
+            });
+        }
+        return Balancer::getTask(self::TASK);
+    }
+
+    /**
+     * read agents` name from config file
+     * @return mixed
+     * @throws \Exception
+     */
+    private static function getAgentsName()
+    {
+        if (!self::$agentsName) {
+            $config = include(__DIR__ . '/config/phpsms.php');
+            if (isset($config['agents'])) {
+                if (!count($config['agents'])) {
+                    throw new \Exception('please set one agent in config file(phpsms.php) at least');
+                }
+                self::$agentsName = $config['agents'];
+            } else {
+                throw new \Exception('please set agents value in config file(phpsms.php)');
+            }
+        }
+        return self::$agentsName;
+    }
+
+    /**
+     * read agents` config form config file
+     * @return mixed
+     * @throws \Exception
+     */
+    private static function getAgentsConfig()
+    {
+        if (!self::$agentsConfig) {
+            $config = include(__DIR__ . '/config/agents.php');
+            $enableAgentsName = self::getAgentsName();
+            $config[self::LOG_AGENT] = [];//default config for log agent.
+            foreach ($enableAgentsName as $agentName => $options) {
+                if (!isset($config[$agentName])) {
+                    throw new \Exception("please configuration $agentName agent in config file(agents.php)");
+                }
+            }
+            self::$agentsConfig = $config;
+        }
+        return self::$agentsConfig;
+    }
+
+    /**
+     * create drivers for sms send task
+     * @param $task
+     *
+     * @throws \Exception
+     */
+    private static function createAgents($task)
+    {
+        $agentsName = self::getAgentsName();
+        $agentsConfig = self::getAgentsConfig();
+        foreach ($agentsName as $name => $options) {
+            $configData = (Array) $agentsConfig[$name];
+            $task->driver("$name $options")
+                 ->data($configData)
+                 ->work(function($driver, $configData){
+                     $agent = self::getSmsAgent($driver->name, $configData);
+                     $smsData = $driver->getTaskData();
+                     extract($smsData);
+                     $template = isset($templates[$driver->name]) ? $templates[$driver->name] : 0;
+                     $result = $agent->sms($template, $to, $templateData, $content);
+                     if ($result['success']) {
+                         $driver->success();
+                     }
+                     unset($result['success']);
+                     return $result;
+                 });
+        }
+    }
+
+    /**
+     * get a sms agent instance,
+     * if null, will create a new agent instance
+     * @param       $name
+     * @param array $configData
+     *
+     * @return mixed
+     */
+    private static function getSmsAgent($name, Array $configData)
+    {
+        if (!isset(self::$agents[$name])) {
+            $className = 'Toplan\\PhpSms\\' . $name . 'Agent';
+            if (class_exists($className)) {
+                self::$agents[$name] = new $className($configData);
+            } else {
+                throw new \InvalidArgumentException("Agent [$name] not support.");
+            }
+        }
+        return self::$agents[$name];
+    }
 }
