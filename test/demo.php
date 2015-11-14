@@ -11,3 +11,7 @@ $result = Sms::make([
                 ->data(['code' => '1111', 'length' => 10])
                 ->send();
 var_dump($result);
+print_r('<hr>');
+
+$result2 = Sms::voice(123)->to(18280345349)->send();
+var_dump($result2);

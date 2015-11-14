@@ -1,6 +1,10 @@
 # PhpSms
 可能是目前最靠谱、优雅的php短信发送库。(持续开发改进中...)
 
+<
+< phpsms的任务负载均衡功能由[task-balancer](https://github.com/toplan/task-balancer)提供。
+<
+
 # 特点
 1. 支持负载均衡，可以按代理器权重值均衡选择代理器发送。
 2. 支持一个或多个‘backup’备用代理器。

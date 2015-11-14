@@ -39,6 +39,6 @@ class SubMailAgent extends Agent
         $this->result['success'] = false;
         $this->result['info'] = '';
         $this->result['code'] = '';
-        throw new \Exception("This agent does not support voice verify");
+        throw new \Exception("SubMail agent does not support voice verify!");
     }
 }

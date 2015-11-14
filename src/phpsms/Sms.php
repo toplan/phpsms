@@ -40,12 +40,18 @@ class Sms
      * sms data
      * @var array
      */
-    protected static $smsData = [
+    protected $smsData = [
         'to' => null,
         'templates' => [],
         'content' => '',
         'templateData' => [],
     ];
+
+    /**
+     * voice verify code
+     * @var bool
+     */
+    protected $voiceData = null;
 
     /**
      * construct
@@ -64,8 +70,24 @@ class Sms
      */
     public static function make($agentName, $tempId = null)
     {
-        $sms = new Sms();
+        $sms = new self;
         $sms->template($agentName, $tempId);
+        return $sms;
+    }
+
+    /**
+     * send voice verify
+     * @param $code
+     *
+     * @return Sms
+     */
+    public static function voice($code)
+    {
+        $sms = new self;
+        $sms->voiceData = [
+            'voiceVerify' => true,
+            'code' => $code
+        ];
         return $sms;
     }
 
@@ -80,7 +102,7 @@ class Sms
         if (is_array($mobile)) {
             $mobile = implode(',', $mobile);
         }
-        self::$smsData['to'] = $mobile;
+        $this->smsData['to'] = $mobile;
         return $this;
     }
 
@@ -92,7 +114,7 @@ class Sms
      */
     public function content($content)
     {
-        self::$smsData['content'] = (String) $content;
+        $this->smsData['content'] = (String) $content;
         return $this;
     }
 
@@ -105,7 +127,7 @@ class Sms
      */
     public function template($agentName, $tempId = null)
     {
-        $tempIdArray = (Array) self::$smsData['templates'];
+        $tempIdArray = (Array) $this->smsData['templates'];
         if ( ! is_null($tempId)) {
             $tempIdArray["$agentName"] = $tempId;
         } else {
@@ -116,7 +138,7 @@ class Sms
                 $tempIdArray["$firstAgentName"] = $agentName;
             }
         }
-        self::$smsData['templates'] = (Array) $tempIdArray;
+        $this->smsData['templates'] = (Array) $tempIdArray;
         return $this;
     }
 
@@ -128,7 +150,7 @@ class Sms
      */
     public function data(Array $data)
     {
-        self::$smsData['templateData'] = $data;
+        $this->smsData['templateData'] = $data;
         return $this;
     }
 
@@ -139,8 +161,19 @@ class Sms
      */
     public function send()
     {
-        $results = Balancer::run(self::TASK, self::$smsData);
+        $results = Balancer::run(self::TASK, $this->getData());
         return $results;
+    }
+
+    /**
+     * get data:
+     * if this is a voice verify, will gt voice data.
+     * if this is a sms, will get sms data.
+     * @return array
+     */
+    public function getData()
+    {
+        return $this->voiceData ?: $this->smsData;
     }
 
     /**
@@ -237,8 +270,12 @@ class Sms
                      $agent = self::getSmsAgent($driver->name, $configData);
                      $smsData = $driver->getTaskData();
                      extract($smsData);
-                     $template = isset($templates[$driver->name]) ? $templates[$driver->name] : 0;
-                     $result = $agent->sms($template, $to, $templateData, $content);
+                     if (isset($voiceVerify) && $voiceVerify) {
+                         $result = $agent->voiceVerify($to, $code);
+                     } else {
+                         $template = isset($templates[$driver->name]) ? $templates[$driver->name] : 0;
+                         $result = $agent->sms($template, $to, $templateData, $content);
+                     }
                      if ($result['success']) {
                          $driver->success();
                      }
