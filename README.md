@@ -62,6 +62,16 @@ Sms::make([
 
 ###4. 语法糖
 
+   * 生成发送短信的instance
+```php
+  $sms = Sms::make($code)
+```
+
+  ＊ 生成发送语音验证码的instance
+```php
+  $sms = Sms::voice($code)
+```
+
    * 发送给谁
 ```php
    $sms = $sms->to('1828*******');
