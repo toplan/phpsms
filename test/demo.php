@@ -13,5 +13,6 @@ $result = Sms::make([
 var_dump($result);
 print_r('<hr>');
 
-$result2 = Sms::voice(123)->to(18280345349)->send();
+$sms = new Sms();
+$result2 = $sms->voice(111)->to(18280345349)->send();
 var_dump($result2);

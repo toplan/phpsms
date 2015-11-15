@@ -12,7 +12,7 @@ class Sms
     /**
      * sms send task name
      */
-    const TASK = 'phpsms';
+    const TASK = 'PhpSms';
 
     /**
      * log agent`s name
@@ -153,6 +153,7 @@ class Sms
      */
     public function send()
     {
+        $this->validator();
         $results = Balancer::run(self::TASK, $this->getData());
         return $results;
     }
@@ -296,5 +297,17 @@ class Sms
             }
         }
         return self::$agents[$name];
+    }
+
+    /**
+     * validate
+     * @throws \Exception
+     */
+    private function validator()
+    {
+        if (!$this->smsData['to']) {
+            throw new \Exception("please set sms or voice verify to who use to() method.");
+        }
+        return true;
     }
 }
