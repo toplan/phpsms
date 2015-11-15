@@ -1,7 +1,7 @@
 # PhpSms
 可能是目前最靠谱、优雅的php短信发送库了。
 
-< phpsms的任务负载均衡功能由[task-balancer](https://github.com/toplan/task-balancer)提供。
+> phpsms的任务负载均衡功能由[task-balancer](https://github.com/toplan/task-balancer)提供。
 
 # 特点
 1. 支持负载均衡，可以按代理器权重值均衡选择代理器发送。
@@ -28,11 +28,33 @@ composer require 'toplan/phpsms:~0.0.1'
 
 - 配置可用代理器
 
-  见`config\phpsms.php`
+  在`config\phpsms.php`中配置。
+
+  也可以手动在程序中设置：
+```php
+//example:
+Sms::agents([
+    'Luosimao' => '100 backup',
+    'YunPian'  => '30 backup'
+]);
+```
 
 - 配置代理器所需参数
 
-  见`config\agents.php`
+  在`config\agents.php`中配置。
+
+  也可以手动在程序中设置：
+```php
+//example:
+Sms::config([
+    'Luosimao' => [
+        //some options
+    ],
+    'YunPian'  => [
+        'apikey' => '...',
+    ]
+]);
+```
 
 ###2. Enjoy it!
 
@@ -58,6 +80,30 @@ Sms::make([
 ```
 
 ###4. 语法糖
+
+   * 手动设置可用代理器
+```php
+   Sms::agents([
+        'Luosimao' => '80 backup'
+        'YunPian' => '100 backup'
+   ]);
+   //或
+   Sms::agents('Luosimao', '80 backup');
+   Sms::agents('YunPian', '100 backup');
+```
+
+   * 手动设置代理器配置参数
+```php
+   Sms::config([
+       'YunPian' => [
+           'apikey' => '',
+       ]
+   ]);
+   //或
+   Sms::config('YunPian', [
+       'apikey' => '',
+   ]);
+```
 
    * 生成发送短信的instance
 ```php
