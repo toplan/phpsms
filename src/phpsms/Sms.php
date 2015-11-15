@@ -45,13 +45,8 @@ class Sms
         'templates' => [],
         'content' => '',
         'templateData' => [],
+        'voiceCode' => null,
     ];
-
-    /**
-     * voice verify code
-     * @var bool
-     */
-    protected $voiceData = null;
 
     /**
      * construct
@@ -84,10 +79,7 @@ class Sms
     public static function voice($code)
     {
         $sms = new self;
-        $sms->voiceData = [
-            'voiceVerify' => true,
-            'code' => $code
-        ];
+        $sms->smsData['voiceCode'] = $code;
         return $sms;
     }
 
@@ -173,7 +165,7 @@ class Sms
      */
     public function getData()
     {
-        return $this->voiceData ?: $this->smsData;
+        return $this->smsData;
     }
 
     /**
@@ -270,8 +262,8 @@ class Sms
                      $agent = self::getSmsAgent($driver->name, $configData);
                      $smsData = $driver->getTaskData();
                      extract($smsData);
-                     if (isset($voiceVerify) && $voiceVerify) {
-                         $result = $agent->voiceVerify($to, $code);
+                     if (isset($smsData['voiceCode']) && $smsData['voiceCode']) {
+                         $result = $agent->voiceVerify($to, $voiceCode);
                      } else {
                          $template = isset($templates[$driver->name]) ? $templates[$driver->name] : 0;
                          $result = $agent->sms($template, $to, $templateData, $content);
