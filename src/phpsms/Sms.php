@@ -28,13 +28,13 @@ class Sms
      * agents`s name
      * @var
      */
-    protected static $agentsName;
+    protected static $agentsName = [];
 
     /**
      * agents`s config
      * @var
      */
-    protected static $agentsConfig;
+    protected static $agentsConfig = [];
 
     /**
      * sms data
@@ -309,5 +309,33 @@ class Sms
             throw new \Exception("please set sms or voice verify to who use to() method.");
         }
         return true;
+    }
+
+    /**
+     * set available agents
+     * @param      $agents
+     * @param null $options
+     */
+    public static function agents($agents, $options = null)
+    {
+        if ($options && !is_array($agents)) {
+            self::$agentsName[$agents] = $options;
+        } elseif (is_array($agents)) {
+            self::$agentsName = array_merge(self::$agentsName, $agents);
+        }
+    }
+
+    /**
+     * set config for available agents
+     * @param      $configs
+     * @param null $options
+     */
+    public static function config($configs, $options = null)
+    {
+        if ($options && !is_array($configs)) {
+            self::$agentsConfig[$configs] = $options;
+        } elseif (is_array($configs)) {
+            self::$agentsConfig = array_merge(self::$agentsConfig, $configs);
+        }
     }
 }

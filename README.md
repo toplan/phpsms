@@ -1,9 +1,7 @@
 # PhpSms
-可能是目前最靠谱、优雅的php短信发送库。(持续开发改进中...)
+可能是目前最靠谱、优雅的php短信发送库了。
 
-<
 < phpsms的任务负载均衡功能由[task-balancer](https://github.com/toplan/task-balancer)提供。
-<
 
 # 特点
 1. 支持负载均衡，可以按代理器权重值均衡选择代理器发送。
@@ -42,7 +40,6 @@ composer require 'toplan/phpsms:~0.0.1'
 require('path/to/vendor/autoload.php');
 use Toplan\PhpSms\Sms;
 
-Sms::make()
 //只希望使用模板方式发送短信,可以不设置内容content (如云通讯,Submail)
 Sms::make($tempId)->to('1828****349')->data(['12345', 5])->send();
 
@@ -122,7 +119,6 @@ Sms::make([
 ##自定义代理器
 
 请注意命名规范，Foo为代理器(服务商)名称。配置项加入到config/agents.php中：
-
 ```php
    'Foo' => [
         'xxx' => 'some info',
@@ -130,8 +126,7 @@ Sms::make([
    ]
 ```
 
-在agents目录下添加代理器类(注意类名为FooAgent),并继承Agent抽象类。如果使用到其他api，可以将api文件放入src/lib文件夹中。
-
+在agents目录下添加代理器类(注意类名为FooAgent),并继承Agent抽象类。如果使用到其他api，可以将api文件放入src/phpsms/lib文件夹中。
 ```php
    namespace Toplan\Sms;
    class FooAgent extends Agent {
@@ -171,8 +166,6 @@ Sms::make([
         public function voiceVerify($to, $code)
         {
             //同上...
-            //与发送短信唯一不同的是，切记返回结果数组
-            return $this->result;
         }
    }
 ```
