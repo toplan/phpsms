@@ -37,6 +37,12 @@ class Sms
     protected static $agentsConfig = [];
 
     /**
+     * queue work
+     * @var null
+     */
+    protected static $howToUseQueue = null;
+
+    /**
      * sms data
      * @var array
      */
@@ -81,6 +87,21 @@ class Sms
         $sms = new self;
         $sms->smsData['voiceCode'] = $code;
         return $sms;
+    }
+
+    /**
+     * set how to use queue.
+     * @param $handler
+     *
+     * @throws \Exception
+     */
+    public static function queue($handler)
+    {
+        if (is_callable($handler)) {
+            self::$howToUseQueue = $handler;
+        } else {
+            throw new \Exception('Please give howUseQueue() a callable argument');
+        }
     }
 
     /**
@@ -156,6 +177,20 @@ class Sms
         $this->validator();
         $results = Balancer::run(self::TASK, $this->getData());
         return $results;
+    }
+
+    /**
+     * push sms send task to queue
+     * @return mixed
+     * @throws \Exception
+     */
+    public function push()
+    {
+        if (is_callable(self::$howToUseQueue)) {
+            return call_user_func(self::$howToUseQueue, $this->smsData);
+        } else {
+            throw new \Exception('Please define how to use queue by static method `useQueue($handler)`');
+        }
     }
 
     /**
