@@ -3,7 +3,10 @@
 require('./../vendor/autoload.php');
 
 use Toplan\PhpSms\Sms;
-
+Sms::beforeSend(function($task){
+});
+Sms::afterSend(function($task, $results){
+});
 $result = Sms::make([
                     'YunTongXun' => 21516
                 ])

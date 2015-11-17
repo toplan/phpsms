@@ -81,7 +81,7 @@ Sms::voice('1111')->to('1828****349')->send();
 
 # API
 
-### 1. Sms::agents($name, $optionString)
+### Sms::agents($name, $optionString)
 
 手动设置可用代理器，如：
 ```php
@@ -93,7 +93,7 @@ Sms::voice('1111')->to('1828****349')->send();
    Sms::agents('Luosimao', '80 backup');
    Sms::agents('YunPian', '100 backup');
 ```
-### 2. Sms::config($name, $config);
+### Sms::config($name, $config);
 
 手动设置代理器配置参数，如：
 ```php
@@ -108,20 +108,52 @@ Sms::voice('1111')->to('1828****349')->send();
    ]);
 ```
 
-### 3. Sms::make()
+### Sms::beforeSend($handler);
+
+短信发送前钩子。
+```php
+Sms::beforeSend(function($task){
+    //获取短信数据
+    $smsData = $task->data;
+    //do something here
+});
+```
+**Note:**更多细节请查看[task-balancer](https://github.com/toplan/task-balancer)的“beforeRun”钩子
+
+### Sms::afterSend($handler);
+
+短信发送后钩子。
+```php
+Sms::afterSend(function($task, $results){
+    //$results为短信发送后获得的结果数组
+    //do something here
+});
+```
+**Note:**更多细节请查看[task-balancer](https://github.com/toplan/task-balancer)的“afterRun”钩子
+
+### Sms::queue($handler)
+
+定义如何推送到队列。
+```php
+    Sms::queue(function($smsData){
+        //define how to push to queue.
+    });
+```
+
+### Sms::make()
 
 生成发送短信的sms实例，并返回该实例。
 ```php
   $sms = Sms::make();
 ```
 
-### 4. Sms::voice($code)
+### Sms::voice($code)
 
 生成发送语音验证码的sms实例，并返回该实例。
 ```php
   $sms = Sms::voice($code)
 ```
-### 5. $sms->to($mobile)
+### $sms->to($mobile)
 
 设置发送给谁，并返回实例。
 ```php
@@ -129,7 +161,7 @@ Sms::voice('1111')->to('1828****349')->send();
    $sms->to(['1828*******', '1828*******', ...]);//多个目标号码
 ```
 
-### 6. $sms->template($templates)
+### $sms->template($templates)
 
 设置模板ID，并返回实例对象。
 如果你只想给第一个代理器设置模板ID, 你只需要传入一个id参数:
@@ -150,7 +182,7 @@ Sms::voice('1111')->to('1828****349')->send();
    $sms->template(['YunTongXun' => '20001', 'SubMail' => 'xxx', ...]);
 ```
 
-### 7. $sms->data($templateData)
+### $sms->data($templateData)
 
 设置模板短信的模板数据，并返回实例对象。
 ```php
@@ -160,7 +192,7 @@ Sms::voice('1111')->to('1828****349')->send();
       ]);//必须是数组
 ```
 
-### 8. $sms->content($text)
+### $sms->content($text)
 
 设置内容短信的内容，并返回实例对象。
 有些服务商(如YunPian,Luosimao)只支持内容短信(即直接发送短信内容)，那么就需要为它们设置短信内容。
@@ -168,23 +200,14 @@ Sms::voice('1111')->to('1828****349')->send();
   $sms = $sms->content('【签名】您的订单号是xxxx，祝你购物愉快。');
 ```
 
-### 9. $sms->send()
+### $sms->send()
 
 立即发送短信
 ```php
   $results = $sms->send();
 ```
 
-### 10. Sms::queue($handler)
-
-定义如何推送到队列。
-```php
-    Sms::queue(function($smsData){
-        //define how to push to queue.
-    });
-```
-
-### 11. $sms->push()
+### $sms->push()
 
 推送到队列。使用此功能前，切记需要通过静态方法`queue($handler)`提前定义如何推送到队列
 ```php
