@@ -3,41 +3,15 @@ namespace Toplan\PhpSms;
 
 class UcpaasAgent extends Agent
 {
-
-    /**
-     * sms send process entry
-     * @param       $tempId
-     * @param       $to
-     * @param array $data
-     * @param       $content
-     *
-     * @return mixed
-     */
     public function sendSms($tempId, $to, Array $data, $content)
     {
         $this->sendTemplateSms($tempId, $to, $data);
     }
 
-    /**
-     * content sms send process
-     * @param $to
-     * @param $content
-     *
-     * @return mixed
-     */
     public function sendContentSms($to, $content)
     {
-        return null;
     }
 
-    /**
-     * template sms send process
-     * @param       $tempId
-     * @param       $to
-     * @param array $data
-     *
-     * @return mixed
-     */
     public function sendTemplateSms($tempId, $to, Array $data)
     {
         $config = [

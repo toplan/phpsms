@@ -7,7 +7,6 @@ class YunTongXunAgent extends Agent
 {
     public function sendSms($tempId, $to, Array $data, $content)
     {
-        //云通讯目前只支持模板短信
         $this->sendTemplateSms($tempId, $to, $data);
     }
 
@@ -33,7 +32,6 @@ class YunTongXunAgent extends Agent
 
     public function sendContentSms($to, $content)
     {
-        return null;
     }
 
     public function voiceVerify($to, $code)
@@ -59,10 +57,6 @@ class YunTongXunAgent extends Agent
         }
         if ( $result->statusCode == 0 ) {
             $this->result['success'] = true;
-            // 获取返回信息
-            //$voiceVerify = $result->VoiceVerify;
-            //echo "callSid:".$voiceVerify->callSid."<br/>";
-            //echo "dateCreated:".$voiceVerify->dateCreated."<br/>";
         }
         $this->result['info'] = $result->statusMsg;
         $this->result['code'] = $result->statusCode;

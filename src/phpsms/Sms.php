@@ -43,6 +43,15 @@ class Sms
     protected static $howToUseQueue = null;
 
     /**
+     * hook handlers
+     * @var array
+     */
+    protected static $hookHandlers = [
+        "beforeRun" => null,
+        "afterRun"  => null,
+    ];
+
+    /**
      * sms data
      * @var array
      */
@@ -100,7 +109,7 @@ class Sms
         if (is_callable($handler)) {
             self::$howToUseQueue = $handler;
         } else {
-            throw new \Exception('Please give howUseQueue() a callable argument');
+            throw new \Exception('Please give static method `queue()` a callable argument');
         }
     }
 
@@ -189,7 +198,7 @@ class Sms
         if (is_callable(self::$howToUseQueue)) {
             return call_user_func(self::$howToUseQueue, $this->smsData);
         } else {
-            throw new \Exception('Please define how to use queue by static method `useQueue($handler)`');
+            throw new \Exception('Please define how to use queue by static method `queue($handler)`');
         }
     }
 
@@ -218,7 +227,7 @@ class Sms
     /**
      * init
      */
-    private static function init()
+    protected static function init()
     {
         self::generatorTask();
     }
@@ -231,7 +240,14 @@ class Sms
     {
         if (!Balancer::getTask(self::TASK)) {
             Balancer::task(self::TASK, function($task){
+                // create drivers
                 self::createAgents($task);
+                // set hooks handler
+                foreach (self::$hookHandlers as $hook => $handler) {
+                    if (is_callable($handler)) {
+                        $task->hook($hook, $handler);
+                    }
+                }
             });
         }
         return Balancer::getTask(self::TASK);
@@ -242,7 +258,7 @@ class Sms
      * @return mixed
      * @throws \Exception
      */
-    private static function getAgentsName()
+    protected static function getAgentsName()
     {
         if (!self::$agentsName) {
             $config = include(__DIR__ . '/config/phpsms.php');
@@ -263,7 +279,7 @@ class Sms
      * @return mixed
      * @throws \Exception
      */
-    private static function getAgentsConfig()
+    protected static function getAgentsConfig()
     {
         if (!self::$agentsConfig) {
             $config = include(__DIR__ . '/config/agents.php');
@@ -285,7 +301,7 @@ class Sms
      *
      * @throws \Exception
      */
-    private static function createAgents($task)
+    protected static function createAgents($task)
     {
         $agentsName = self::getAgentsName();
         $agentsConfig = self::getAgentsConfig();
@@ -299,11 +315,12 @@ class Sms
                      $smsData = $driver->getTaskData();
                      extract($smsData);
                      if (isset($smsData['voiceCode']) && $smsData['voiceCode']) {
-                         $result = $agent->voiceVerify($to, $voiceCode);
+                         $agent->voiceVerify($to, $voiceCode);
                      } else {
                          $template = isset($templates[$driver->name]) ? $templates[$driver->name] : 0;
-                         $result = $agent->sms($template, $to, $templateData, $content);
+                         $agent->sendSms($template, $to, $templateData, $content);
                      }
+                     $result = $agent->getResult();
                      if ($result['success']) {
                          $driver->success();
                      }
@@ -321,7 +338,7 @@ class Sms
      *
      * @return mixed
      */
-    private static function getSmsAgent($name, Array $configData)
+    protected static function getSmsAgent($name, Array $configData)
     {
         if (!isset(self::$agents[$name])) {
             $className = 'Toplan\\PhpSms\\' . $name . 'Agent';
@@ -338,7 +355,7 @@ class Sms
      * validate
      * @throws \Exception
      */
-    private function validator()
+    protected function validator()
     {
         if (!$this->smsData['to']) {
             throw new \Exception("please set sms or voice verify to who use to() method.");
@@ -371,6 +388,28 @@ class Sms
             self::$agentsConfig[$configs] = $options;
         } elseif (is_array($configs)) {
             self::$agentsConfig = array_merge(self::$agentsConfig, $configs);
+        }
+    }
+
+    /**
+     * overload static method
+     * @param $name
+     * @param $args
+     *
+     * @throws \Exception
+     */
+    public static function __callStatic($name, $args) {
+        $name = $name == 'beforeSend' ? 'beforeRun' : $name;
+        $name = $name == 'afterSend' ? 'afterRun' : $name;
+        if (array_key_exists($name, self::$hookHandlers)) {
+            $handler = $args[0];
+            if ($handler && is_callable($handler)) {
+                self::$hookHandlers[$name] = $handler;
+            } else {
+                throw new \Exception("Please give static method $name() a callable argument");
+            }
+        } else {
+            throw new \Exception("Do not find static method $name()");
         }
     }
 }

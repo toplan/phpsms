@@ -29,28 +29,11 @@ Abstract class Agent
     }
 
     /**
-     * sms send entry
-     * @param       $template
-     * @param       $to
-     * @param array $data
-     * @param       $content
-     *
-     * @return array|null
-     */
-    public function sms($template, $to, Array $data, $content)
-    {
-        $this->sendSms($template, $to, $data, $content);
-        return $this->result;
-    }
-
-    /**
      * sms send process entry
      * @param       $tempId
      * @param       $to
      * @param array $data
      * @param       $content
-     *
-     * @return mixed
      */
     public abstract function sendSms($tempId, $to, Array $data, $content);
 
@@ -58,8 +41,6 @@ Abstract class Agent
      * content sms send process
      * @param $to
      * @param $content
-     *
-     * @return mixed
      */
     public abstract function sendContentSms($to, $content);
 
@@ -68,8 +49,6 @@ Abstract class Agent
      * @param       $tempId
      * @param       $to
      * @param array $data
-     *
-     * @return mixed
      */
     public abstract function sendTemplateSms($tempId, $to, Array $data);
 
@@ -77,8 +56,6 @@ Abstract class Agent
      * voice verify
      * @param $to
      * @param $code
-     *
-     * @return mixed
      */
     public abstract function voiceVerify($to, $code);
 
@@ -113,6 +90,15 @@ Abstract class Agent
             $data .= fgets($fp, 4096);
         }
         return $data;
+    }
+
+    /**
+     * get result
+     * @return array
+     */
+    public function getResult()
+    {
+        return $this->result;
     }
 
     /**

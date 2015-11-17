@@ -28,6 +28,5 @@ class LogAgent extends Agent
     {
         $this->result['success'] = true;
         $this->result['info'] = "send voice verify to $to success [code = $code]";
-        return $this->result;
     }
 }

@@ -51,7 +51,6 @@ class LuosimaoAgent extends Agent
 
     public function sendTemplateSms($tempId, $to, Array $data)
     {
-        return null;
     }
 
     public function voiceVerify($to, $code)
@@ -85,6 +84,5 @@ class LuosimaoAgent extends Agent
         }
         $this->result['info'] = $data['msg'];
         $this->result['code'] = $data['error'];
-        return $this->result;
     }
 }

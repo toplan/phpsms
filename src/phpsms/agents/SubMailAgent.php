@@ -10,7 +10,6 @@ class SubMailAgent extends Agent
 
     public function sendContentSms($to, $content)
     {
-        return null;
     }
 
     public function sendTemplateSms($tempId, $to, Array $data)

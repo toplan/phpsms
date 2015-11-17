@@ -27,7 +27,6 @@ class YunPianAgent extends Agent
 
     public function sendTemplateSms($tempId, $to, Array $data)
     {
-        return null;
     }
 
     public function voiceVerify($to, $code)
@@ -44,6 +43,5 @@ class YunPianAgent extends Agent
         }
         $this->result['info'] = $data['msg'];
         $this->result['code'] = $data['code'];
-        return $this->result;
     }
 }
