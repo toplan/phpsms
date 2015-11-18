@@ -33,7 +33,7 @@ composer require 'toplan/phpsms:~0.1.1'
   在`config\phpsms.php`中配置。也可以手动在程序中设置：
 ```php
 //example:
-Sms::agents([
+Sms::enable([
     'Luosimao' => '100 backup',
     'YunPian'  => '30 backup'
 ]);
@@ -44,7 +44,7 @@ Sms::agents([
   在`config\phpsms.php`中配置。也可以手动在程序中设置：
 ```php
 //example:
-Sms::config([
+Sms::agents([
     'Luosimao' => [
         //some options
     ],
@@ -82,29 +82,29 @@ Sms::voice('1111')->to('1828****349')->send();
 
 # API
 
-### Sms::agents($name, $optionString)
+### Sms::enable($name, $optionString)
 
 手动设置可用代理器(优先级高于配置文件)，如：
 ```php
-   Sms::agents([
+   Sms::enable([
         'Luosimao' => '80 backup'
         'YunPian' => '100 backup'
    ]);
    //或
-   Sms::agents('Luosimao', '80 backup');
-   Sms::agents('YunPian', '100 backup');
+   Sms::enable('Luosimao', '80 backup');
+   Sms::enable('YunPian', '100 backup');
 ```
-### Sms::config($name, $config);
+### Sms::agents($name, $config);
 
 手动设置代理器配置参数(优先级高于配置文件)，如：
 ```php
-   Sms::config([
+   Sms::agents([
        'YunPian' => [
            'apikey' => '',
        ]
    ]);
    //或
-   Sms::config('YunPian', [
+   Sms::agents('YunPian', [
        'apikey' => '',
    ]);
 ```
