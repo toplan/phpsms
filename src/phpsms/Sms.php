@@ -73,15 +73,17 @@ class Sms
 
     /**
      * create sms instance and set templates
-     * @param      $agentName
+     * @param null $agentName
      * @param null $tempId
      *
      * @return Sms
      */
-    public static function make($agentName, $tempId = null)
+    public static function make($agentName = null, $tempId = null)
     {
         $sms = new self;
-        $sms->template($agentName, $tempId);
+        if ($agentName) {
+            $sms->template($agentName, $tempId);
+        }
         return $sms;
     }
 
@@ -109,7 +111,7 @@ class Sms
         if (is_callable($handler)) {
             self::$howToUseQueue = $handler;
         } else {
-            throw new \Exception('Please give static method `queue()` a callable argument');
+            throw new \Exception('Please give method `queue()` a callable parameter');
         }
     }
 
@@ -198,7 +200,7 @@ class Sms
         if (is_callable(self::$howToUseQueue)) {
             return call_user_func(self::$howToUseQueue, $this->smsData);
         } else {
-            throw new \Exception('Please define how to use queue by static method `queue($handler)`');
+            throw new \Exception('Please define how to use queue by method `queue($handler)`');
         }
     }
 
@@ -229,6 +231,7 @@ class Sms
      */
     protected static function init()
     {
+        self::configuration();
         self::generatorTask();
     }
 
@@ -254,45 +257,65 @@ class Sms
     }
 
     /**
-     * read agents` name from config file
-     * @return mixed
+     * configuration
      * @throws \Exception
      */
-    protected static function getAgentsName()
+    protected static function configuration()
     {
         if (!self::$agentsName) {
             $config = include(__DIR__ . '/config/phpsms.php');
-            if (isset($config['agents'])) {
-                if (!count($config['agents'])) {
-                    throw new \Exception('please set one agent in config file(phpsms.php) at least');
-                }
-                self::$agentsName = $config['agents'];
-            } else {
-                throw new \Exception('please set agents value in config file(phpsms.php)');
-            }
+            self::generatorAgentsName($config);
         }
-        return self::$agentsName;
+        if (!self::$agentsConfig) {
+            $config = include(__DIR__ . '/config/phpsms.php');
+            self::generatorAgentsConfig($config);
+        }
+        self::configValidator();
     }
 
     /**
-     * read agents` config form config file
-     * @return mixed
+     * generate enabled agents name
+     * @param array $config
+     *
      * @throws \Exception
      */
-    protected static function getAgentsConfig()
+    protected static function generatorAgentsName($config)
     {
-        if (!self::$agentsConfig) {
-            $config = include(__DIR__ . '/config/agents.php');
-            $enableAgentsName = self::getAgentsName();
-            $config[self::LOG_AGENT] = [];//default config for log agent.
-            foreach ($enableAgentsName as $agentName => $options) {
-                if (!isset($config[$agentName])) {
-                    throw new \Exception("please configuration $agentName agent in config file(agents.php)");
-                }
-            }
-            self::$agentsConfig = $config;
+        $config = isset($config['enable']) ? $config['enable'] : null;
+        if ($config) {
+            self::enable($config);
         }
-        return self::$agentsConfig;
+    }
+
+    /**
+     * generator agents config
+     * @param array $config
+     *
+     * @throws \Exception
+     */
+    protected static function generatorAgentsConfig($config)
+    {
+        $config = isset($config['agents']) ? $config['agents'] : [];
+        self::agents($config);
+    }
+
+    /**
+     * config value validator
+     * @throws \Exception
+     */
+    protected static function configValidator()
+    {
+        if (!count(self::$agentsName)) {
+            throw new \Exception('Please set at least one enable agent in config file(config/phpsms.php) or use method enable()');
+        }
+        foreach (self::$agentsName as $agentName => $options) {
+            if ($agentName == self::LOG_AGENT) {
+                continue;
+            }
+            if (!isset(self::$agentsConfig[$agentName])) {
+                throw new \Exception("Please configuration [$agentName] agent in config file(config/phpsms.php) or use method agents()");
+            }
+        }
     }
 
     /**
@@ -303,10 +326,8 @@ class Sms
      */
     protected static function createAgents($task)
     {
-        $agentsName = self::getAgentsName();
-        $agentsConfig = self::getAgentsConfig();
-        foreach ($agentsName as $name => $options) {
-            $configData = (Array) $agentsConfig[$name];
+        foreach (self::$agentsName as $name => $options) {
+            $configData = self::getAgentConfigData($name);
             $task->driver("$name $options")
                  ->data($configData)
                  ->work(function($driver, $data){
@@ -328,6 +349,18 @@ class Sms
                      return $result;
                  });
         }
+    }
+
+    /**
+     * get agent config data by name
+     * @param $name
+     *
+     * @return array
+     */
+    protected static function getAgentConfigData($name)
+    {
+        return isset(self::$agentsConfig[$name]) ?
+               (Array) self::$agentsConfig[$name] : [];
     }
 
     /**
@@ -364,31 +397,53 @@ class Sms
     }
 
     /**
-     * set available agents
-     * @param      $agents
+     * set enable agents
+     * @param      $agentName
      * @param null $options
      */
-    public static function agents($agents, $options = null)
+    public static function enable($agentName, $options = null)
     {
-        if ($options && !is_array($agents)) {
-            self::$agentsName[$agents] = $options;
-        } elseif (is_array($agents)) {
-            self::$agentsName = array_merge(self::$agentsName, $agents);
+        if (is_string($agentName) && $options) {
+            self::$agentsName[$agentName] = $options;
+        } elseif (is_array($agentName)) {
+            foreach ($agentName as $name => $opt) {
+                self::enable($name, $opt);
+            }
         }
     }
 
     /**
      * set config for available agents
-     * @param      $configs
-     * @param null $options
+     * @param      $agentName
+     * @param Array $config
      */
-    public static function config($configs, $options = null)
+    public static function agents($agentName, Array $config = [])
     {
-        if ($options && !is_array($configs)) {
-            self::$agentsConfig[$configs] = $options;
-        } elseif (is_array($configs)) {
-            self::$agentsConfig = array_merge(self::$agentsConfig, $configs);
+        if (is_string($agentName) && is_array($config)){
+            self::$agentsConfig[$agentName] = $config;
+        } elseif (is_array($agentName)) {
+            foreach ($agentName as $name => $conf) {
+                self::agents($name, $conf);
+            }
         }
+    }
+
+    /**
+     * get enable agents
+     * @return array
+     */
+    public static function getAgents()
+    {
+        return self::$agentsName;
+    }
+
+    /**
+     * get agents config info
+     * @return array
+     */
+    public static function getConfig()
+    {
+        return self::$agentsConfig;
     }
 
     /**
@@ -406,7 +461,7 @@ class Sms
             if ($handler && is_callable($handler)) {
                 self::$hookHandlers[$name] = $handler;
             } else {
-                throw new \Exception("Please give static method $name() a callable argument");
+                throw new \Exception("Please give static method $name() a callable parameter");
             }
         } else {
             throw new \Exception("Do not find static method $name()");

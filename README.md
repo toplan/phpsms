@@ -21,7 +21,7 @@
 # 安装
 
 ```php
-composer require 'toplan/phpsms:~0.1.0'
+composer require 'toplan/phpsms:~0.1.1'
 ```
 
 # 快速上手
@@ -41,7 +41,7 @@ Sms::agents([
 
 - 配置代理器所需参数
 
-  在`config\agents.php`中配置。也可以手动在程序中设置：
+  在`config\phpsms.php`中配置。也可以手动在程序中设置：
 ```php
 //example:
 Sms::config([
@@ -84,7 +84,7 @@ Sms::voice('1111')->to('1828****349')->send();
 
 ### Sms::agents($name, $optionString)
 
-手动设置可用代理器，如：
+手动设置可用代理器(优先级高于配置文件)，如：
 ```php
    Sms::agents([
         'Luosimao' => '80 backup'
@@ -96,7 +96,7 @@ Sms::voice('1111')->to('1828****349')->send();
 ```
 ### Sms::config($name, $config);
 
-手动设置代理器配置参数，如：
+手动设置代理器配置参数(优先级高于配置文件)，如：
 ```php
    Sms::config([
        'YunPian' => [
