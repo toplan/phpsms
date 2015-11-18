@@ -21,7 +21,7 @@
 # 安装
 
 ```php
-composer require 'toplan/phpsms:~0.1.1'
+composer require 'toplan/phpsms:~0.1.2'
 ```
 
 # 快速上手
@@ -135,8 +135,13 @@ Sms::afterSend(function($task, $results){
 ### Sms::queue($handler)
 
 定义如何推送到队列。
+
+> 可使用的参数：
+> `$sms` : Sms实例
+> `$data` : Sms实例中的短信数据，等同于`$sms->smsData`
+
 ```php
-    Sms::queue(function($smsData){
+    Sms::queue(function($sms, $data){
         //define how to push to queue.
     });
 ```

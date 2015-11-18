@@ -198,7 +198,7 @@ class Sms
     public function push()
     {
         if (is_callable(self::$howToUseQueue)) {
-            return call_user_func(self::$howToUseQueue, $this->smsData);
+            return call_user_func_array(self::$howToUseQueue, [$this, $this->smsData]);
         } else {
             throw new \Exception('Please define how to use queue by method `queue($handler)`');
         }
