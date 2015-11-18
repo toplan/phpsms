@@ -21,7 +21,7 @@
 # 安装
 
 ```php
-composer require 'toplan/phpsms:~0.1.2'
+composer require 'toplan/phpsms:~0.1.3'
 ```
 
 # 快速上手
@@ -132,18 +132,27 @@ Sms::afterSend(function($task, $results){
 ```
 **Note:**更多细节请查看[task-balancer](https://github.com/toplan/task-balancer)的“afterRun”钩子
 
-### Sms::queue($handler)
+### Sms::queue($enable, $handler)
 
-定义如何推送到队列。
+设置是否启用队列以及定义如何推送到队列。
 
-> 可使用的参数：
-> `$sms` : Sms实例
-> `$data` : Sms实例中的短信数据，等同于`$sms->smsData`
+> $handler可使用的参数：
+>
+> `$sms` : Sms实例。
+> `$data` : Sms实例中的短信数据，等同于`$sms->smsData`。
 
 ```php
-    Sms::queue(function($sms, $data){
-        //define how to push to queue.
-    });
+Sms::queue(function($sms, $data){
+    //define how to push to queue.
+});//自动启用队列
+//or
+Sms::queue(true, function($sms, $data){
+    //define how to push to queue.
+});//第一个参数为true,启用队列，覆盖配置文件中的值。
+//or
+Sms::queue(false, function($sms, $data){
+    //define how to push to queue.
+});//第一个参数为false,禁用队列，覆盖配置文件中的值。
 ```
 
 ### Sms::make()
@@ -206,18 +215,16 @@ Sms::afterSend(function($task, $results){
   $sms = $sms->content('【签名】您的订单号是xxxx，祝你购物愉快。');
 ```
 
-### $sms->send()
+### $sms->send($force = false)
 
-立即发送短信
+立即发送短信。
+
+> `$force`默认为`false`，如果设置为`true`会绕开队列，强制发送。
+
 ```php
   $results = $sms->send();
-```
-
-### $sms->push()
-
-推送到队列。使用此功能前，切记需要通过静态方法`queue($handler)`提前定义如何推送到队列
-```php
-  $sms->push(); //return true or false
+  //or
+  $results = $sms->send(true);
 ```
 
 # 自定义代理器

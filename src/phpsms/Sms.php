@@ -37,6 +37,12 @@ class Sms
     protected static $agentsConfig = [];
 
     /**
+     * whether to enable queue
+     * @var bool
+     */
+    protected static $enableQueue = null;
+
+    /**
      * queue work
      * @var null
      */
@@ -102,16 +108,20 @@ class Sms
 
     /**
      * set how to use queue.
+     * @param $enable
      * @param $handler
      *
      * @throws \Exception
      */
-    public static function queue($handler)
+    public static function queue($enable, $handler = null)
     {
+        if (is_callable($enable)) {
+            $handler = $enable;
+            $enable = true;
+        }
+        self::$enableQueue = !!$enable;
         if (is_callable($handler)) {
             self::$howToUseQueue = $handler;
-        } else {
-            throw new \Exception('Please give method `queue()` a callable parameter');
         }
     }
 
@@ -180,13 +190,22 @@ class Sms
 
     /**
      * start send
+     * @param  bool  $force
      * @return mixed
      * @throws \Exception
      */
-    public function send()
+    public function send($force = false)
     {
         $this->validator();
-        $results = Balancer::run(self::TASK, $this->getData());
+        $results = null;
+        if (!self::$enableQueue) {
+            $force = true;
+        }
+        if ($force) {
+            $results = Balancer::run(self::TASK, $this->getData());
+        } else {
+            $results = $this->push();
+        }
         return $results;
     }
 
@@ -195,12 +214,12 @@ class Sms
      * @return mixed
      * @throws \Exception
      */
-    public function push()
+    protected function push()
     {
         if (is_callable(self::$howToUseQueue)) {
             return call_user_func_array(self::$howToUseQueue, [$this, $this->smsData]);
         } else {
-            throw new \Exception('Please define how to use queue by method `queue($handler)`');
+            throw new \Exception('Please define how to use queue by method `queue($enable, $handler)`');
         }
     }
 
@@ -262,13 +281,17 @@ class Sms
      */
     protected static function configuration()
     {
+        $config = [];
         if (!self::$agentsName) {
             $config = include(__DIR__ . '/config/phpsms.php');
             self::generatorAgentsName($config);
         }
         if (!self::$agentsConfig) {
-            $config = include(__DIR__ . '/config/phpsms.php');
+            $config = $config ?: include(__DIR__ . '/config/phpsms.php');
             self::generatorAgentsConfig($config);
+        }
+        if (self::$enableQueue === null && isset($config['queue'])) {
+            self::$enableQueue = !!$config['queue'];
         }
         self::configValidator();
     }
