@@ -139,8 +139,10 @@ Sms::afterSend(function($task, $results){
 > $handler可使用的参数：
 >
 > `$sms` : Sms实例。
+>
 > `$data` : Sms实例中的短信数据，等同于`$sms->smsData`。
 
+定义如何推送到队列
 ```php
 Sms::queue(function($sms, $data){
     //define how to push to queue.
@@ -148,11 +150,16 @@ Sms::queue(function($sms, $data){
 //or
 Sms::queue(true, function($sms, $data){
     //define how to push to queue.
-});//第一个参数为true,启用队列，覆盖配置文件中的值。
+});//第一个参数为true,启用队列。
 //or
 Sms::queue(false, function($sms, $data){
     //define how to push to queue.
-});//第一个参数为false,禁用队列，覆盖配置文件中的值。
+});//第一个参数为false,暂时关闭队列。
+```
+如果你已经定义过如何推送到队列，你还设置临时关闭/开启队列：
+```php
+Sms::queue(true);//开启队列
+Sms::queue(false);//关闭队列
 ```
 
 ### Sms::make()

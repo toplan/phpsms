@@ -41,15 +41,6 @@ return [
 
 
     /*
-     * whether to enable send queue
-     * ----------------------------------------------------------
-     * If you want to enable queue, please setting how to push to
-     * queue use static method queue().
-     */
-    'queue' => false,
-
-
-    /*
      * agent config
      */
     'agents' => [

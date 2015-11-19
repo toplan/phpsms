@@ -290,9 +290,6 @@ class Sms
             $config = $config ?: include(__DIR__ . '/config/phpsms.php');
             self::generatorAgentsConfig($config);
         }
-        if (self::$enableQueue === null && isset($config['queue'])) {
-            self::$enableQueue = !!$config['queue'];
-        }
         self::configValidator();
     }
 
