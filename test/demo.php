@@ -3,19 +3,42 @@
 require('./../vendor/autoload.php');
 
 use Toplan\PhpSms\Sms;
+
+/**
+ * before send hook
+ */
 Sms::beforeSend(function($task){
 });
+
+/**
+ * after sent hook
+ */
 Sms::afterSend(function($task, $results){
 });
-Sms::enable([
-    'Log' => '1 backup',
-    'Luosimao' => '3 backup'
-]);
 
+/**
+ * manual set enable agents
+ */
+//Sms::enable([
+//    'Log' => '1 backup',
+//    'Luosimao' => '3 backup'
+//]);
+
+/**
+ * print config
+ */
 //var_dump(Sms::getAgents());
 //var_dump(Sms::getConfig());
 
-print_r('<hr>');
+/**
+ * define queue
+ */
+//Sms::queue(function(){
+//    var_dump('pushed to queue!');
+//    return 'yes';
+//});
+//Sms::queue(true);
+
 print_r('<hr>');
 
 $result = Sms::make([
@@ -23,8 +46,9 @@ $result = Sms::make([
                 ])
                 ->to('18280345...')
                 ->data(['code' => '1111', 'length' => 10])
-                ->send();
+                ->send(true);
 var_dump($result);
+
 print_r('<hr>');
 
 $sms = new Sms();
