@@ -148,7 +148,7 @@ class Sms
      */
     public function content($content)
     {
-        $this->smsData['content'] = (String) $content;
+        $this->smsData['content'] = trim((String) $content);
         return $this;
     }
 

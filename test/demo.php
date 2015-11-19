@@ -7,13 +7,13 @@ Sms::beforeSend(function($task){
 });
 Sms::afterSend(function($task, $results){
 });
-//Sms::enable([
-//    'Log' => '1 backup',
-//    'Luosimao' => '3 backup'
-//]);
+Sms::enable([
+    'Log' => '1 backup',
+    'Luosimao' => '3 backup'
+]);
 
-var_dump(Sms::getAgents());
-var_dump(Sms::getConfig());
+//var_dump(Sms::getAgents());
+//var_dump(Sms::getConfig());
 
 print_r('<hr>');
 print_r('<hr>');
