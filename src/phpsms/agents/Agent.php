@@ -4,6 +4,29 @@ namespace Toplan\PhpSms;
 Abstract class Agent
 {
     /**
+     * sms whether to support multiple mobile number.
+     * If support, it is the count of mobile numbers.
+     * default support, and count is 100.
+     * @var int
+     */
+    protected $smsMultiMobile = 100;
+
+    /**
+     * voice verify whether to support multiple mobile number.
+     * If support, it is the count of mobile numbers.
+     * default not support
+     * @var int
+     */
+    protected $voiceMultiMobile = false;
+
+    /**
+     * voice verify play times.
+     * default 3 times.
+     * @var int
+     */
+    protected $voicePlayTimes = 3;
+
+    /**
      * agent config
      * @var array
      */
@@ -29,7 +52,41 @@ Abstract class Agent
     }
 
     /**
-     * sms send process entry
+     * sms send entry
+     * @param       $tempId
+     * @param       $to
+     * @param array $data
+     * @param       $content
+     * @return array
+     */
+    public function sms($tempId, $to, Array $data, $content)
+    {
+        $failedMobile = [];
+        if (!$this->smsMultiMobile && count($mobileArray = explode(',', $to)) > 1) {
+            $code = null;
+            $failMsg = '';
+            foreach ($mobileArray as $mobile) {
+                $this->sendSms($tempId, $mobile, $data, $content);
+                if (!$this->result['success']) {
+                    array_push($failedMobile, $mobile);
+                    $failMsg .= "$mobile:" . $this->result['info'] . ";";
+                    $code = $this->result['code'];
+                }
+            }
+            if ($failedCount = count($failedMobile)) {
+                $this->result['success'] = false;
+                $successCount = count($mobileArray) - $failedCount;
+                $this->result['info'] = "($successCount success, $failedCount failed). $failMsg";
+                $this->result['code'] = $code;
+            }
+        } else {
+            $this->sendSms($tempId, $to, $data, $content);
+        }
+        return $failedMobile;
+    }
+
+    /**
+     * sms send process
      * @param       $tempId
      * @param       $to
      * @param array $data

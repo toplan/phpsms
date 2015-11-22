@@ -13,12 +13,7 @@ class LuosimaoAgent extends Agent
                 $content = str_replace($matches[0], '', $content) . $matches[0];
             }
         }
-        // Luosimao do not support multiple mobile
-        $mobileArray = explode(',', $to);
-        // Sent request
-        foreach ($mobileArray as $mobile) {
-            $this->sendContentSms($mobile, $content);
-        }
+        $this->sendContentSms($to, $content);
     }
 
     public function sendContentSms($to, $content)
