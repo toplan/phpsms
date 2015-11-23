@@ -133,9 +133,6 @@ class Sms
      */
     public function to($mobile)
     {
-        if (is_array($mobile)) {
-            $mobile = implode(',', $mobile);
-        }
         $this->smsData['to'] = $mobile;
         return $this;
     }
