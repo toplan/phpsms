@@ -125,7 +125,7 @@ return [
          * ucpaas
          * -----------------------------------
          * website:http://ucpaas.com
-         * support content sms.
+         * support template sms.
          */
         'Ucpaas' => [
             //主帐号,对应开官网发者主账号下的 ACCOUNT SID

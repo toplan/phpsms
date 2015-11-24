@@ -4,11 +4,11 @@
 > phpsms的任务负载均衡功能由[task-balancer](https://github.com/toplan/task-balancer)提供。
 
 # 特点
-1. 支持负载均衡，可以按代理器权重值均衡选择代理器发送。
-2. 支持一个或多个备用代理器。
-3. 允许推入队列。
+1. 支持请求发送负载均衡，可按代理器权重值均衡选择服务商(代理器)发送。
+2. 支持一个或多个备用服务商(代理器)。
+3. 允许推入队列，并自定义队列实现逻辑(松散耦合)。
 5. 短信发送前后钩子。
-4. 支持国内主流短信服务商(也可自定义代理器)
+4. 支持国内主流短信服务商(可自定义代理器)
 
 | 服务商 | 模板短信 | 内容短信 | 语音验证码 | 最低消费  |  最低消费单价 |
 | ----- | :-----: | :-----: | :------: | :-------: | :-----: |
@@ -21,7 +21,7 @@
 # 安装
 
 ```php
-composer require 'toplan/phpsms:~0.1.3'
+composer require 'toplan/phpsms:~0.1.4'
 ```
 
 # 快速上手
@@ -30,7 +30,7 @@ composer require 'toplan/phpsms:~0.1.3'
 
 - 配置可用代理器
 
-  在`config\phpsms.php`中配置。也可以手动在程序中设置：
+  在`config\phpsms.php`中键为`enable`的数组中配置。也可以手动在程序中设置：
 ```php
 //example:
 Sms::enable([
@@ -41,7 +41,7 @@ Sms::enable([
 
 - 配置代理器所需参数
 
-  在`config\phpsms.php`中配置。也可以手动在程序中设置：
+  在`config\phpsms.php`中键为`agents`的数组中配置。也可以手动在程序中设置：
 ```php
 //example:
 Sms::agents([
@@ -60,13 +60,16 @@ Sms::agents([
 require('path/to/vendor/autoload.php');
 use Toplan\PhpSms\Sms;
 
-//只希望使用模板方式发送短信,可以不设置内容content (如云通讯,Submail)
-Sms::make($tempId)->to('1828****349')->data(['12345', 5])->send();
+// 只希望使用模板方式发送短信，可以不设置content。
+// 如:云通讯、Submail、Ucpaas
+Sms::make($templates)->to('1828****349')->data(['12345', 5])->send();
 
-//只希望使用内容方式放送,可以不设置模板id和模板数据data (如云片,luosimao)
+// 只希望使用内容方式放送，可以不设置模板id和模板数据data。
+// 如:云片、luosimao
 Sms::make()->to('1828****349')->content('【PhpSMS】亲爱的张三，欢迎访问，祝你工作愉快。')->send();
 
-//同时确保能通过模板和内容方式发送。这样做的好处是，可以兼顾到各种代理器(服务商)！
+// 同时确保能通过模板和内容方式发送。
+// 这样做的好处是，可以兼顾到各种类型服务商。
 Sms::make([
       'YunTongXun' => '123',
       'SubMail'    => '123'
@@ -119,7 +122,7 @@ Sms::beforeSend(function($task){
     //do something here
 });
 ```
-**Note:**更多细节请查看[task-balancer](https://github.com/toplan/task-balancer)的“beforeRun”钩子
+> 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer)的“beforeRun”钩子
 
 ### Sms::afterSend($handler);
 
@@ -130,7 +133,7 @@ Sms::afterSend(function($task, $results){
     //do something here
 });
 ```
-**Note:**更多细节请查看[task-balancer](https://github.com/toplan/task-balancer)的“afterRun”钩子
+> 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer)的“afterRun”钩子
 
 ### Sms::queue($enable, $handler)
 
@@ -156,7 +159,7 @@ Sms::queue(false, function($sms, $data){
     //define how to push to queue.
 });//第一个参数为false,暂时关闭队列。
 ```
-如果你已经定义过如何推送到队列，你还设置临时关闭/开启队列：
+如果已经定义过如何推送到队列，还可以继续设置临时关闭/开启队列：
 ```php
 Sms::queue(true);//开启队列
 Sms::queue(false);//关闭队列
@@ -193,7 +196,7 @@ Sms::queue(false);//关闭队列
    $sms->template('20001');
 ```
 
-也可以制定代理器或批量设置:
+也可以指定代理器进行设置或批量设置:
 ```php
    //静态方法设置，并返回sms实例
    Sms::make(['YunTongXun' => '20001', 'SubMail' => 'xxx', ...]);
@@ -223,13 +226,15 @@ Sms::queue(false);//关闭队列
 
 ### $sms->send($force = false)
 
-立即发送短信。
+请求发送短信/语音验证码。
 
 > `$force`默认为`false`，如果设置为`true`会绕开队列，强制发送。
 
 ```php
+  //会遵循是否使用队列:
   $results = $sms->send();
-  //or
+
+  //忽略是否使用队列:
   $results = $sms->send(true);
 ```
 
