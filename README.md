@@ -143,7 +143,7 @@ Sms::afterSend(function($task, $results){
 >
 > `$sms` : Sms实例。
 >
-> `$data` : Sms实例中的短信数据，等同于`$sms->smsData`。
+> `$data` : Sms实例中的短信数据，等同于`$sms->getData()`。
 
 定义如何推送到队列
 ```php

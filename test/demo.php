@@ -19,25 +19,25 @@ Sms::afterSend(function($task, $results){
 /**
  * manual set enable agents
  */
-//Sms::enable([
-//    'Log' => '1 backup',
-//    'Luosimao' => '3 backup'
-//]);
+Sms::enable([
+    'Log' => '3 backup',
+    'Luosimao'
+]);
 
 /**
  * print config
  */
-//var_dump(Sms::getAgents());
-//var_dump(Sms::getConfig());
+//var_dump(Sms::getEnableAgents());
+//var_dump(Sms::getAgentsConfig());
 
 /**
  * define queue
  */
-//Sms::queue(function(){
+//Sms::queue(function($sms, $data){
 //    var_dump('pushed to queue!');
 //    return 'yes';
 //});
-//Sms::queue(true);
+//Sms::queue(false);
 
 print_r('<hr>');
 
@@ -51,7 +51,5 @@ var_dump($result);
 
 print_r('<hr>');
 
-$sms = new Sms();
-$result2 = $sms->voice(111)->to(18280345349)->send();
+$result2 = Sms::voice(111)->to(18280345349)->send();
 var_dump($result2);
-

@@ -6,7 +6,7 @@
 return [
 
     /*
-     * available agents
+     * enable agents
      * ----------------------------------------------------------
      * 'agentName' => 'options',
      * the options:
@@ -41,7 +41,10 @@ return [
 
 
     /*
-     * agent config
+     * agents config
+     * -------------------------------------------------------------------
+     * agent name must be string.
+     *
      */
     'agents' => [
 

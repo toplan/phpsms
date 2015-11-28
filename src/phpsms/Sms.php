@@ -40,7 +40,7 @@ class Sms
      * whether to enable queue
      * @var bool
      */
-    protected static $enableQueue = null;
+    public static $enableQueue = null;
 
     /**
      * queue work
@@ -49,7 +49,7 @@ class Sms
     protected static $howToUseQueue = null;
 
     /**
-     * sms instance whether to pushed to queue
+     * sms already pushed to queue
      * @var bool
      */
     protected $pushedToQueue = false;
@@ -203,15 +203,15 @@ class Sms
         $results = null;
 
         // if disable push to queue,
-        // will immediately send sms
+        // send the sms immediately.
         if (!self::$enableQueue) {
             $immediately = true;
         }
 
         // whatever current whether to enable or disable push instance to queue,
-        // if you are pushed sms instance to queue,
-        // you can recall the method `send()` in queue job without `true` parameter,
-        // and the sms instance will immediately send.
+        // if you are already pushed sms instance to queue,
+        // you can recall the method `send()` in queue job without `true` parameter, and send the sms immediately.
+        //
         // So this mechanism in order to make you convenient use the method `send()` in some queues.
         if ($this->pushedToQueue) {
             $immediately = true;
@@ -235,12 +235,11 @@ class Sms
     protected function push()
     {
         if (is_callable(self::$howToUseQueue)) {
-            $this->pushedToQueue = false;
             try {
-                $return = call_user_func_array(self::$howToUseQueue, [$this, $this->smsData]);
                 $this->pushedToQueue = true;
-                return $return;
+                return call_user_func_array(self::$howToUseQueue, [$this, $this->smsData]);
             } catch(\Exception $e) {
+                $this->pushedToQueue = false;
                 throw $e;
             }
         } else {
@@ -249,9 +248,7 @@ class Sms
     }
 
     /**
-     * get data:
-     * if this is a voice verify, will gt voice data.
-     * if this is a sms, will get sms data.
+     * get sms data
      * @return array
      */
     public function getData()
@@ -448,12 +445,25 @@ class Sms
      */
     public static function enable($agentName, $options = null)
     {
-        if (is_string($agentName) && $options) {
-            self::$agentsName[$agentName] = $options;
-        } elseif (is_array($agentName)) {
+        if (is_array($agentName)) {
+            //([
+            //  'name1' => 'opt',
+            //  'name2',
+            //  ......
+            //])
             foreach ($agentName as $name => $opt) {
                 self::enable($name, $opt);
             }
+        } elseif ($agentName && is_string($agentName) && !is_array($options) && is_string("$options")) {
+            //(name, opts)
+            self::$agentsName["$agentName"] = "$options" ?: '1';
+        } elseif (is_integer($agentName) && !is_array($options) && "$options") {
+            //(0, name)
+            //(1, name)
+            self::$agentsName["$options"] = '1';
+        } elseif ($agentName && $options === null) {
+            //(name)
+            self::$agentsName["$agentName"] = '1';
         }
     }
 
@@ -464,12 +474,12 @@ class Sms
      */
     public static function agents($agentName, Array $config = [])
     {
-        if (is_string($agentName) && is_array($config)){
-            self::$agentsConfig[$agentName] = $config;
-        } elseif (is_array($agentName)) {
+        if (is_array($agentName)) {
             foreach ($agentName as $name => $conf) {
                 self::agents($name, $conf);
             }
+        } elseif ($agentName && is_array($config)){
+            self::$agentsConfig["$agentName"] = $config;
         }
     }
 
@@ -477,7 +487,7 @@ class Sms
      * get enable agents
      * @return array
      */
-    public static function getAgents()
+    public static function getEnableAgents()
     {
         return self::$agentsName;
     }
@@ -486,7 +496,7 @@ class Sms
      * get agents config info
      * @return array
      */
-    public static function getConfig()
+    public static function getAgentsConfig()
     {
         return self::$agentsConfig;
     }
