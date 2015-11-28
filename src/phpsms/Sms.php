@@ -49,6 +49,12 @@ class Sms
     protected static $howToUseQueue = null;
 
     /**
+     * sms instance whether to pushed to queue
+     * @var bool
+     */
+    protected $pushedToQueue = false;
+
+    /**
      * hook handlers
      * @var array
      */
@@ -187,18 +193,33 @@ class Sms
 
     /**
      * start send
-     * @param  bool  $force
+     * @param  bool  $immediately
      * @return mixed
      * @throws \Exception
      */
-    public function send($force = false)
+    public function send($immediately = false)
     {
         $this->validator();
         $results = null;
+
+        // if disable push to queue,
+        // will immediately send sms
         if (!self::$enableQueue) {
-            $force = true;
+            $immediately = true;
         }
-        if ($force) {
+
+        // whatever current whether to enable or disable push instance to queue,
+        // if you are pushed sms instance to queue,
+        // you can recall the method `send()` in queue job without `true` parameter,
+        // and the sms instance will immediately send.
+        // So this mechanism in order to make you convenient use the method `send()` in some queues.
+        if ($this->pushedToQueue) {
+            $immediately = true;
+        }
+
+        // whether to send sms immediately,
+        // or push it to queue.
+        if ($immediately) {
             $results = Balancer::run(self::TASK, $this->getData());
         } else {
             $results = $this->push();
@@ -214,7 +235,14 @@ class Sms
     protected function push()
     {
         if (is_callable(self::$howToUseQueue)) {
-            return call_user_func_array(self::$howToUseQueue, [$this, $this->smsData]);
+            $this->pushedToQueue = false;
+            try {
+                $return = call_user_func_array(self::$howToUseQueue, [$this, $this->smsData]);
+                $this->pushedToQueue = true;
+                return $return;
+            } catch(\Exception $e) {
+                throw $e;
+            }
         } else {
             throw new \Exception('Please define how to use queue by method `queue($enable, $handler)`');
         }
