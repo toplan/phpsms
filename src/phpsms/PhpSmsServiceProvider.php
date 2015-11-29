@@ -12,7 +12,7 @@ class PhpSmsServiceProvider extends ServiceProvider
     {
         //publish config files
         $this->publishes([
-            __DIR__ . '/config/phpsms.php' => config_path('phpsms.php'),
+            __DIR__ . '/../config/phpsms.php' => config_path('phpsms.php'),
         ], 'config');
     }
 
@@ -23,7 +23,7 @@ class PhpSmsServiceProvider extends ServiceProvider
     {
         //merge configs
         $this->mergeConfigFrom(
-            __DIR__ . '/config/phpsms.php', 'phpsms'
+            __DIR__ . '/../config/phpsms.php', 'phpsms'
         );
 
         Sms::enable(config('phpsms.enable', []));

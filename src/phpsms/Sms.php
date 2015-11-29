@@ -40,7 +40,7 @@ class Sms
      * whether to enable queue
      * @var bool
      */
-    public static $enableQueue = null;
+    protected static $enableQueue = null;
 
     /**
      * queue work
@@ -116,8 +116,6 @@ class Sms
      * set how to use queue.
      * @param $enable
      * @param $handler
-     *
-     * @throws \Exception
      */
     public static function queue($enable, $handler = null)
     {
@@ -195,7 +193,6 @@ class Sms
      * start send
      * @param  bool  $immediately
      * @return mixed
-     * @throws \Exception
      */
     public function send($immediately = false)
     {
@@ -208,11 +205,11 @@ class Sms
             $immediately = true;
         }
 
-        // whatever current whether to enable or disable push instance to queue,
+        // whatever 'PhpSms' whether to enable or disable push to queue,
         // if you are already pushed sms instance to queue,
-        // you can recall the method `send()` in queue job without `true` parameter, and send the sms immediately.
+        // you can recall the method `send()` in queue job without `true` parameter.
         //
-        // So this mechanism in order to make you convenient use the method `send()` in some queues.
+        // So this mechanism in order to make you convenient use the method `send()` in queue system.
         if ($this->pushedToQueue) {
             $immediately = true;
         }
@@ -230,7 +227,7 @@ class Sms
     /**
      * push sms send task to queue
      * @return mixed
-     * @throws \Exception
+     * @throws \Exception | PhpSmsException
      */
     protected function push()
     {
@@ -243,7 +240,7 @@ class Sms
                 throw $e;
             }
         } else {
-            throw new \Exception('Please define how to use queue by method `queue($enable, $handler)`');
+            throw new PhpSmsException('Please define how to use queue by method `queue($enable, $handler)`');
         }
     }
 
@@ -299,17 +296,16 @@ class Sms
 
     /**
      * configuration
-     * @throws \Exception
      */
     protected static function configuration()
     {
         $config = [];
         if (!self::$agentsName) {
-            $config = include(__DIR__ . '/config/phpsms.php');
+            $config = include(__DIR__ . '/../config/phpsms.php');
             self::generatorAgentsName($config);
         }
         if (!self::$agentsConfig) {
-            $config = $config ?: include(__DIR__ . '/config/phpsms.php');
+            $config = $config ?: include(__DIR__ . '/../config/phpsms.php');
             self::generatorAgentsConfig($config);
         }
         self::configValidator();
@@ -318,8 +314,6 @@ class Sms
     /**
      * generate enabled agents name
      * @param array $config
-     *
-     * @throws \Exception
      */
     protected static function generatorAgentsName($config)
     {
@@ -332,8 +326,6 @@ class Sms
     /**
      * generator agents config
      * @param array $config
-     *
-     * @throws \Exception
      */
     protected static function generatorAgentsConfig($config)
     {
@@ -343,19 +335,19 @@ class Sms
 
     /**
      * config value validator
-     * @throws \Exception
+     * @throws PhpSmsException
      */
     protected static function configValidator()
     {
         if (!count(self::$agentsName)) {
-            throw new \Exception('Please set at least one enable agent in config file(config/phpsms.php) or use method enable()');
+            throw new PhpSmsException('Please set at least one enable agent in config file(config/phpsms.php) or use method enable()');
         }
         foreach (self::$agentsName as $agentName => $options) {
             if ($agentName == self::LOG_AGENT) {
                 continue;
             }
             if (!isset(self::$agentsConfig[$agentName])) {
-                throw new \Exception("Please configuration [$agentName] agent in config file(config/phpsms.php) or use method agents()");
+                throw new PhpSmsException("Please configuration [$agentName] agent in config file(config/phpsms.php) or use method agents()");
             }
         }
     }
@@ -363,8 +355,6 @@ class Sms
     /**
      * create drivers for sms send task
      * @param $task
-     *
-     * @throws \Exception
      */
     protected static function createAgents($task)
     {
@@ -410,7 +400,7 @@ class Sms
      * if null, will create a new agent instance
      * @param       $name
      * @param array $configData
-     *
+     * @throws PhpSmsException
      * @return mixed
      */
     protected static function getSmsAgent($name, Array $configData)
@@ -420,7 +410,7 @@ class Sms
             if (class_exists($className)) {
                 self::$agents[$name] = new $className($configData);
             } else {
-                throw new \InvalidArgumentException("Agent [$name] not support.");
+                throw new PhpSmsException("Agent [$name] not support.");
             }
         }
         return self::$agents[$name];
@@ -428,12 +418,12 @@ class Sms
 
     /**
      * validate
-     * @throws \Exception
+     * @throws PhpSmsException
      */
     protected function validator()
     {
         if (!$this->smsData['to']) {
-            throw new \Exception("please set sms or voice verify to who use to() method.");
+            throw new PhpSmsException("Please set send sms(or voice verify) to who use `to()` method.");
         }
         return true;
     }
@@ -456,7 +446,7 @@ class Sms
             }
         } elseif ($agentName && is_string($agentName) && !is_array($options) && is_string("$options")) {
             //(name, opts)
-            self::$agentsName["$agentName"] = "$options" ?: '1';
+            self::$agentsName["$agentName"] = "$options";
         } elseif (is_integer($agentName) && !is_array($options) && "$options") {
             //(0, name)
             //(1, name)
@@ -469,8 +459,10 @@ class Sms
 
     /**
      * set config for available agents
-     * @param      $agentName
-     * @param Array $config
+     * @param       $agentName
+     * @param array $config
+     *
+     * @throws PhpSmsException
      */
     public static function agents($agentName, Array $config = [])
     {
@@ -479,6 +471,9 @@ class Sms
                 self::agents($name, $conf);
             }
         } elseif ($agentName && is_array($config)){
+            if (preg_match('/^[0-9]+$/', $agentName)) {
+                throw new PhpSmsException("Agent name [$agentName] must be string, could not be a pure digital");
+            }
             self::$agentsConfig["$agentName"] = $config;
         }
     }
@@ -506,7 +501,7 @@ class Sms
      * @param $name
      * @param $args
      *
-     * @throws \Exception
+     * @throws PhpSmsException
      */
     public static function __callStatic($name, $args) {
         $name = $name == 'beforeSend' ? 'beforeRun' : $name;
@@ -516,10 +511,10 @@ class Sms
             if ($handler && is_callable($handler)) {
                 self::$hookHandlers[$name] = $handler;
             } else {
-                throw new \Exception("Please give static method $name() a callable parameter");
+                throw new PhpSmsException("Please give static method $name() a callable parameter");
             }
         } else {
-            throw new \Exception("Do not find static method $name()");
+            throw new PhpSmsException("Do not find static method $name()");
         }
     }
 }
