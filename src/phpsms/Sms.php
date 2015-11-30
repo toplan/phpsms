@@ -76,6 +76,12 @@ class Sms
     ];
 
     /**
+     * first agent for send sms/voice verify
+     * @var string
+     */
+    protected $firstAgent = null;
+
+    /**
      * construct
      */
     public function __construct()
@@ -190,6 +196,18 @@ class Sms
     }
 
     /**
+     * set the first agent
+     * @param $name
+     *
+     * @return $this
+     */
+    public function agent($name)
+    {
+        $this->firstAgent = (String) $name;
+        return $this;
+    }
+
+    /**
      * start send
      * @param  bool  $immediately
      * @return mixed
@@ -217,7 +235,7 @@ class Sms
         // whether to send sms immediately,
         // or push it to queue.
         if ($immediately) {
-            $results = Balancer::run(self::TASK, $this->getData());
+            $results = Balancer::run(self::TASK, $this->getData(), $this->firstAgent);
         } else {
             $results = $this->push();
         }

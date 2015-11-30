@@ -36,8 +36,7 @@ class SubMailAgent extends Agent
     public function voiceVerify($to, $code)
     {
         $this->result['success'] = false;
-        $this->result['info'] = '';
-        $this->result['code'] = '';
-        throw new \Exception("SubMail agent does not support voice verify!");
+        $this->result['info'] = 'SubMail agent does not support voice verify';
+        $this->result['code'] = '0';
     }
 }
