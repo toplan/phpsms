@@ -7,8 +7,8 @@
 1. 支持请求发送负载均衡，可按代理器权重值均衡选择服务商发送。
 2. 支持一个或多个备用代理器(服务商)。
 3. 允许推入队列，并自定义队列实现逻辑(与队列系统松散耦合)。
-4. 支持语言验证码。
-5. 短信/语言验证码发送前后钩子。
+4. 支持语音验证码。
+5. 短信/语音验证码发送前后钩子。
 6. 支持国内主流短信服务商(可自定义代理器)
 
 | 服务商 | 模板短信 | 内容短信 | 语音验证码 | 最低消费  |  最低消费单价 |
@@ -246,7 +246,9 @@ Sms::queue(false);//关闭队列
 
 # 自定义代理器
 
-请注意命名规范，Foo为代理器(服务商)名称。配置项加入到config/agents.php中：
+配置项加入到config/agents.php中：
+
+> 请注意命名规范，Foo为代理器(服务商)名称。
 ```php
    'Foo' => [
         'apikey' => 'some info',
@@ -254,10 +256,13 @@ Sms::queue(false);//关闭队列
    ]
 ```
 
-在agents目录下添加代理器类(注意类名为FooAgent),并继承Agent抽象类。
-如果使用到其他api，可以将api文件放入src/phpsms/lib文件夹中。
+在agents目录下添加代理器类：
+
+** 代理器类名为`FooAgent`，命名空间为`Toplan\PhpSms`，并继承`Agent`抽象类。 **
+
+> 如果使用到其它api库，可以将api库放入lib文件夹中。
 ```php
-   namespace Toplan\Sms;
+   namespace Toplan\PhpSms;
    class FooAgent extends Agent {
         //override
         //发送短信一级入口
