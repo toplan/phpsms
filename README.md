@@ -249,6 +249,7 @@ Sms::queue(false);//关闭队列
 配置项加入到config/agents.php中：
 
 > 请注意命名规范，Foo为代理器(服务商)名称。
+
 ```php
    'Foo' => [
         'apikey' => 'some info',
@@ -258,9 +259,10 @@ Sms::queue(false);//关闭队列
 
 在agents目录下添加代理器类：
 
-** 代理器类名为`FooAgent`，命名空间为`Toplan\PhpSms`，并继承`Agent`抽象类。 **
+**代理器类名为`FooAgent`，命名空间为`Toplan\PhpSms`，并继承`Agent`抽象类。**
 
 > 如果使用到其它api库，可以将api库放入lib文件夹中。
+
 ```php
    namespace Toplan\PhpSms;
    class FooAgent extends Agent {
