@@ -22,7 +22,7 @@
 # 安装
 
 ```php
-composer require 'toplan/phpsms:~0.2.0'
+composer require 'toplan/phpsms:~0.3.0'
 ```
 
 # 快速上手
@@ -119,11 +119,11 @@ Sms::voice('1111')->to('1828****349')->send();
    ]);
 ```
 
-### Sms::beforeSend($handler);
+### Sms::beforeSend($handler, $override);
 
 短信发送前钩子。
 ```php
-Sms::beforeSend(function($task, $index, $handlers){
+Sms::beforeSend(function($task, $prev, $index, $handlers){
     //获取短信数据
     $smsData = $task->data;
     //do something here
@@ -131,11 +131,11 @@ Sms::beforeSend(function($task, $index, $handlers){
 ```
 > 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer)的“beforeRun”钩子
 
-### Sms::afterSend($handler);
+### Sms::afterSend($handler, $override);
 
 短信发送后钩子。
 ```php
-Sms::afterSend(function($task, $result, $index, $handlers){
+Sms::afterSend(function($task, $result, $prev, $index, $handlers){
     //$results为短信发送后获得的结果数组
     //do something here
 });
