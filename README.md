@@ -35,7 +35,13 @@ composer require 'toplan/phpsms:~0.2.0'
 ```php
 //example:
 Sms::enable([
+    //被使用概率为2/15
+    'YunTongXun' => '20',
+
+    //被使用概率为10/15，且未为备用代理器
     'Luosimao' => '100 backup',
+
+    //被使用概率为3/15，且未为备用代理器
     'YunPian'  => '30 backup'
 ]);
 ```
@@ -63,7 +69,7 @@ use Toplan\PhpSms\Sms;
 
 // 只希望使用模板方式发送短信，可以不设置content。
 // 如:云通讯、Submail、Ucpaas
-Sms::make($templates)->to('1828****349')->data(['12345', 5])->send();
+Sms::make()->to('1828****349')->template($templates)->data(['12345', 5])->send();
 
 // 只希望使用内容方式放送，可以不设置模板id和模板数据data。
 // 如:云片、luosimao
@@ -71,14 +77,14 @@ Sms::make()->to('1828****349')->content('【PhpSMS】亲爱的张三，欢迎访
 
 // 同时确保能通过模板和内容方式发送。
 // 这样做的好处是，可以兼顾到各种类型服务商。
-Sms::make([
-      'YunTongXun' => '123',
-      'SubMail'    => '123'
-  ])
-  ->to('1828****349')
-  ->data(['张三'])
-  ->content('【签名】亲爱的张三，欢迎访问，祝你工作愉快。')
-  ->send();
+Sms::make()->to('1828****349')
+     ->template([
+         'YunTongXun' => '123',
+         'SubMail'    => '123'
+     ])
+     ->data(['张三'])
+     ->content('【签名】亲爱的张三，欢迎访问，祝你工作愉快。')
+     ->send();
 
 //语言验证码
 Sms::voice('1111')->to('1828****349')->send();
@@ -117,7 +123,7 @@ Sms::voice('1111')->to('1828****349')->send();
 
 短信发送前钩子。
 ```php
-Sms::beforeSend(function($task){
+Sms::beforeSend(function($task, $index, $handlers){
     //获取短信数据
     $smsData = $task->data;
     //do something here
@@ -129,7 +135,7 @@ Sms::beforeSend(function($task){
 
 短信发送后钩子。
 ```php
-Sms::afterSend(function($task, $results){
+Sms::afterSend(function($task, $result, $index, $handlers){
     //$results为短信发送后获得的结果数组
     //do something here
 });
@@ -188,33 +194,24 @@ Sms::queue(false);//关闭队列
 
 ### $sms->template($templates)
 
-设置模板ID，并返回实例对象。
-如果你只想给第一个代理器设置模板ID, 你只需要传入一个id参数:
-```php
-   //静态方法设置，并返回sms实例
-   Sms::make('20001');
-   //或
-   $sms->template('20001');
-```
-
-也可以指定代理器进行设置或批量设置:
+指定代理器进行设置或批量设置:
 ```php
    //静态方法设置，并返回sms实例
    Sms::make(['YunTongXun' => '20001', 'SubMail' => 'xxx', ...]);
    //设置指定服务商的模板id
-   $sms->template('YunTongXun', '20001')->template('SubMail' => 'xxx');
+   $sms->template('YunTongXun', '20001')->template('SubMail', 'xxx');
    //一次性设置多个服务商的模板id
    $sms->template(['YunTongXun' => '20001', 'SubMail' => 'xxx', ...]);
 ```
 
 ### $sms->data($templateData)
 
-设置模板短信的模板数据，并返回实例对象。
+设置模板短信的模板数据，并返回实例对象，`$templateData`必须为数组。
 ```php
   $sms = $sms->data([
         'code' => $code,
         'minutes' => $minutes
-      ]);//必须是数组
+      ]);
 ```
 
 ### $sms->content($text)
@@ -225,24 +222,26 @@ Sms::queue(false);//关闭队列
   $sms = $sms->content('【签名】您的订单号是xxxx，祝你购物愉快。');
 ```
 
-### $sms->agent($agentName)
+### $sms->agent($name)
 
-临时设置发送时使用的代理器(不会影响备用代理器的正常使用)，`$agentName`为代理器名称。
+临时设置发送时使用的代理器(不会影响备用代理器的正常使用)，`$name`为代理器名称。
+```php
+  $sms = $sms->agent('Luosimao');
+```
 > 通过该方法设置的代理器将获得绝对优先权，但只对当前短信实例有效。
 
-### $sms->send($force = false)
+### $sms->send()
 
 请求发送短信/语音验证码。
-
-> `$force`默认为`false`，如果设置为`true`会绕开队列，强制发送。
-
 ```php
   //会遵循是否使用队列:
-  $results = $sms->send();
+  $result = $sms->send();
 
   //忽略是否使用队列:
-  $results = $sms->send(true);
+  $result = $sms->send(true);
 ```
+
+> `$result`数据结构请参看[task-balancer](https://github.com/toplan/task-balancer)
 
 # 自定义代理器
 

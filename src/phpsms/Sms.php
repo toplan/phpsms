@@ -58,9 +58,9 @@ class Sms
      * hook handlers
      * @var array
      */
-    protected static $hookHandlers = [
-        "beforeRun" => null,
-        "afterRun"  => null,
+    protected static $enableHooks = [
+        'beforeRun',
+        'afterRun',
     ];
 
     /**
@@ -99,8 +99,14 @@ class Sms
     public static function make($agentName = null, $tempId = null)
     {
         $sms = new self;
-        if ($agentName) {
-            $sms->template($agentName, $tempId);
+        if (is_array($agentName)) {
+            $sms->template($agentName);
+        } elseif ($agentName && is_string($agentName)) {
+            if ($tempId === null) {
+                $sms->content($agentName);
+            } elseif (is_string("$tempId")) {
+                $sms->template($agentName, $tempId);
+            }
         }
         return $sms;
     }
@@ -168,18 +174,16 @@ class Sms
      */
     public function template($agentName, $tempId = null)
     {
-        $tempIdArray = (Array) $this->smsData['templates'];
-        if ( ! is_null($tempId)) {
-            $tempIdArray["$agentName"] = $tempId;
-        } else {
-            if (is_array($agentName)) {
-                $tempIdArray = $agentName;
-            } else {
-                $firstAgentName = self::getFirstAgentName();
-                $tempIdArray["$firstAgentName"] = $agentName;
+        if (is_array($agentName)) {
+            foreach ($agentName as $k => $v) {
+                $this->template($k, $v);
             }
+        } elseif ($agentName && $tempId) {
+            if (!isset($this->smsData['templates']) || !is_array($this->smsData['templates'])) {
+                $this->smsData['templates'] = [];
+            }
+            $this->smsData['templates']["$agentName"] = $tempId;
         }
-        $this->smsData['templates'] = (Array) $tempIdArray;
         return $this;
     }
 
@@ -272,23 +276,13 @@ class Sms
     }
 
     /**
-     * get first agent`s name
-     * @return int|null|string
-     */
-    public static function getFirstAgentName()
-    {
-        foreach (self::$agentsName as $name => $options) {
-            return $name;
-        }
-    }
-
-    /**
      * init
+     * @return $task
      */
     protected static function init()
     {
         self::configuration();
-        self::generatorTask();
+        return self::generatorTask();
     }
 
     /**
@@ -301,12 +295,6 @@ class Sms
             Balancer::task(self::TASK, function($task){
                 // create drivers
                 self::createAgents($task);
-                // set hooks handler
-                foreach (self::$hookHandlers as $hook => $handler) {
-                    if (is_callable($handler)) {
-                        $task->hook($hook, $handler);
-                    }
-                }
             });
         }
         return Balancer::getTask(self::TASK);
@@ -521,18 +509,38 @@ class Sms
      *
      * @throws PhpSmsException
      */
-    public static function __callStatic($name, $args) {
+    public static function __callStatic($name, $args)
+    {
         $name = $name == 'beforeSend' ? 'beforeRun' : $name;
         $name = $name == 'afterSend' ? 'afterRun' : $name;
-        if (array_key_exists($name, self::$hookHandlers)) {
+        if (in_array($name, self::$enableHooks)) {
             $handler = $args[0];
+            $override = isset($args[1]) ? !!$args[1] : false;
             if ($handler && is_callable($handler)) {
-                self::$hookHandlers[$name] = $handler;
+                $task = self::init();
+                $task->hook($name, $handler, $override);
             } else {
-                throw new PhpSmsException("Please give static method $name() a callable parameter");
+                throw new PhpSmsException("Please give method static $name() a callable parameter");
             }
         } else {
             throw new PhpSmsException("Do not find static method $name()");
+        }
+    }
+
+    /**
+     * overload method
+     * @param $name
+     * @param $args
+     *
+     * @throws PhpSmsException
+     * @throws \Exception
+     */
+    public function __call($name, $args)
+    {
+        try {
+            $this->__callStatic($name, $args);
+        } catch (\Exception $e) {
+            throw $e;
         }
     }
 }
