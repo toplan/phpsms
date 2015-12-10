@@ -90,6 +90,41 @@ Sms::make()->to('1828****349')
 Sms::voice('1111')->to('1828****349')->send();
 ```
 
+###3. 在laravel中使用
+
+如果你只想单纯的在laravel中使用phpsms的功能可以按如下步骤操作，
+当然也为你准备了基于phpsms开发的增强版[laravel-sms](https://github.com/toplan/laravel-sms)
+
+* 在config/app.php中引入服务提供器
+
+```php
+//服务提供器
+'providers' => [
+    ...
+    Toplan\PhpSms\PhpSmsServiceProvide::class,
+]
+
+//别名
+'aliases' => [
+    ...
+    'PhpSms' => Toplan\PhpSms\Facades\Sms::class,
+]
+```
+
+* 生成配置文件
+
+```php
+php artisan vendor:publish
+```
+生成的配置文件为config/phpsms.php，然后在该文件中按提示配置。
+
+* 使用
+
+详见API，示例：
+```php
+PhpSms::make()->to($to)->content($content)->send();
+```
+
 # API
 
 ### Sms::enable($name, $optionString)
@@ -146,10 +181,9 @@ Sms::afterSend(function($task, $result, $prev, $index, $handlers){
 
 设置是否启用队列以及定义如何推送到队列。
 
-> $handler可使用的参数：
+> $handler可使用的参数:
 >
 > `$sms` : Sms实例。
->
 > `$data` : Sms实例中的短信数据，等同于`$sms->getData()`。
 
 定义如何推送到队列
@@ -298,7 +332,7 @@ Sms::queue(false);//关闭队列
         }
 
         //override
-        //发送语音验证码
+        //发送语音验证码入口
         public function voiceVerify($to, $code)
         {
             //同上...
@@ -306,6 +340,10 @@ Sms::queue(false);//关闭队列
    }
 ```
 至此, 新加代理器成功!
+
+# Encourage
+
+hi, guys! 如果喜欢或者要收藏，可以star。如果要提供意见和bug，欢迎issue或提交pr。
 
 # License
 
