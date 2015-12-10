@@ -38,10 +38,10 @@ Sms::enable([
     //被使用概率为2/15
     'YunTongXun' => '20',
 
-    //被使用概率为10/15，且未为备用代理器
+    //被使用概率为10/15，且为备用代理器
     'Luosimao' => '100 backup',
 
-    //被使用概率为3/15，且未为备用代理器
+    //被使用概率为3/15，且为备用代理器
     'YunPian'  => '30 backup'
 ]);
 ```
@@ -343,7 +343,7 @@ Sms::queue(false);//关闭队列
 
 # Encourage
 
-hi, guys! 如果喜欢或者要收藏，可以star。如果要提供意见和bug，欢迎issue或提交pr。
+hi, guys! 如果喜欢或者要收藏，欢迎star。如果要提供意见和bug，欢迎issue或提交pr。
 
 # License
 
