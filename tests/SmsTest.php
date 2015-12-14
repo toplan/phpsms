@@ -3,38 +3,38 @@
 use Toplan\PhpSms\Sms;
 class SmsTest extends PHPUnit_Framework_TestCase
 {
-    protected $sms = null;
+    protected static $sms = null;
 
-    public function setup()
+    public static function setUpBeforeClass()
     {
-        $this->sms = Sms::make();
+        self::$sms = Sms::make();
     }
 
     public function testMakeSms()
     {
-        $this->assertInstanceOf('Toplan\PhpSms\Sms', $this->sms);
+        $this->assertInstanceOf('Toplan\PhpSms\Sms', self::$sms);
     }
 
     public function smsData()
     {
-        return $this->sms->getData();
+        return self::$sms->getData();
     }
 
     public function testSetTo()
     {
-        $this->sms->to('18280345...');
+        self::$sms->to('18280345...');
         $smsData = $this->smsData();
         $this->assertEquals('18280345...', $smsData['to']);
     }
 
     public function testSetTemplate()
     {
-        $this->sms->template('Luosimao', '123');
+        self::$sms->template('Luosimao', '123');
         $smsData = $this->smsData();
         $this->assertEquals([
                 'Luosimao' => '123'
             ], $smsData['templates']);
-        $this->sms->template([
+        self::$sms->template([
                 'Luosimao' => '1234',
                 'YunTongXun' => '6789',
             ]);
@@ -47,7 +47,7 @@ class SmsTest extends PHPUnit_Framework_TestCase
 
     public function testSetData()
     {
-        $this->sms->data([
+        self::$sms->data([
                 'code' => '1',
                 'msg' => 'msg'
             ]);
@@ -60,12 +60,24 @@ class SmsTest extends PHPUnit_Framework_TestCase
 
     public function testSetContent()
     {
-        $this->sms->content('this is content');
+        self::$sms->content('this is content');
         $smsData = $this->smsData();
         $this->assertEquals('this is content', $smsData['content']);
     }
 
     public function testSendSms()
     {
+        $result = self::$sms->send();
+        $this->assertArrayHasKey('success', $result);
+        $this->assertArrayHasKey('time', $result);
+        $this->assertArrayHasKey('logs', $result);
+    }
+
+    public function testSetAgent()
+    {
+        $result = self::$sms->agent('Log')->send();
+        $this->assertTrue($result['success']);
+        $this->assertCount(1, $result['logs']);
+        $this->assertEquals('Log', $result['logs'][0]['driver']);
     }
 }
