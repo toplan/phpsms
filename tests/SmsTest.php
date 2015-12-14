@@ -16,6 +16,22 @@ class SmsTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Toplan\PhpSms\Sms', self::$sms);
     }
 
+    public function testGetTask()
+    {
+        $task = Sms::generatorTask();
+        $this->assertInstanceOf('Toplan\TaskBalance\Task', $task);
+    }
+
+    public function testGetSmsData()
+    {
+        $data = self::$sms->getData();
+        $this->assertArrayHasKey('to', $data);
+        $this->assertArrayHasKey('templates', $data);
+        $this->assertArrayHasKey('templateData', $data);
+        $this->assertArrayHasKey('content', $data);
+        $this->assertArrayHasKey('voiceCode', $data);
+    }
+
     public function smsData()
     {
         return self::$sms->getData();
@@ -77,6 +93,47 @@ class SmsTest extends PHPUnit_Framework_TestCase
     public function testSetAgent()
     {
         $result = self::$sms->agent('Log')->send();
+        $this->assertTrue($result['success']);
+        $this->assertCount(1, $result['logs']);
+        $this->assertEquals('Log', $result['logs'][0]['driver']);
+    }
+
+    public function testVoice()
+    {
+        $sms = Sms::voice('code');
+        $data = $sms->getData();
+        $this->assertEquals('code', $data['voiceCode']);
+    }
+
+    public function testUseQueue()
+    {
+        $status = Sms::queue();
+        $this->assertFalse($status);
+
+        //define how to use queue
+        //way 1
+        Sms::queue(function($sms, $data){
+            return 'in_queue_1';
+        });
+        $this->assertTrue(Sms::queue());
+
+        //define how to use queue
+        //way 2
+        Sms::queue(false, function($sms, $data){
+            return 'in_queue_2';
+        });
+        $this->assertFalse(Sms::queue());
+
+        //open queue
+        Sms::queue(true);
+        $this->assertTrue(Sms::queue());
+
+        //push sms to queue
+        $result = self::$sms->send();
+        $this->assertEquals('in_queue_2', $result);
+
+        //force send
+        $result = self::$sms->send(true);
         $this->assertTrue($result['success']);
         $this->assertCount(1, $result['logs']);
         $this->assertEquals('Log', $result['logs'][0]['driver']);

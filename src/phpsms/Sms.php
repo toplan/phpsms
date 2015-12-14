@@ -43,7 +43,7 @@ class Sms
      *
      * @var bool
      */
-    protected static $enableQueue = null;
+    protected static $enableQueue = false;
 
     /**
      * queue work
@@ -141,9 +141,14 @@ class Sms
      *
      * @param $enable
      * @param $handler
+     *
+     * @return boolean
      */
-    public static function queue($enable, $handler = null)
+    public static function queue($enable = null, $handler = null)
     {
+        if ($enable === null && $handler === null) {
+            return self::$enableQueue;
+        }
         if (is_callable($enable)) {
             $handler = $enable;
             $enable = true;
@@ -152,6 +157,7 @@ class Sms
         if (is_callable($handler)) {
             self::$howToUseQueue = $handler;
         }
+        return self::$enableQueue;
     }
 
     /**
