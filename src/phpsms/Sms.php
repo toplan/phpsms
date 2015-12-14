@@ -251,7 +251,6 @@ class Sms
     public function send($immediately = false)
     {
         $this->validator();
-        $results = null;
 
         // if disable push to queue,
         // send the sms immediately.
@@ -271,12 +270,12 @@ class Sms
         // whether to send sms immediately,
         // or push it to queue.
         if ($immediately) {
-            $results = Balancer::run(self::TASK, $this->getData(), $this->firstAgent);
+            $result = Balancer::run(self::TASK, $this->getData(), $this->firstAgent);
         } else {
-            $results = $this->push();
+            $result = $this->push();
         }
 
-        return $results;
+        return $result;
     }
 
     /**
@@ -315,7 +314,7 @@ class Sms
     /**
      * init
      *
-     * @return $task
+     * @return mixed
      */
     protected static function init()
     {
@@ -347,11 +346,11 @@ class Sms
     protected static function configuration()
     {
         $config = [];
-        if (!self::$agentsName) {
+        if (empty(self::$agentsName)) {
             $config = include __DIR__ . '/../config/phpsms.php';
             self::generatorAgentsName($config);
         }
-        if (!self::$agentsConfig) {
+        if (empty(self::$agentsConfig)) {
             $config = $config ?: include __DIR__ . '/../config/phpsms.php';
             self::generatorAgentsConfig($config);
         }
@@ -413,7 +412,7 @@ class Sms
             $configData = self::getAgentConfigData($name);
             $task->driver("$name $options")
                  ->data($configData)
-                 ->work(function ($driver, $data) {
+                 ->work(function ($driver) {
                      $configData = $driver->getDriverData();
                      $agent = self::getSmsAgent($driver->name, $configData);
                      $smsData = $driver->getTaskData();
@@ -496,23 +495,14 @@ class Sms
     public static function enable($agentName, $options = null)
     {
         if (is_array($agentName)) {
-            //([
-            //  'name1' => 'opt',
-            //  'name2',
-            //  ......
-            //])
             foreach ($agentName as $name => $opt) {
                 self::enable($name, $opt);
             }
         } elseif ($agentName && is_string($agentName) && !is_array($options) && is_string("$options")) {
-            //(name, opts)
             self::$agentsName["$agentName"] = "$options";
         } elseif (is_int($agentName) && !is_array($options) && "$options") {
-            //(0, name)
-            //(1, name)
             self::$agentsName["$options"] = '1';
         } elseif ($agentName && $options === null) {
-            //(name)
             self::$agentsName["$agentName"] = '1';
         }
     }
