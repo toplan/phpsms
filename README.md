@@ -1,4 +1,12 @@
 # PhpSms
+[![StyleCI](https://styleci.io/repos/44543599/shield)](https://styleci.io/repos/44543599)
+[![Build Status](https://travis-ci.org/toplan/phpsms.svg?branch=master)](https://travis-ci.org/toplan/phpsms)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/toplan/phpsms/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/toplan/phpsms/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/toplan/phpsms/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/toplan/phpsms/?branch=master)
+[![Latest Stable Version](https://img.shields.io/packagist/v/toplan/phpsms.svg)](https://packagist.org/packages/toplan/phpsms)
+[![Total Downloads](https://img.shields.io/packagist/dt/toplan/phpsms.svg)](https://packagist.org/packages/toplan/phpsms)
+[![License](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/toplan/phpsms)
+
 可能是目前最靠谱、优雅的php短信发送库了。
 
 > phpsms的任务负载均衡功能由[task-balancer](https://github.com/toplan/task-balancer)提供。
@@ -22,7 +30,7 @@
 # 安装
 
 ```php
-composer require 'toplan/phpsms:~0.3.0'
+composer require 'toplan/phpsms:~1.0.0'
 ```
 
 # 快速上手
