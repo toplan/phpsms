@@ -1,13 +1,14 @@
 <?php
+
 namespace Toplan\PhpSms;
 
 class LuosimaoAgent extends Agent
 {
-    public function sendSms($tempId, $to, Array $data, $content)
+    public function sendSms($tempId, $to, array $data, $content)
     {
         // check content signature,
         // Luosimao signature must be in the content finally
-        if ($content && ! preg_match('/】$/', $content)) {
+        if ($content && !preg_match('/】$/', $content)) {
             preg_match('/【([0-9a-zA-Z\W]+)】/', $content, $matches);
             if (isset($matches[0])) {
                 $content = str_replace($matches[0], '', $content) . $matches[0];
@@ -21,18 +22,18 @@ class LuosimaoAgent extends Agent
         $url = 'https://sms-api.luosimao.com/v1/send.json';
         $apikey = $this->apikey;
         $optData = [
-            'mobile' => $to,
-            'message' => $content
+            'mobile'  => $to,
+            'message' => $content,
         ];
         $data = $this->LuosimaoCurl($url, $optData, $apikey);
-        if ($data['error'] == 0) {
+        if ($data['error'] === 0) {
             $this->result['success'] = true;
         }
         $this->result['info'] = $data['msg'];
         $this->result['code'] = $data['error'];
     }
 
-    public function sendTemplateSms($tempId, $to, Array $data)
+    public function sendTemplateSms($tempId, $to, array $data)
     {
     }
 
@@ -42,10 +43,10 @@ class LuosimaoAgent extends Agent
         $apikey = $this->voiceApikey;
         $optData = [
             'mobile' => $to,
-            'code' => $code
+            'code'   => $code,
         ];
         $data = $this->LuosimaoCurl($url, $optData, $apikey);
-        if ($data['error'] == 0) {
+        if ($data['error'] === 0) {
             $this->result['success'] = true;
         }
         $this->result['info'] = $data['msg'];
@@ -58,17 +59,17 @@ class LuosimaoAgent extends Agent
         curl_setopt($ch, CURLOPT_URL, "$url");
 
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        curl_setopt($ch, CURLOPT_HEADER, FALSE);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, false);
 
-        curl_setopt($ch, CURLOPT_HTTPAUTH , CURLAUTH_BASIC);
-        curl_setopt($ch, CURLOPT_USERPWD  , 'api:key-' . $apikey);
+        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+        curl_setopt($ch, CURLOPT_USERPWD, 'api:key-' . $apikey);
 
-        curl_setopt($ch, CURLOPT_POST, TRUE);
+        curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $optData);
 
-        $res = curl_exec( $ch );
-        curl_close( $ch );
+        $res = curl_exec($ch);
+        curl_close($ch);
 
         return json_decode($res, true);
     }

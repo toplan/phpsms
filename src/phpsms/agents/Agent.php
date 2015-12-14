@@ -1,99 +1,111 @@
 <?php
+
 namespace Toplan\PhpSms;
 
-Abstract class Agent
+abstract class Agent
 {
     /**
      * agent config
+     *
      * @var array
      */
     protected $config;
 
     /**
      * sent result info
+     *
      * @var array
      */
     protected $result = [
         'success' => false,
-        'info'  => '',
-        'code'  => 0
+        'info'    => '',
+        'code'    => 0,
     ];
 
     /**
      * construct for create a instance
+     *
      * @param array $config
      */
-    public function __construct(Array $config = [])
+    public function __construct(array $config = [])
     {
         $this->config = $config;
     }
 
     /**
      * sms send process
+     *
      * @param       $tempId
      * @param       $to
      * @param array $data
      * @param       $content
      */
-    public abstract function sendSms($tempId, $to, Array $data, $content);
+    abstract public function sendSms($tempId, $to, array $data, $content);
 
     /**
      * content sms send process
+     *
      * @param $to
      * @param $content
      */
-    public abstract function sendContentSms($to, $content);
+    abstract public function sendContentSms($to, $content);
 
     /**
      * template sms send process
+     *
      * @param       $tempId
      * @param       $to
      * @param array $data
      */
-    public abstract function sendTemplateSms($tempId, $to, Array $data);
+    abstract public function sendTemplateSms($tempId, $to, array $data);
 
     /**
      * voice verify
+     *
      * @param $to
      * @param $code
      */
-    public abstract function voiceVerify($to, $code);
+    abstract public function voiceVerify($to, $code);
 
     /**
      * http post request
+     *
      * @param       $url
      * @param array $query
      * @param       $port
      *
      * @return mixed
      */
-    function sockPost($url, $query, $port = 80){
-        $data = "";
+    public function sockPost($url, $query, $port = 80)
+    {
+        $data = '';
         $info = parse_url($url);
-        $fp   = fsockopen($info["host"], $port, $errno, $errstr, 30);
-        if ( ! $fp) {
+        $fp = fsockopen($info['host'], $port, $errno, $errstr, 30);
+        if (!$fp) {
             return $data;
         }
-        $head  = "POST ".$info['path']." HTTP/1.0\r\n";
-        $head .= "Host: ".$info['host']."\r\n";
-        $head .= "Referer: http://".$info['host'].$info['path']."\r\n";
+        $head = 'POST ' . $info['path'] . " HTTP/1.0\r\n";
+        $head .= 'Host: ' . $info['host'] . "\r\n";
+        $head .= 'Referer: http://' . $info['host'] . $info['path'] . "\r\n";
         $head .= "Content-type: application/x-www-form-urlencoded\r\n";
-        $head .= "Content-Length: ".strlen(trim($query))."\r\n";
+        $head .= 'Content-Length: ' . strlen(trim($query)) . "\r\n";
         $head .= "\r\n";
         $head .= trim($query);
-        $write = fputs($fp,$head);
-        $header = "";
+        $write = fwrite($fp, $head);
+        $header = '';
         while ($str = trim(fgets($fp, 4096))) {
             $header .= $str;
         }
-        while ( ! feof($fp)) {
+        while (!feof($fp)) {
             $data .= fgets($fp, 4096);
         }
+
         return $data;
     }
 
     /**
      * get result
+     *
      * @return array
      */
     public function getResult()
@@ -103,6 +115,7 @@ Abstract class Agent
 
     /**
      * overload object attribute
+     *
      * @param $name
      *
      * @return mixed
@@ -112,6 +125,7 @@ Abstract class Agent
         if (array_key_exists($name, $this->config)) {
             return $this->config["$name"];
         }
-        return null;
+
+        return;
     }
 }

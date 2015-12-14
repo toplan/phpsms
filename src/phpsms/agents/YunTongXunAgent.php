@@ -1,16 +1,17 @@
 <?php
+
 namespace Toplan\PhpSms;
 
 use REST;
 
 class YunTongXunAgent extends Agent
 {
-    public function sendSms($tempId, $to, Array $data, $content)
+    public function sendSms($tempId, $to, array $data, $content)
     {
         $this->sendTemplateSms($tempId, $to, $data);
     }
 
-    public function sendTemplateSms($tempId, $to, Array $data)
+    public function sendTemplateSms($tempId, $to, array $data)
     {
         // 初始化REST SDK
         $rest = new REST(
@@ -23,7 +24,7 @@ class YunTongXunAgent extends Agent
         $rest->setAppId($this->appId);
         // 发送模板短信
         $result = $rest->sendTemplateSMS($to, array_values($data), $tempId);
-        if ($result != null && $result->statusCode == 0) {
+        if ($result !== null && $result->statusCode === 0) {
             $this->result['success'] = true;
         }
         $this->result['info'] = $result->statusCode;
@@ -52,14 +53,15 @@ class YunTongXunAgent extends Agent
         $lang = 'zh';
         $userData = null;
         $result = $rest->voiceVerify($code, $playTimes, $to, null, $respUrl, $lang, $userData, null, null);
-        if ($result == null) {
+        if ($result === null) {
             return $this->result;
         }
-        if ( $result->statusCode == 0 ) {
+        if ($result->statusCode === 0) {
             $this->result['success'] = true;
         }
         $this->result['info'] = $result->statusMsg;
         $this->result['code'] = $result->statusCode;
+
         return $this->result;
     }
 }

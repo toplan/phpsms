@@ -1,11 +1,11 @@
 <?php
+
 namespace Toplan\PhpSms;
 
 use Toplan\TaskBalance\Balancer;
 
 /**
  * Class Sms
- * @package Toplan\PhpSms
  */
 class Sms
 {
@@ -26,36 +26,42 @@ class Sms
 
     /**
      * agents`s name
+     *
      * @var
      */
     protected static $agentsName = [];
 
     /**
      * agents`s config
+     *
      * @var
      */
     protected static $agentsConfig = [];
 
     /**
      * whether to enable queue
+     *
      * @var bool
      */
     protected static $enableQueue = null;
 
     /**
      * queue work
+     *
      * @var null
      */
     protected static $howToUseQueue = null;
 
     /**
      * sms already pushed to queue
+     *
      * @var bool
      */
     protected $pushedToQueue = false;
 
     /**
      * hook handlers
+     *
      * @var array
      */
     protected static $enableHooks = [
@@ -65,18 +71,20 @@ class Sms
 
     /**
      * sms data
+     *
      * @var array
      */
     protected $smsData = [
-        'to' => null,
-        'templates' => [],
-        'content' => '',
+        'to'           => null,
+        'templates'    => [],
+        'content'      => '',
         'templateData' => [],
-        'voiceCode' => null,
+        'voiceCode'    => null,
     ];
 
     /**
      * first agent for send sms/voice verify
+     *
      * @var string
      */
     protected $firstAgent = null;
@@ -91,6 +99,7 @@ class Sms
 
     /**
      * create sms instance and set templates
+     *
      * @param null $agentName
      * @param null $tempId
      *
@@ -98,7 +107,7 @@ class Sms
      */
     public static function make($agentName = null, $tempId = null)
     {
-        $sms = new self;
+        $sms = new self();
         if (is_array($agentName)) {
             $sms->template($agentName);
         } elseif ($agentName && is_string($agentName)) {
@@ -108,24 +117,28 @@ class Sms
                 $sms->template($agentName, $tempId);
             }
         }
+
         return $sms;
     }
 
     /**
      * send voice verify
+     *
      * @param $code
      *
      * @return Sms
      */
     public static function voice($code)
     {
-        $sms = new self;
+        $sms = new self();
         $sms->smsData['voiceCode'] = $code;
+
         return $sms;
     }
 
     /**
      * set how to use queue.
+     *
      * @param $enable
      * @param $handler
      */
@@ -135,7 +148,7 @@ class Sms
             $handler = $enable;
             $enable = true;
         }
-        self::$enableQueue = !!$enable;
+        self::$enableQueue = (bool) $enable;
         if (is_callable($handler)) {
             self::$howToUseQueue = $handler;
         }
@@ -143,6 +156,7 @@ class Sms
 
     /**
      * set the mobile number
+     *
      * @param $mobile
      *
      * @return $this
@@ -150,11 +164,13 @@ class Sms
     public function to($mobile)
     {
         $this->smsData['to'] = $mobile;
+
         return $this;
     }
 
     /**
      * set content for content sms
+     *
      * @param $content
      *
      * @return $this
@@ -162,11 +178,13 @@ class Sms
     public function content($content)
     {
         $this->smsData['content'] = trim((String) $content);
+
         return $this;
     }
 
     /**
      * set template id for template sms
+     *
      * @param $agentName
      * @param $tempId
      *
@@ -184,23 +202,27 @@ class Sms
             }
             $this->smsData['templates']["$agentName"] = $tempId;
         }
+
         return $this;
     }
 
     /**
      * set data for template sms
+     *
      * @param array $data
      *
      * @return $this
      */
-    public function data(Array $data)
+    public function data(array $data)
     {
         $this->smsData['templateData'] = $data;
+
         return $this;
     }
 
     /**
      * set the first agent
+     *
      * @param $name
      *
      * @return $this
@@ -208,12 +230,15 @@ class Sms
     public function agent($name)
     {
         $this->firstAgent = (String) $name;
+
         return $this;
     }
 
     /**
      * start send
-     * @param  bool  $immediately
+     *
+     * @param bool $immediately
+     *
      * @return mixed
      */
     public function send($immediately = false)
@@ -243,21 +268,25 @@ class Sms
         } else {
             $results = $this->push();
         }
+
         return $results;
     }
 
     /**
      * push sms send task to queue
-     * @return mixed
+     *
      * @throws \Exception | PhpSmsException
+     *
+     * @return mixed
      */
     protected function push()
     {
         if (is_callable(self::$howToUseQueue)) {
             try {
                 $this->pushedToQueue = true;
+
                 return call_user_func_array(self::$howToUseQueue, [$this, $this->smsData]);
-            } catch(\Exception $e) {
+            } catch (\Exception $e) {
                 $this->pushedToQueue = false;
                 throw $e;
             }
@@ -268,6 +297,7 @@ class Sms
 
     /**
      * get sms data
+     *
      * @return array
      */
     public function getData()
@@ -277,26 +307,30 @@ class Sms
 
     /**
      * init
+     *
      * @return $task
      */
     protected static function init()
     {
         self::configuration();
+
         return self::generatorTask();
     }
 
     /**
      * generator a sms send task
+     *
      * @return null
      */
     public static function generatorTask()
     {
         if (!Balancer::getTask(self::TASK)) {
-            Balancer::task(self::TASK, function($task){
+            Balancer::task(self::TASK, function ($task) {
                 // create drivers
                 self::createAgents($task);
             });
         }
+
         return Balancer::getTask(self::TASK);
     }
 
@@ -307,11 +341,11 @@ class Sms
     {
         $config = [];
         if (!self::$agentsName) {
-            $config = include(__DIR__ . '/../config/phpsms.php');
+            $config = include __DIR__ . '/../config/phpsms.php';
             self::generatorAgentsName($config);
         }
         if (!self::$agentsConfig) {
-            $config = $config ?: include(__DIR__ . '/../config/phpsms.php');
+            $config = $config ?: include __DIR__ . '/../config/phpsms.php';
             self::generatorAgentsConfig($config);
         }
         self::configValidator();
@@ -319,6 +353,7 @@ class Sms
 
     /**
      * generate enabled agents name
+     *
      * @param array $config
      */
     protected static function generatorAgentsName($config)
@@ -331,6 +366,7 @@ class Sms
 
     /**
      * generator agents config
+     *
      * @param array $config
      */
     protected static function generatorAgentsConfig($config)
@@ -341,6 +377,7 @@ class Sms
 
     /**
      * config value validator
+     *
      * @throws PhpSmsException
      */
     protected static function configValidator()
@@ -349,7 +386,7 @@ class Sms
             throw new PhpSmsException('Please set at least one enable agent in config file(config/phpsms.php) or use method enable()');
         }
         foreach (self::$agentsName as $agentName => $options) {
-            if ($agentName == self::LOG_AGENT) {
+            if ($agentName === self::LOG_AGENT) {
                 continue;
             }
             if (!isset(self::$agentsConfig[$agentName])) {
@@ -360,6 +397,7 @@ class Sms
 
     /**
      * create drivers for sms send task
+     *
      * @param $task
      */
     protected static function createAgents($task)
@@ -368,7 +406,7 @@ class Sms
             $configData = self::getAgentConfigData($name);
             $task->driver("$name $options")
                  ->data($configData)
-                 ->work(function($driver, $data){
+                 ->work(function ($driver, $data) {
                      $configData = $driver->getDriverData();
                      $agent = self::getSmsAgent($driver->name, $configData);
                      $smsData = $driver->getTaskData();
@@ -384,6 +422,7 @@ class Sms
                          $driver->success();
                      }
                      unset($result['success']);
+
                      return $result;
                  });
         }
@@ -391,6 +430,7 @@ class Sms
 
     /**
      * get agent config data by name
+     *
      * @param $name
      *
      * @return array
@@ -404,12 +444,15 @@ class Sms
     /**
      * get a sms agent instance,
      * if null, will create a new agent instance
+     *
      * @param       $name
      * @param array $configData
+     *
      * @throws PhpSmsException
+     *
      * @return mixed
      */
-    protected static function getSmsAgent($name, Array $configData)
+    protected static function getSmsAgent($name, array $configData)
     {
         if (!isset(self::$agents[$name])) {
             $className = 'Toplan\\PhpSms\\' . $name . 'Agent';
@@ -419,23 +462,27 @@ class Sms
                 throw new PhpSmsException("Agent [$name] not support.");
             }
         }
+
         return self::$agents[$name];
     }
 
     /**
      * validate
+     *
      * @throws PhpSmsException
      */
     protected function validator()
     {
         if (!$this->smsData['to']) {
-            throw new PhpSmsException("Please set send sms(or voice verify) to who use `to()` method.");
+            throw new PhpSmsException('Please set send sms(or voice verify) to who use `to()` method.');
         }
+
         return true;
     }
 
     /**
      * set enable agents
+     *
      * @param      $agentName
      * @param null $options
      */
@@ -453,7 +500,7 @@ class Sms
         } elseif ($agentName && is_string($agentName) && !is_array($options) && is_string("$options")) {
             //(name, opts)
             self::$agentsName["$agentName"] = "$options";
-        } elseif (is_integer($agentName) && !is_array($options) && "$options") {
+        } elseif (is_int($agentName) && !is_array($options) && "$options") {
             //(0, name)
             //(1, name)
             self::$agentsName["$options"] = '1';
@@ -465,18 +512,19 @@ class Sms
 
     /**
      * set config for available agents
+     *
      * @param       $agentName
      * @param array $config
      *
      * @throws PhpSmsException
      */
-    public static function agents($agentName, Array $config = [])
+    public static function agents($agentName, array $config = [])
     {
         if (is_array($agentName)) {
             foreach ($agentName as $name => $conf) {
                 self::agents($name, $conf);
             }
-        } elseif ($agentName && is_array($config)){
+        } elseif ($agentName && is_array($config)) {
             if (preg_match('/^[0-9]+$/', $agentName)) {
                 throw new PhpSmsException("Agent name [$agentName] must be string, could not be a pure digital");
             }
@@ -486,6 +534,7 @@ class Sms
 
     /**
      * get enable agents
+     *
      * @return array
      */
     public static function getEnableAgents()
@@ -495,6 +544,7 @@ class Sms
 
     /**
      * get agents config info
+     *
      * @return array
      */
     public static function getAgentsConfig()
@@ -504,6 +554,7 @@ class Sms
 
     /**
      * overload static method
+     *
      * @param $name
      * @param $args
      *
@@ -511,11 +562,11 @@ class Sms
      */
     public static function __callStatic($name, $args)
     {
-        $name = $name == 'beforeSend' ? 'beforeRun' : $name;
-        $name = $name == 'afterSend' ? 'afterRun' : $name;
+        $name = $name === 'beforeSend' ? 'beforeRun' : $name;
+        $name = $name === 'afterSend' ? 'afterRun' : $name;
         if (in_array($name, self::$enableHooks)) {
             $handler = $args[0];
-            $override = isset($args[1]) ? !!$args[1] : false;
+            $override = isset($args[1]) ? (bool) $args[1] : false;
             if ($handler && is_callable($handler)) {
                 $task = self::init();
                 $task->hook($name, $handler, $override);
@@ -529,6 +580,7 @@ class Sms
 
     /**
      * overload method
+     *
      * @param $name
      * @param $args
      *

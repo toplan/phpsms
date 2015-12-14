@@ -39,7 +39,6 @@ return [
 
     ],
 
-
     /*
      * agents config
      * -------------------------------------------------------------------
@@ -120,7 +119,7 @@ return [
 
             // 语言验证 API key
             // 在管理中心->语音->语音验证下查看
-            'voiceApikey' =>  'your voice api key',
+            'voiceApikey' => 'your voice api key',
         ],
 
         /*
@@ -141,5 +140,5 @@ return [
             //在开发调试的时候，可以使用官网自动为您分配的测试Demo的APP ID
             'appId' => 'your app id',
         ],
-    ]
+    ],
 ];

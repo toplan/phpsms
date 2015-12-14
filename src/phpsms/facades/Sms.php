@@ -1,4 +1,5 @@
 <?php
+
 namespace Toplan\PhpSms\Facades;
 
 use Illuminate\Support\Facades\Facade;
