@@ -1,41 +1,40 @@
 <?php
 
-require('./../vendor/autoload.php');
+require './../vendor/autoload.php';
 
 use Toplan\PhpSms\Sms;
 
-/**
+/*
  * manual set enable agents
  */
 Sms::enable([
     'Log' => '3 backup',
-    'Luosimao'
+    'Luosimao',
 ]);
 
-/**
+/*
  * before send hook
  */
-Sms::beforeSend(function($task, $preReturn, $index, $handlers){
+Sms::beforeSend(function ($task, $preReturn, $index, $handlers) {
     print_r("before send : $index----------<br>");
 });
-Sms::beforeSend(function($task, $preReturn, $index, $handlers){
+Sms::beforeSend(function ($task, $preReturn, $index, $handlers) {
     print_r("before send : $index-----<br>");
 });
-/**
+/*
  * after sent hook
  */
-Sms::afterSend(function($task, $result, $preReturn, $index, $handlers){
+Sms::afterSend(function ($task, $result, $preReturn, $index, $handlers) {
     print_r("after send : $index-----<br>");
 });
 
-
-/**
+/*
  * print config
  */
 var_dump(Sms::getEnableAgents());
 //var_dump(Sms::getAgentsConfig());
 
-/**
+/*
  * define queue
  */
 //Sms::queue(function($sms, $data){
@@ -47,14 +46,14 @@ var_dump(Sms::getEnableAgents());
 print_r('<hr>');
 
 $sms = Sms::make();
-$sms->beforeSend(function($task, $preReturn, $index, $handlers){
+$sms->beforeSend(function ($task, $preReturn, $index, $handlers) {
     print_r("before send : $index-----<br>");
 });
 
 $result = $sms->make()->to('18280345...')
           ->template([
             'YunTongXun' => 21516,
-            'Submail' => 11111
+            'Submail'    => 11111,
           ])
           ->data(['code' => '1111', 'length' => 10])
           ->send(true);

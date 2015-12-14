@@ -1,9 +1,10 @@
 <?php
+
 namespace Toplan\PhpSms;
 
 class SubMailAgent extends Agent
 {
-    public function sendSms($tempId, $to, Array $data, $content)
+    public function sendSms($tempId, $to, array $data, $content)
     {
         $this->sendTemplateSms($tempId, $to, $data);
     }
@@ -12,7 +13,7 @@ class SubMailAgent extends Agent
     {
     }
 
-    public function sendTemplateSms($tempId, $to, Array $data)
+    public function sendTemplateSms($tempId, $to, array $data)
     {
         $url = 'https://api.submail.cn/message/xsend.json';
         $appid = $this->appid;
@@ -23,9 +24,9 @@ class SubMailAgent extends Agent
         $response = $this->sockPost($url, $postString);
 
         $data = json_decode($response, true);
-        if ($data['status'] == 'success') {
+        if ($data['status'] === 'success') {
             $this->result['success'] = true;
-            $this->result['info'] = 'send_id:' . $data['send_id'].
+            $this->result['info'] = 'send_id:' . $data['send_id'] .
                                     ',sms_credits:' . $data['sms_credits'];
         } else {
             $this->result['info'] = $data['msg'];

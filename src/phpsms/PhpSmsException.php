@@ -1,6 +1,7 @@
 <?php
+
 namespace Toplan\PhpSms;
 
-class PhpSmsException extends \Exception{
-
+class PhpSmsException extends \Exception
+{
 }

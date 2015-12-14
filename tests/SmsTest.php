@@ -1,6 +1,7 @@
 <?php
 
 use Toplan\PhpSms\Sms;
+
 class SmsTest extends PHPUnit_Framework_TestCase
 {
     protected static $sms = null;
@@ -32,15 +33,15 @@ class SmsTest extends PHPUnit_Framework_TestCase
         self::$sms->template('Luosimao', '123');
         $smsData = $this->smsData();
         $this->assertEquals([
-                'Luosimao' => '123'
+                'Luosimao' => '123',
             ], $smsData['templates']);
         self::$sms->template([
-                'Luosimao' => '1234',
+                'Luosimao'   => '1234',
                 'YunTongXun' => '6789',
             ]);
         $smsData = $this->smsData();
         $this->assertEquals([
-            'Luosimao' => '1234',
+            'Luosimao'   => '1234',
             'YunTongXun' => '6789',
         ], $smsData['templates']);
     }
@@ -49,12 +50,12 @@ class SmsTest extends PHPUnit_Framework_TestCase
     {
         self::$sms->data([
                 'code' => '1',
-                'msg' => 'msg'
+                'msg'  => 'msg',
             ]);
         $smsData = $this->smsData();
         $this->assertEquals([
                 'code' => '1',
-                'msg' => 'msg'
+                'msg'  => 'msg',
             ], $smsData['templateData']);
     }
 

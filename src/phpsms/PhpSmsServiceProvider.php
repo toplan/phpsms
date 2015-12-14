@@ -1,4 +1,5 @@
 <?php
+
 namespace Toplan\PhpSms;
 
 use Illuminate\Support\ServiceProvider;
@@ -29,7 +30,7 @@ class PhpSmsServiceProvider extends ServiceProvider
         Sms::enable(config('phpsms.enable', []));
         Sms::agents(config('phpsms.agents', []));
 
-        $this->app->singleton('PhpSms', function($app){
+        $this->app->singleton('PhpSms', function ($app) {
             return new Sms();
         });
     }
