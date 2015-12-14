@@ -4,6 +4,18 @@ namespace Toplan\PhpSms;
 
 use REST;
 
+/**
+ * Class YunTongXunAgent
+ * @package Toplan\PhpSms
+ *
+ * @property string $serverIP
+ * @property string $serverPort
+ * @property string $softVersion
+ * @property string $accountSid
+ * @property string $accountToken
+ * @property string $appId
+ * @property string $appId
+ */
 class YunTongXunAgent extends Agent
 {
     public function sendSms($tempId, $to, array $data, $content)
@@ -23,7 +35,10 @@ class YunTongXunAgent extends Agent
         $rest->setAccount($this->accountSid, $this->accountToken);
         $rest->setAppId($this->appId);
         // 发送模板短信
-        $result = $rest->sendTemplateSMS($to, array_values($data), $tempId);
+        if (is_array($data)) {
+            $data = array_values($data);
+        }
+        $result = $rest->sendTemplateSMS($to, $data, $tempId);
         if ($result !== null && $result->statusCode === 0) {
             $this->result['success'] = true;
         }

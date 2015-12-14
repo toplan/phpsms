@@ -2,6 +2,13 @@
 
 namespace Toplan\PhpSms;
 
+/**
+ * Class SubMailAgent
+ * @package Toplan\PhpSms
+ *
+ * @property string $appid
+ * @property string $signature
+ */
 class SubMailAgent extends Agent
 {
     public function sendSms($tempId, $to, array $data, $content)

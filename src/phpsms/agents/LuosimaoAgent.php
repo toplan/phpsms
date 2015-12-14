@@ -2,6 +2,13 @@
 
 namespace Toplan\PhpSms;
 
+/**
+ * Class LuosimaoAgent
+ * @package Toplan\PhpSms
+ *
+ * @property string $apikey
+ * @property string $voiceApikey
+ */
 class LuosimaoAgent extends Agent
 {
     public function sendSms($tempId, $to, array $data, $content)

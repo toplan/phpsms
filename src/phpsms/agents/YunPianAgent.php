@@ -2,6 +2,12 @@
 
 namespace Toplan\PhpSms;
 
+/**
+ * Class YunPianAgent
+ * @package Toplan\PhpSms
+ *          
+ * @property string $apikey
+ */
 class YunPianAgent extends Agent
 {
     public function sendSms($tempId, $to, array $data, $content)

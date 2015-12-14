@@ -34,7 +34,7 @@ class Ucpaas
     private $timestamp;
 
     /**
-     * @param $options 数组参数必填
+     * @param  mixed $options 数组参数必填
      * $options = array(
      *
      * )

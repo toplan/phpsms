@@ -2,6 +2,14 @@
 
 namespace Toplan\PhpSms;
 
+/**
+ * Class UcpaasAgent
+ * @package Toplan\PhpSms
+ *          
+ * @property string $accountSid
+ * @property string $accountToken
+ * @property string $appId
+ */
 class UcpaasAgent extends Agent
 {
     public function sendSms($tempId, $to, array $data, $content)
