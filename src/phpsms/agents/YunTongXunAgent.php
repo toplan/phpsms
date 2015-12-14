@@ -14,7 +14,6 @@ use REST;
  * @property string $accountSid
  * @property string $accountToken
  * @property string $appId
- * @property string $appId
  */
 class YunTongXunAgent extends Agent
 {
