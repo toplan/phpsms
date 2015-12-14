@@ -112,14 +112,14 @@ class SmsTest extends PHPUnit_Framework_TestCase
 
         //define how to use queue
         //way 1
-        Sms::queue(function($sms, $data){
+        Sms::queue(function ($sms, $data) {
             return 'in_queue_1';
         });
         $this->assertTrue(Sms::queue());
 
         //define how to use queue
         //way 2
-        Sms::queue(false, function($sms, $data){
+        Sms::queue(false, function ($sms, $data) {
             return 'in_queue_2';
         });
         $this->assertFalse(Sms::queue());
