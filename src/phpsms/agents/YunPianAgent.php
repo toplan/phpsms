@@ -4,7 +4,6 @@ namespace Toplan\PhpSms;
 
 /**
  * Class YunPianAgent
- * @package Toplan\PhpSms
  *          
  * @property string $apikey
  */

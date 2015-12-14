@@ -6,7 +6,6 @@ use REST;
 
 /**
  * Class YunTongXunAgent
- * @package Toplan\PhpSms
  *
  * @property string $serverIP
  * @property string $serverPort

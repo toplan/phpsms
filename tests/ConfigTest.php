@@ -8,13 +8,13 @@ class ConfigTest extends PHPUnit_Framework_TestCase
     {
         Sms::enable('Log');
         $this->assertCount(1, Sms::getEnableAgents());
-        Sms::enable('Log', '30 backup');
+        Sms::enable('Log', '80 backup');
         $this->assertCount(1, Sms::getEnableAgents());
-        Sms::enable('Luosimao', '20 backup');
+        Sms::enable('Luosimao', 'backup');
         $this->assertCount(2, Sms::getEnableAgents());
         Sms::enable([
-                'Luosimao' => '20 backup',
-                'YunPian'  => '10 backup',
+                'Luosimao' => '0 backup',
+                'YunPian'  => '0',
             ]);
         $this->assertCount(3, Sms::getEnableAgents());
     }

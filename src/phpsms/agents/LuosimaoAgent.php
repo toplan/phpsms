@@ -4,7 +4,6 @@ namespace Toplan\PhpSms;
 
 /**
  * Class LuosimaoAgent
- * @package Toplan\PhpSms
  *
  * @property string $apikey
  * @property string $voiceApikey
