@@ -4,7 +4,6 @@ namespace Toplan\PhpSms;
 
 /**
  * Class SubMailAgent
- * @package Toplan\PhpSms
  *
  * @property string $appid
  * @property string $signature
