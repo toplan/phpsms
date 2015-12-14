@@ -1,9 +1,10 @@
 <?php
+
 namespace Toplan\PhpSms;
 
 class YunPianAgent extends Agent
 {
-    public function sendSms($tempId, $to, Array $data, $content)
+    public function sendSms($tempId, $to, array $data, $content)
     {
         $this->sendContentSms($to, $content);
     }
@@ -18,14 +19,14 @@ class YunPianAgent extends Agent
         $response = $this->sockPost($url, $postString);
 
         $data = json_decode($response, true);
-        if ($data['code'] == 0) {
+        if ($data['code'] === 0) {
             $this->result['success'] = true;
         }
         $this->result['info'] = $data['msg'];
         $this->result['code'] = $data['code'];
     }
 
-    public function sendTemplateSms($tempId, $to, Array $data)
+    public function sendTemplateSms($tempId, $to, array $data)
     {
     }
 
@@ -38,7 +39,7 @@ class YunPianAgent extends Agent
         $response = $this->sockPost($url, $postString);
 
         $data = json_decode($response, true);
-        if ($data['code'] == 0) {
+        if ($data['code'] === 0) {
             $this->result['success'] = true;
         }
         $this->result['info'] = $data['msg'];

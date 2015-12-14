@@ -1,6 +1,7 @@
 <?php
 
 use Toplan\PhpSms\Sms;
+
 class ConfigTest extends PHPUnit_Framework_TestCase
 {
     public function testAddEnableAgent()
@@ -13,7 +14,7 @@ class ConfigTest extends PHPUnit_Framework_TestCase
         $this->assertCount(2, Sms::getEnableAgents());
         Sms::enable([
                 'Luosimao' => '20 backup',
-                'YunPian' => '10 backup',
+                'YunPian'  => '10 backup',
             ]);
         $this->assertCount(3, Sms::getEnableAgents());
     }
@@ -23,7 +24,7 @@ class ConfigTest extends PHPUnit_Framework_TestCase
         Sms::agents('Log', []);
         $this->assertCount(1, Sms::getAgentsConfig());
         Sms::agents('Luosimao', [
-                'apikey' => '123'
+                'apikey' => '123',
             ]);
         $this->assertCount(2, Sms::getAgentsConfig());
         Sms::agents([
@@ -32,7 +33,7 @@ class ConfigTest extends PHPUnit_Framework_TestCase
                 ],
                 'YunPian' => [
                     'apikey' => '123',
-                ]
+                ],
             ]);
         $this->assertCount(3, Sms::getAgentsConfig());
     }
