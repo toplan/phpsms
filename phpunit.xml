@@ -11,7 +11,13 @@
          syntaxCheck="false"
         >
     <testsuites>
-        <testsuite name="configuration">
+        <testsuite name="agent">
+            <file>./tests/AgentTest.php</file>
+        </testsuite>
+        <testsuite name="sms protected method">
+            <file>./tests/ProtectedTest.php</file>
+        </testsuite>
+        <testsuite name="config">
             <file>./tests/ConfigTest.php</file>
         </testsuite>
         <testsuite name="send sms">
@@ -20,7 +26,8 @@
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">src/phpsms/agents</directory>
+            <file>./src/phpsms/agents/Agent.php</file>
+            <file>./src/phpsms/agents/LogAgent.php</file>
             <file>./src/phpsms/Sms.php</file>
         </whitelist>
     </filter>

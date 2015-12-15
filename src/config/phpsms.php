@@ -36,7 +36,7 @@ return [
      *
      */
     'enable' => [
-
+        'Log',
     ],
 
     /*

@@ -320,8 +320,6 @@ Sms::queue(false);//关闭队列
         public function sendContentSms($to, $content)
         {
             //获取配置文件中的参数
-            $x = $this->config['apikey'];
-            //也可以这样获取配置参数
             $x = $this->apikey;
             //在这里实现发送内容短信，即直接发送内容
             ...

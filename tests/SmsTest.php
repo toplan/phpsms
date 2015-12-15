@@ -16,6 +16,14 @@ class SmsTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Toplan\PhpSms\Sms', self::$sms);
     }
 
+    public function testGetSmsAgent()
+    {
+        $agent = Sms::getSmsAgent('Log', []);
+        $this->assertInstanceOf('Toplan\PhpSms\LogAgent', $agent);
+        $luosimao = Sms::getSmsAgent('Luosimao', []);
+        $this->assertInstanceOf('Toplan\PhpSms\LuosimaoAgent', $luosimao);
+    }
+
     public function testGetTask()
     {
         $task = Sms::generatorTask();
@@ -88,6 +96,24 @@ class SmsTest extends PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('success', $result);
         $this->assertArrayHasKey('time', $result);
         $this->assertArrayHasKey('logs', $result);
+    }
+
+    public function testBeforeSend()
+    {
+        Sms::beforeSend(function () {
+            print_r('before_');
+        });
+        $this->expectOutputString('before_');
+        self::$sms->send();
+    }
+
+    public function testAfterSend()
+    {
+        self::$sms->afterSend(function () {
+            print_r('after');
+        });
+        $this->expectOutputString('before_after');
+        self::$sms->send();
     }
 
     public function testSetAgent()

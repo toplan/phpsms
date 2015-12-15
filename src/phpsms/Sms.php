@@ -458,7 +458,7 @@ class Sms
      *
      * @return mixed
      */
-    protected static function getSmsAgent($name, array $configData)
+    public static function getSmsAgent($name, array $configData)
     {
         if (!isset(self::$agents[$name])) {
             $className = 'Toplan\\PhpSms\\' . $name . 'Agent';
@@ -547,6 +547,22 @@ class Sms
     public static function getAgentsConfig()
     {
         return self::$agentsConfig;
+    }
+
+    /**
+     * tear down enable agents
+     */
+    public static function cleanEnableAgents()
+    {
+        self::$agentsName = [];
+    }
+
+    /**
+     * tear down agents config
+     */
+    public static function cleanAgentsConfig()
+    {
+        self::$agentsConfig = [];
     }
 
     /**
