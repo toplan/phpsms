@@ -4,11 +4,13 @@ use Toplan\PhpSms\Sms;
 
 class ProtectedTest extends PHPUnit_Framework_TestCase
 {
-    public static function getPrivateMethod($name) {
+    public static function getPrivateMethod($name)
+    {
         $obj = new Sms();
         $class = new ReflectionClass($obj);
         $method = $class->getMethod($name);
         $method->setAccessible(true);
+
         return $method;
     }
 

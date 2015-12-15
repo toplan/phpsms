@@ -10,10 +10,11 @@ class AgentTest extends PHPUnit_Framework_TestCase
     {
         $config = [
             'key'  => 'value',
-            'key2' => 'value2'
+            'key2' => 'value2',
         ];
         $this->agent = new LogAgent($config);
     }
+
     public function testResult()
     {
         $r = $this->agent->getResult();
