@@ -22,7 +22,7 @@ class REST
     private $ServerPort;
     private $SoftVersion;
     private $Batch;  //时间戳
-    private $BodyType = 'xml';//包体格式，可填值：json 、xml
+    private $BodyType = 'xml'; //包体格式，可填值：json 、xml
     private $enabeLog = false; //日志开关。可填值：true、
     private $Filename = './log.txt'; //日志文件
     private $Handle;
@@ -108,13 +108,11 @@ class REST
      * 发送模板短信
      *
      * @param string $to
-     * 短信接收彿手机号码集合,用英文逗号分开
-     *
-     * @param array $datas
-     * 内容数据
-     *
-     * @param mixed $tempId
-     * 模板Id
+     *                       短信接收彿手机号码集合,用英文逗号分开
+     * @param array  $datas
+     *                       内容数据
+     * @param mixed  $tempId
+     *                       模板Id
      */
     public function sendTemplateSMS($to, $datas, $tempId)
     {
@@ -126,13 +124,13 @@ class REST
         // 拼接请求包体
         if ($this->BodyType === 'json') {
             $data = '';
-            for ($i = 0;$i < count($datas);$i++) {
+            for ($i = 0; $i < count($datas); $i++) {
                 $data = $data . "'" . $datas[$i] . "',";
             }
             $body = "{'to':'$to','templateId':'$tempId','appId':'$this->AppId','datas':[" . $data . ']}';
         } else {
             $data = '';
-            for ($i = 0;$i < count($datas);$i++) {
+            for ($i = 0; $i < count($datas); $i++) {
                 $data = $data . '<data>' . $datas[$i] . '</data>';
             }
             $body = "<TemplateSMS>
