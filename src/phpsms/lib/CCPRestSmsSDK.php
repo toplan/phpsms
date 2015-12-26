@@ -107,9 +107,14 @@ class REST
     /**
      * 发送模板短信
      *
-     * @param to 短信接收彿手机号码集合,用英文逗号分开
-     * @param array 内容数据
-     * @param $tempId 模板Id
+     * @param string $to
+     * 短信接收彿手机号码集合,用英文逗号分开
+     *
+     * @param array $datas
+     * 内容数据
+     *
+     * @param mixed $tempId
+     * 模板Id
      */
     public function sendTemplateSMS($to, $datas, $tempId)
     {
@@ -155,11 +160,6 @@ class REST
         } else { //xml格式
            $datas = simplexml_load_string(trim($result, " \t\n\r"));
         }
-      //  if($datas == FALSE){
-//            $datas = new stdClass();
-//            $datas->statusCode = '172003';
-//            $datas->statusMsg = '返回包体错误';
-//        }
         //重新装填数据
         if ($datas->statusCode === 0) {
             if ($this->BodyType === 'json') {
