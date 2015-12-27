@@ -108,13 +108,11 @@ class REST
      * 发送模板短信
      *
      * @param string $to
-     * 短信接收彿手机号码集合,用英文逗号分开
-     *
-     * @param array $datas
-     * 内容数据
-     *
-     * @param mixed $tempId
-     * 模板Id
+     *                       短信接收彿手机号码集合,用英文逗号分开
+     * @param array  $datas
+     *                       内容数据
+     * @param mixed  $tempId
+     *                       模板Id
      */
     public function sendTemplateSMS($to, $datas, $tempId)
     {
