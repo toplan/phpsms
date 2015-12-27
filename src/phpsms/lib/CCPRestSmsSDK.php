@@ -40,7 +40,7 @@ class REST
     /**
      * 设置主帐号
      * 
-     * @param string $AccountSid 主帐号
+     * @param string $AccountSid   主帐号
      * @param string $AccountToken 主帐号Token
      */
     public function setAccount($AccountSid, $AccountToken)
@@ -100,9 +100,9 @@ class REST
          //连接失败
          if ($result === false) {
              if ($this->BodyType === 'json') {
-                $result = '{"statusCode":"172001","statusMsg":"网络错误"}';
+                 $result = '{"statusCode":"172001","statusMsg":"网络错误"}';
              } else {
-                $result = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Response><statusCode>172001</statusCode><statusMsg>网络错误</statusMsg></Response>';
+                 $result = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Response><statusCode>172001</statusCode><statusMsg>网络错误</statusMsg></Response>';
              }
          }
          curl_close($ch);
@@ -180,15 +180,15 @@ class REST
     /**
      * 语音验证码
      *
-     * @param mixed $verifyCode 验证码内容，为数字和英文字母，不区分大小写，长度4-8位
-     * @param mixed $playTimes 播放次数，1－3次
-     * @param mixed $to 接收号码
-     * @param mixed $displayNum 显示的主叫号码
-     * @param mixed $respUrl 语音验证码状态通知回调地址，云通讯平台将向该Url地址发送呼叫结果通知
-     * @param mixed $lang 语言类型
-     * @param mixed $userData 第三方私有数据
+     * @param mixed $verifyCode     验证码内容，为数字和英文字母，不区分大小写，长度4-8位
+     * @param mixed $playTimes      播放次数，1－3次
+     * @param mixed $to             接收号码
+     * @param mixed $displayNum     显示的主叫号码
+     * @param mixed $respUrl        语音验证码状态通知回调地址，云通讯平台将向该Url地址发送呼叫结果通知
+     * @param mixed $lang           语言类型
+     * @param mixed $userData       第三方私有数据
      * @param mixed $welcomePrompt  欢迎提示音，在播放验证码语音前播放此内容（语音文件格式为wav）
-     * @param mixed $playVerifyCode  语音验证码的内容全部播放此节点下的全部语音文件
+     * @param mixed $playVerifyCode 语音验证码的内容全部播放此节点下的全部语音文件
      *
      * @return mixed
      */
