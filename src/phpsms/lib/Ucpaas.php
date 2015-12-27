@@ -19,23 +19,23 @@ class Ucpaas
     const BaseUrl = 'https://api.ucpaas.com/';
     /**
      * @var string
-     * 开发者账号ID。由32个英文字母和阿拉伯数字组成的开发者账号唯一标识符。
+     *             开发者账号ID。由32个英文字母和阿拉伯数字组成的开发者账号唯一标识符。
      */
     private $accountSid;
     /**
      * @var string
-     * 开发者账号TOKEN
+     *             开发者账号TOKEN
      */
     private $token;
     /**
      * @var string
-     * 时间戳
+     *             时间戳
      */
     private $timestamp;
 
     /**
      * @param mixed $options 数组参数必填
-     * $options = array(
+     *                       $options = array(
      *
      * )
      *
@@ -55,7 +55,7 @@ class Ucpaas
 
     /**
      * @return string
-     * 包头验证信息,使用Base64编码（账户Id:时间戳）
+     *                包头验证信息,使用Base64编码（账户Id:时间戳）
      */
     private function getAuthorization()
     {
@@ -66,7 +66,7 @@ class Ucpaas
 
     /**
      * @return string
-     * 验证参数,URL后必须带有sig参数，sig= MD5（账户Id + 账户授权令牌 + 时间戳，共32位）(注:转成大写)
+     *                验证参数,URL后必须带有sig参数，sig= MD5（账户Id + 账户授权令牌 + 时间戳，共32位）(注:转成大写)
      */
     private function getSigParameter()
     {
