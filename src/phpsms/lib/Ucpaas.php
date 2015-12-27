@@ -76,10 +76,10 @@ class Ucpaas
     }
 
     /**
-     * @param string $url
+     * @param string      $url
      * @param string|null $body
-     * @param string $type
-     * @param string $method
+     * @param string      $type
+     * @param string      $method
      *
      * @return mixed|string
      */
@@ -96,10 +96,10 @@ class Ucpaas
     }
 
     /**
-     * @param string $url
-     * @param string $type
+     * @param string      $url
+     * @param string      $type
      * @param string|null $body
-     * @param string $method
+     * @param string      $method
      *
      * @return mixed|string
      */
