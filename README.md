@@ -193,7 +193,7 @@ Sms::afterSend(function($task, $result, $prev, $index, $handlers){
 > `$sms` : Sms实例。
 > `$data` : Sms实例中的短信数据，等同于`$sms->getData()`。
 
-定义如何推送到队列
+定义如何推送到队列：
 ```php
 Sms::queue(function($sms, $data){
     //define how to push to queue.
@@ -207,10 +207,18 @@ Sms::queue(false, function($sms, $data){
     //define how to push to queue.
 });//第一个参数为false,暂时关闭队列。
 ```
-如果已经定义过如何推送到队列，还可以继续设置临时关闭/开启队列：
+
+如果已经定义过如何推送到队列，还可以继续设置关闭/开启队列：
 ```php
 Sms::queue(true);//开启队列
 Sms::queue(false);//关闭队列
+```
+
+获取队列启用情况：
+```php
+$enable = Sms::queue();
+//为true,表示当前启用了队列。
+//为false,表示当前关闭了队列。
 ```
 
 ### Sms::make()
@@ -320,8 +328,6 @@ Sms::queue(false);//关闭队列
         public function sendContentSms($to, $content)
         {
             //获取配置文件中的参数
-            $x = $this->config['apikey'];
-            //也可以这样获取配置参数
             $x = $this->apikey;
             //在这里实现发送内容短信，即直接发送内容
             ...
@@ -347,6 +353,11 @@ Sms::queue(false);//关闭队列
    }
 ```
 至此, 新加代理器成功!
+
+# Todo list
+
+- [ ] 优化读取配置文件的逻辑，确保必须读取一次配置文件，这样将配置文件`agents`和`Sms::agents()`方法结合起来。
+- [ ] 可用代理器分组配置功能；短信发送时选择分组进行发送的功能。
 
 # Encourage
 

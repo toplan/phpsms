@@ -70,6 +70,8 @@ abstract class Agent
     /**
      * http post request
      *
+     * @codeCoverageIgnore
+     *
      * @param       $url
      * @param array $query
      * @param       $port

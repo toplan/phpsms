@@ -4,6 +4,14 @@ use Toplan\PhpSms\Sms;
 
 class ConfigTest extends PHPUnit_Framework_TestCase
 {
+    public function testClean()
+    {
+        Sms::cleanEnableAgents();
+        $this->assertCount(0, Sms::getEnableAgents());
+        Sms::cleanAgentsConfig();
+        $this->assertCount(0, Sms::getAgentsConfig());
+    }
+
     public function testAddEnableAgent()
     {
         Sms::enable('Log');
