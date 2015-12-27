@@ -76,8 +76,10 @@ class Ucpaas
     }
 
     /**
-     * @param $url
+     * @param string $url
+     * @param string|null $body
      * @param string $type
+     * @param string $method
      *
      * @return mixed|string
      */
@@ -94,10 +96,10 @@ class Ucpaas
     }
 
     /**
-     * @param $url
-     * @param $type
-     * @param $body  post数据
-     * @param $method post或get
+     * @param string $url
+     * @param string $type
+     * @param string|null $body
+     * @param string $method
      *
      * @return mixed|string
      */
@@ -151,7 +153,7 @@ class Ucpaas
     /**
      * @param $appId
      * @param $fromClient
-     * @param $to
+     * @param string $to
      * @param null   $fromSerNum
      * @param null   $toSerNum
      * @param string $type
