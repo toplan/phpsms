@@ -15,11 +15,6 @@ class Sms
     const TASK = 'PhpSms';
 
     /**
-     * log agent`s name
-     */
-    const LOG_AGENT = 'Log';
-
-    /**
      * agents instance
      */
     protected static $agents;
@@ -365,9 +360,7 @@ class Sms
     protected static function generatorAgentsName($config)
     {
         $config = isset($config['enable']) ? $config['enable'] : null;
-        if ($config) {
-            self::enable($config);
-        }
+        self::enable($config);
     }
 
     /**
@@ -391,14 +384,6 @@ class Sms
         if (!count(self::$agentsName)) {
             throw new PhpSmsException('Please set at least one enable agent in config file(config/phpsms.php) or use method enable()');
         }
-        foreach (self::$agentsName as $agentName => $options) {
-            if ($agentName === self::LOG_AGENT) {
-                continue;
-            }
-            if (!isset(self::$agentsConfig[$agentName])) {
-                throw new PhpSmsException("Please configuration [$agentName] agent in config file(config/phpsms.php) or use method agents()");
-            }
-        }
     }
 
     /**
@@ -409,8 +394,18 @@ class Sms
     protected static function createAgents($task)
     {
         foreach (self::$agentsName as $name => $options) {
+            //获取代理器配置
             $configData = self::getAgentConfigData($name);
-            $task->driver("$name $options")
+            //解析代理器数组模式的调度配置
+            $data = self::parseAgentArrayOptions($options);
+            if ($data !== false) {
+                $opts = $name . ' ' . $data['driverOpts'];
+                $configData = array_merge($configData, $data);
+            } else {
+                $opts = "$name $options";
+            }
+            //创建任务驱动器
+            $task->driver($opts)
                  ->data($configData)
                  ->work(function ($driver) {
                      $configData = $driver->getDriverData();
@@ -432,6 +427,45 @@ class Sms
                      return $result;
                  });
         }
+    }
+
+    /**
+     * 解析可用代理器的数组模式的调度配置
+     *
+     * @param mixed $options
+     *
+     * @return mixed
+     */
+    protected static function parseAgentArrayOptions($options)
+    {
+        if (!is_array($options)) {
+            return false;
+        }
+        $agentClass = self::pullAgentOptionByName($options, 'agentClass');
+        $sendSms = self::pullAgentOptionByName($options, 'sendSms');
+        $voiceVerify = self::pullAgentOptionByName($options, 'voiceVerify');
+        $backup = self::pullAgentOptionByName($options, 'backup');
+        $driverOpts = implode(' ', array_values($options)) . " $backup";
+
+        return compact('agentClass', 'sendSms', 'voiceVerify', 'driverOpts');
+    }
+
+    /**
+     * @param $options
+     * @param $name
+     *
+     * @return null|string
+     */
+    protected static function pullAgentOptionByName(&$options, $name)
+    {
+        $value = isset($options[$name]) ? $options[$name] : null;
+        if ($name === 'backup') {
+            $value = isset($options[$name]) ?
+                     ($options[$name] ? 'backup' : '') : '';
+        }
+        unset($options[$name]);
+
+        return $value;
     }
 
     /**
@@ -461,11 +495,18 @@ class Sms
     public static function getSmsAgent($name, array $configData)
     {
         if (!isset(self::$agents[$name])) {
-            $className = 'Toplan\\PhpSms\\' . $name . 'Agent';
+            $configData['name'] = $name;
+            $className = isset($configData['agentClass']) ?
+                         $configData['agentClass'] : ('Toplan\\PhpSms\\' . $name . 'Agent');
             if (class_exists($className)) {
+                //创建新代理器
                 self::$agents[$name] = new $className($configData);
+            } elseif (isset($configData['sendSms']) || isset($configData['voiceVerify'])) {
+                //将临时代理器寄生到LogAgent
+                self::$agents[$name] = new LogAgent($configData);
             } else {
-                throw new PhpSmsException("Agent [$name] not support.");
+                //无代理器可用
+                throw new PhpSmsException("Agent [$name] not support. If you are want to use parasitic agent, please set callable arguments: [sendSms] and [voiceVerify]");
             }
         }
 
@@ -498,8 +539,8 @@ class Sms
             foreach ($agentName as $name => $opt) {
                 self::enable($name, $opt);
             }
-        } elseif ($agentName && is_string($agentName) && !is_array($options) && is_string("$options")) {
-            self::$agentsName["$agentName"] = "$options";
+        } elseif ($agentName && is_string($agentName) && (is_array($options) || is_string("$options"))) {
+            self::$agentsName["$agentName"] = is_array($options) ? $options : "$options";
         } elseif (is_int($agentName) && !is_array($options) && "$options") {
             self::$agentsName["$options"] = '1';
         } elseif ($agentName && $options === null) {

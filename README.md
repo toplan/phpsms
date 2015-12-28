@@ -11,7 +11,7 @@
 > phpsms的任务负载均衡功能由[task-balancer](https://github.com/toplan/task-balancer)提供。
 
 # 特点
-1. 支持请求发送负载均衡，可按代理器权重值均衡选择服务商发送。
+1. 支持短信/语音发送均衡调度，可按代理器权重值均衡选择服务商发送。
 2. 支持一个或多个备用代理器(服务商)。
 3. 允许推入队列，并自定义队列实现逻辑(与队列系统松散耦合)。
 4. 支持语音验证码。
@@ -45,16 +45,20 @@ composer require 'toplan/phpsms:~1.0.0'
 ```php
 //example:
 Sms::enable([
-    //被使用概率为2/15
-    'YunTongXun' => '20',
+    //被使用概率为2/3
+    'Luosimao' => '20',
 
-    //被使用概率为10/15，且为备用代理器
-    'Luosimao' => '100 backup',
+    //被使用概率为1/3，且为备用代理器
+    'YunPian' => '10 backup',
 
-    //被使用概率为3/15，且为备用代理器
-    'YunPian'  => '30 backup'
+    //仅为备用代理器
+    'YunTongXun' => '0 backup',
 ]);
 ```
+> **调度方案解析：**
+> 如果按照以上配置，那么系统首次会尝试使用`Luosimao`或`YunPian`发送短信，且它们被使用的概率分别为`2/3`和`1/3`。
+> 如果使用其中一个代理器发送失败，那么会启用备用代理器，按照配置可知备用代理器有`YunPian`和`YunTongXun`，那么会依次调用直到发送成功或无备用代理器可用。
+> 值得注意的是，如果首次尝试的是`YunPian`，那么备用代理器将会只使用`YunTongXun`，也就是会排除使用过的代理器。
 
 - 配置代理器所需参数
 
@@ -295,6 +299,50 @@ $enable = Sms::queue();
 
 > `$result`数据结构请参看[task-balancer](https://github.com/toplan/task-balancer)
 
+# 高级配置
+
+### 指定代理器类
+```php
+Sms::enable([
+    'TestAgent1' => [
+        '10 backup',
+        'agentClass' => 'Your\Namespace\YourAgent'
+    ]
+]);
+```
+
+### 寄生(临时)代理器
+```php
+Sms::enable([
+    'TestAgent2' => [
+        '20 backup',
+
+        //发送短信:
+        'sendSms' => function($agent, $to, $template, $data, $content)) {
+            //获取配置(如果设置了的话)
+            $key = $agent->key;
+
+            //$agent实例可用方法
+            $agent->sockPost($url, $query);//fsockopen
+            $agent->curl($url, array $params = [], $isPost = false);//curl
+            $agent->result('success', true);
+            $agent->result('info', 'some info');
+            $agent->result('code', 'your code');
+        },
+
+        //请求语音验证码:
+        'voiceVerify' => function($agent, $to, $code) {
+            //发送语音验证码
+        }
+    ]
+]);
+Sms::agent([
+    'TestAgent2' => [
+        'key' => '...'
+    ]
+]);
+```
+
 # 自定义代理器
 
 配置项加入到config/agents.php中：
@@ -310,8 +358,9 @@ $enable = Sms::queue();
 
 在agents目录下添加代理器类：
 
-**代理器类名为`FooAgent`，命名空间为`Toplan\PhpSms`，并继承`Agent`抽象类。**
+**代理器建议类名为`FooAgent`，命名空间建议为`Toplan\PhpSms`，必须继承`Agent`抽象类。**
 
+> 如果命名空间不为`Toplan\PhpSms`则需要指定代理器类，详见高级配置。
 > 如果使用到其它api库，可以将api库放入lib文件夹中。
 
 ```php

@@ -4,6 +4,10 @@ namespace Toplan\PhpSms;
 
 abstract class Agent
 {
+    const SUCCESS = 'success';
+    const INFO = 'info';
+    const CODE = 'code';
+
     /**
      * agent config
      *
@@ -17,9 +21,9 @@ abstract class Agent
      * @var array
      */
     protected $result = [
-        'success' => false,
-        'info'    => '',
-        'code'    => 0,
+        self::SUCCESS => false,
+        self::INFO    => '',
+        self::CODE    => 0,
     ];
 
     /**
@@ -153,6 +157,19 @@ abstract class Agent
     public function getResult()
     {
         return $this->result;
+    }
+
+    /**
+     * set result
+     *
+     * @param $name
+     * @param $value
+     */
+    public function result($name, $value)
+    {
+        if (array_key_exists($name, $this->result)) {
+            $this->result["$name"] = $value;
+        }
     }
 
     /**
