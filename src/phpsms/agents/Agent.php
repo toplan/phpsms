@@ -4,6 +4,10 @@ namespace Toplan\PhpSms;
 
 abstract class Agent
 {
+    const SUCCESS = 'success';
+    const INFO = 'info';
+    const CODE = 'code';
+
     /**
      * agent config
      *
@@ -17,9 +21,9 @@ abstract class Agent
      * @var array
      */
     protected $result = [
-        'success' => false,
-        'info'    => '',
-        'code'    => 0,
+        self::SUCCESS => false,
+        self::INFO    => '',
+        self::CODE    => 0,
     ];
 
     /**
@@ -106,6 +110,46 @@ abstract class Agent
     }
 
     /**
+     * cURl
+     *
+     * @codeCoverageIgnore
+     *
+     * @param string   $url    [请求的URL地址]
+     * @param array    $params [请求的参数]
+     * @param int|bool $isPost [是否采用POST形式]
+     *
+     * @return array ['request', 'response']
+     *               request:是否请求成功
+     *               response:响应数据
+     */
+    public function curl($url, array $params = [], $isPost = false)
+    {
+        $request = true;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.22 (KHTML, like Gecko) Chrome/25.0.1364.172 Safari/537.22');
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        if ($isPost) {
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
+            curl_setopt($ch, CURLOPT_URL, $url);
+        } else {
+            $params = http_build_query($params);
+            curl_setopt($ch, CURLOPT_URL, $params ? "$url?$params" : $url);
+        }
+        $response = curl_exec($ch);
+        if ($response === false) {
+            $request = false;
+            $response = curl_getinfo($ch);
+        }
+        curl_close($ch);
+
+        return compact('request', 'response');
+    }
+
+    /**
      * get result
      *
      * @return array
@@ -113,6 +157,19 @@ abstract class Agent
     public function getResult()
     {
         return $this->result;
+    }
+
+    /**
+     * set result
+     *
+     * @param $name
+     * @param $value
+     */
+    public function result($name, $value)
+    {
+        if (array_key_exists($name, $this->result)) {
+            $this->result["$name"] = $value;
+        }
     }
 
     /**
