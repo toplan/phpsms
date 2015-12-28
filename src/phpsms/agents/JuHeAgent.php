@@ -35,7 +35,7 @@ class JuHeAgent extends Agent
             'key'       => $this->key,
             'mobile'    => $to,
             'tpl_id'    => $tempId,
-            'tpl_value' => $tplValue
+            'tpl_value' => $tplValue,
         ];
         $result = $this->curl($sendUrl, $smsConf, true);
         $this->genResult($result);
@@ -43,12 +43,12 @@ class JuHeAgent extends Agent
 
     public function voiceVerify($to, $code)
     {
-        $url = "http://op.juhe.cn/yuntongxun/voice";
+        $url = 'http://op.juhe.cn/yuntongxun/voice';
         $params = [
-            "valicode"  => $code,
-            "to"        => $to,
-            "playtimes" => $this->times ?: 3,
-            "key"       => $this->key
+            'valicode'  => $code,
+            'to'        => $to,
+            'playtimes' => $this->times ?: 3,
+            'key'       => $this->key,
         ];
         $result = $this->curl($url, $params);
         $this->genResult($result);
@@ -58,14 +58,14 @@ class JuHeAgent extends Agent
     {
         if ($result['request']) {
             $result = json_decode($result['response'], true);
-            if ($result['error_code'] == '0') {
+            if ($result['error_code'] === '0') {
                 $this->result['success'] = true;
             } else {
                 $this->result['info'] = $result['reason'] . '|result:' . json_encode($result['result'] ?: '');
                 $this->result['code'] = $result['error_code'];
             }
         } else {
-            $this->result['info'] = "请求失败";
+            $this->result['info'] = '请求失败';
         }
     }
 }

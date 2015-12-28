@@ -110,29 +110,30 @@ abstract class Agent
      *
      * @codeCoverageIgnore
      *
-     * @param  string    $url [请求的URL地址]
-     * @param  array     $params [请求的参数]
-     * @param  int|bool  $isPost [是否采用POST形式]
+     * @param string   $url    [请求的URL地址]
+     * @param array    $params [请求的参数]
+     * @param int|bool $isPost [是否采用POST形式]
      *
      * @return array ['request', 'response']
      *               request:是否请求成功
      *               response:响应数据
      */
-    function curl($url, array $params = [], $isPost = false){
+    public function curl($url, array $params = [], $isPost = false)
+    {
         $request = true;
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_HTTP_VERSION , CURL_HTTP_VERSION_1_1);
-        curl_setopt($ch, CURLOPT_USERAGENT , 'Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.22 (KHTML, like Gecko) Chrome/25.0.1364.172 Safari/537.22');
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT , 30);
-        curl_setopt($ch, CURLOPT_TIMEOUT , 30);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER , true);
+        curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.22 (KHTML, like Gecko) Chrome/25.0.1364.172 Safari/537.22');
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         if ($isPost) {
-            curl_setopt($ch , CURLOPT_POST , true);
-            curl_setopt($ch , CURLOPT_POSTFIELDS , $params);
-            curl_setopt($ch , CURLOPT_URL , $url);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
+            curl_setopt($ch, CURLOPT_URL, $url);
         } else {
             $params = http_build_query($params);
-            curl_setopt($ch , CURLOPT_URL , $params ? "$url?$params" : $url);
+            curl_setopt($ch, CURLOPT_URL, $params ? "$url?$params" : $url);
         }
         $response = curl_exec($ch);
         if ($response === false) {

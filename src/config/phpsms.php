@@ -154,7 +154,7 @@ return [
             'key' => 'your key',
 
             //语音验证码播放次数
-            'times' => 3
+            'times' => 3,
         ],
     ],
 ];
