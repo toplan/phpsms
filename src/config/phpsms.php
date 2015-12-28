@@ -17,7 +17,7 @@ return [
      *     and it`s default value is '1'.
      * ----------------------------------------------------------
      * supported agents:
-     * 'Luosimao', 'YunTongXun', 'YunPian', 'SubMail', 'Ucpaas', 'Log'
+     * 'Luosimao', 'YunTongXun', 'YunPian', 'SubMail', 'Ucpaas', 'JuHe', 'Log'
      * ----------------------------------------------------------
      * Examples:
      * 'enable' => [
@@ -139,6 +139,22 @@ return [
             //应用Id，在官网应用列表中点击应用，对应应用详情中的APP ID
             //在开发调试的时候，可以使用官网自动为您分配的测试Demo的APP ID
             'appId' => 'your app id',
+        ],
+
+        /*
+         * -----------------------------------
+         * JuHe
+         * 聚合数据
+         * -----------------------------------
+         * website:https://www.juhe.cn
+         * support template sms.
+         */
+        'JuHe' => [
+            //应用App Key
+            'key' => 'your key',
+
+            //语音验证码播放次数
+            'times' => 3
         ],
     ],
 ];
