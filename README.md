@@ -143,7 +143,7 @@ PhpSms::make()->to($to)->content($content)->send();
 
 ### Sms::enable($name, $optionString)
 
-手动设置可用代理器(优先级高于配置文件)，如：
+手动设置可用代理器及其调度方案(优先级高于配置文件)，如：
 ```php
    Sms::enable([
         'Luosimao' => '80 backup'
@@ -299,49 +299,7 @@ $enable = Sms::queue();
 
 > `$result`数据结构请参看[task-balancer](https://github.com/toplan/task-balancer)
 
-# 高级配置
 
-### 指定代理器类
-```php
-Sms::enable([
-    'TestAgent1' => [
-        '10 backup',
-        'agentClass' => 'Your\Namespace\YourAgent'
-    ]
-]);
-```
-
-### 寄生(临时)代理器
-```php
-Sms::enable([
-    'TestAgent2' => [
-        '20 backup',
-
-        //发送短信:
-        'sendSms' => function($agent, $to, $template, $data, $content)) {
-            //获取配置(如果设置了的话)
-            $key = $agent->key;
-
-            //$agent实例可用方法
-            $agent->sockPost($url, $query);//fsockopen
-            $agent->curl($url, array $params = [], $isPost = false);//curl
-            $agent->result('success', true);
-            $agent->result('info', 'some info');
-            $agent->result('code', 'your code');
-        },
-
-        //请求语音验证码:
-        'voiceVerify' => function($agent, $to, $code) {
-            //发送语音验证码
-        }
-    ]
-]);
-Sms::agent([
-    'TestAgent2' => [
-        'key' => '...'
-    ]
-]);
-```
 
 # 自定义代理器
 
@@ -405,6 +363,57 @@ Sms::agent([
    }
 ```
 至此, 新加代理器成功!
+
+# 高级配置
+
+### 指定代理器类
+
+如果你自定义了一个代理器，但不是在`Toplan\PhpSms`命名空间下，那么你还可以在调度配置时指定代理器使用的类。
+
+```php
+Sms::enable([
+    'TestAgent1' => [
+        '10 backup',
+        'agentClass' => 'Your\Namespace\YourAgent'
+    ]
+]);
+```
+
+### 寄生代理器
+
+如果你既不想使用已有代理器，也不想自己写自定义代理器，那么寄生代理器或许是个好的选择，无需定义代理器类，
+只需在调度配置时定义好发送短信和语音验证码的方式即可。
+
+```php
+Sms::enable([
+    'TestAgent2' => [
+        '20 backup',
+
+        'sendSms' => function($agent, $to, $template, $data, $content)) {
+            //获取配置(如果设置了的话):
+            $key = $agent->key;
+
+            //$agent实例可用方法:
+            $agent->sockPost($url, $query);//fsockopen
+            $agent->curl($url, array $params = [], $isPost = false);//curl
+
+            //设置发送结果:
+            $agent->result('success', true);
+            $agent->result('info', 'some info');
+            $agent->result('code', 'your code');
+        },
+
+        'voiceVerify' => function($agent, $to, $code) {
+            //发送语音验证码，同上
+        }
+    ]
+]);
+Sms::agents([
+    'TestAgent2' => [
+        'key' => '...'
+    ]
+]);
+```
 
 # Todo list
 
