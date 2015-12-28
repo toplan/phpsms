@@ -76,8 +76,10 @@ class Ucpaas
     }
 
     /**
-     * @param $url
-     * @param string $type
+     * @param string      $url
+     * @param string|null $body
+     * @param string      $type
+     * @param string      $method
      *
      * @return mixed|string
      */
@@ -94,10 +96,10 @@ class Ucpaas
     }
 
     /**
-     * @param $url
-     * @param $type
-     * @param $body  post数据
-     * @param $method post或get
+     * @param string      $url
+     * @param string      $type
+     * @param string|null $body
+     * @param string      $method
      *
      * @return mixed|string
      */
@@ -149,266 +151,9 @@ class Ucpaas
     }
 
     /**
-     * @param string $type 默认json,也可指定xml,否则抛出异常
-     *
-     * @throws Exception
-     *
-     * @return mixed|string 返回指定$type格式的数据
-     * @links http://www.ucpaas.com/page/doc/doc_rest2-1.jsp
-     */
-    public function getDevinfo($type = 'json')
-    {
-        if ($type === 'json') {
-            $type = 'json';
-        } elseif ($type === 'xml') {
-            $type = 'xml';
-        } else {
-            throw new Exception('只能json或xml，默认为json');
-        }
-        $url = self::BaseUrl . self::SoftVersion . '/Accounts/' . $this->accountSid . '?sig=' . $this->getSigParameter();
-        $data = $this->getResult($url, null, $type, 'get');
-
-        return $data;
-    }
-
-    /**
-     * @param $appId 应用ID
-     * @param $clientType 计费方式。0  开发者计费；1 云平台计费。默认为0.
-     * @param $charge 充值的金额
-     * @param $friendlyName 昵称
-     * @param $mobile 手机号码
-     *
-     * @return json/xml
-     * @links http://www.ucpaas.com/page/doc/doc_rest2-2.jsp
-     */
-    public function applyClient($appId, $clientType, $charge, $friendlyName, $mobile, $type = 'json')
-    {
-        $url = self::BaseUrl . self::SoftVersion . '/Accounts/' . $this->accountSid . '/Clients?sig=' . $this->getSigParameter();
-        if ($type === 'json') {
-            $body_json = array();
-            $body_json['client'] = array();
-            $body_json['client']['appId'] = $appId;
-            $body_json['client']['clientType'] = $clientType;
-            $body_json['client']['charge'] = $charge;
-            $body_json['client']['friendlyName'] = $friendlyName;
-            $body_json['client']['mobile'] = $mobile;
-            $body = json_encode($body_json);
-        } elseif ($type === 'xml') {
-            $body_xml = '<?xml version="1.0" encoding="utf-8"?>
-                        <client><appId>' . $appId . '</appId>
-                        <clientType>' . $clientType . '</clientType>
-                        <charge>' . $charge . '</charge>
-                        <friendlyName>' . $friendlyName . '</friendlyName>
-                        <mobile>' . $mobile . '</mobile>
-                        </client>';
-            $body = trim($body_xml);
-        } else {
-            throw new Exception('只能json或xml，默认为json');
-        }
-        $data = $this->getResult($url, $body, $type, 'post');
-
-        return $data;
-    }
-
-    /**
-     * @param $clientNumber
-     * @param $appId
-     * @param string $type
-     *
-     * @throws Exception
-     *
-     * @return mixed|string
-     * @links http://www.ucpaas.com/page/doc/doc_rest2-3.jsp
-     */
-    public function releaseClient($clientNumber, $appId, $type = 'json')
-    {
-        $url = self::BaseUrl . self::SoftVersion . '/Accounts/' . $this->accountSid . '/dropClient?sig=' . $this->getSigParameter();
-        if ($type === 'json') {
-            $body_json = array();
-            $body_json['client'] = array();
-            $body_json['client']['clientNumber'] = $clientNumber;
-            $body_json['client']['appId'] = $appId;
-            $body = json_encode($body_json);
-        } elseif ($type === 'xml') {
-            $body_xml = '<?xml version="1.0" encoding="utf-8"?>
-                        <client>
-                        <clientNumber>' . $clientNumber . '</clientNumber>
-                        <appId>' . $appId . '</appId >
-                        </client>';
-            $body = trim($body_xml);
-        } else {
-            throw new Exception('只能json或xml，默认为json');
-        }
-        $data = $this->getResult($url, $body, $type, 'post');
-
-        return $data;
-    }
-
-    /**
-     * @param $appId
-     * @param $start
-     * @param $limit
-     * @param string $type
-     *
-     * @throws Exception
-     *
-     * @return mixed|string
-     * @links http://www.ucpaas.com/page/doc/doc_rest2-4.jsp
-     */
-    public function getClientList($appId, $start, $limit, $type = 'json')
-    {
-        $url = self::BaseUrl . self::SoftVersion . '/Accounts/' . $this->accountSid . '/clientList?sig=' . $this->getSigParameter();
-        if ($type === 'json') {
-            $body_json = array('client' => array(
-                'appId' => $appId,
-                'start' => $start,
-                'limit' => $limit,
-            ));
-            $body = json_encode($body_json);
-        } elseif ($type === 'xml') {
-            $body_xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-                        <client>
-                            <appId>' . $appId . '</appId>
-                            <start>' . $start . '</start>
-                            <limit>' . $limit . '</limit>
-                        </client>';
-            $body = trim($body_xml);
-        } else {
-            throw new Exception('只能json或xml，默认为json');
-        }
-        $data = $this->getResult($url, $body, $type, 'post');
-
-        return $data;
-    }
-
-    /**
-     * @param $appId
-     * @param $clientNumber
-     * @param string $type
-     *
-     * @throws Exception
-     *
-     * @return mixed|string
-     * @links http://www.ucpaas.com/page/doc/doc_rest2-5.jsp
-     */
-    public function getClientInfo($appId, $clientNumber, $type = 'json')
-    {
-        if ($type === 'json') {
-            $type = 'json';
-        } elseif ($type === 'xml') {
-            $type = 'xml';
-        } else {
-            throw new Exception('只能json或xml，默认为json');
-        }
-        $url = self::BaseUrl . self::SoftVersion . '/Accounts/' . $this->accountSid . '/Clients?sig=' . $this->getSigParameter() . '&clientNumber=' . $clientNumber . '&appId=' . $appId;
-        $data = $this->getResult($url, null, $type, 'get');
-
-        return $data;
-    }
-
-    /**
-     * @param $appId
-     * @param $mobile
-     * @param string $type
-     *
-     * @throws Exception
-     *
-     * @return mixed|string
-     * @links http://www.ucpaas.com/page/doc/doc_rest2-9.jsp
-     */
-    public function getClientInfoByMobile($appId, $mobile, $type = 'json')
-    {
-        if ($type === 'json') {
-            $type = 'json';
-        } elseif ($type === 'xml') {
-            $type = 'xml';
-        } else {
-            throw new Exception('只能json或xml，默认为json');
-        }
-        $url = self::BaseUrl . self::SoftVersion . '/Accounts/' . $this->accountSid . '/ClientsByMobile?sig=' . $this->getSigParameter() . '&mobile=' . $mobile . '&appId=' . $appId;
-        $data = $this->getResult($url, null, $type, 'get');
-
-        return $data;
-    }
-
-    /**
-     * @param $appId
-     * @param $date
-     * @param string $type
-     *
-     * @throws Exception
-     *
-     * @return mixed|string
-     * @links http://www.ucpaas.com/page/doc/doc_rest2-6.jsp
-     */
-    public function getBillList($appId, $date, $type = 'json')
-    {
-        $url = self::BaseUrl . self::SoftVersion . '/Accounts/' . $this->accountSid . '/billList?sig=' . $this->getSigParameter();
-        if ($type === 'json') {
-            $body_json = array('appBill' => array(
-                'appId' => $appId,
-                'date'  => $date,
-            ));
-            $body = json_encode($body_json);
-        } elseif ($type === 'xml') {
-            $body_xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-                        <appBill>
-                            <appId>' . $appId . '</appId>
-                            <date>' . $date . '</date>
-                        </appBill>';
-            $body = trim($body_xml);
-        } else {
-            throw new Exception('只能json或xml，默认为json');
-        }
-        $data = $this->getResult($url, $body, $type, 'post');
-
-        return $data;
-    }
-
-    /**
-     * @param $appId
-     * @param $clientNumber
-     * @param $chargeType
-     * @param $charge
-     * @param string $type
-     *
-     * @throws Exception
-     *
-     * @return mixed|string
-     * @links http://www.ucpaas.com/page/doc/doc_rest2-8.jsp
-     */
-    public function chargeClient($appId, $clientNumber, $chargeType, $charge, $type = 'json')
-    {
-        $url = self::BaseUrl . self::SoftVersion . '/Accounts/' . $this->accountSid . '/chargeClient?sig=' . $this->getSigParameter();
-        if ($type === 'json') {
-            $body_json = array('client' => array(
-                'appId'        => $appId,
-                'clientNumber' => $clientNumber,
-                'chargeType'   => $chargeType,
-                'charge'       => $charge,
-            ));
-            $body = json_encode($body_json);
-        } elseif ($type === 'xml') {
-            $body_xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-                        <client>
-                            <clientNumber>' . $clientNumber . '</clientNumber>
-                            <chargeType>' . $chargeType . '</chargeType>
-                            <charge>' . $charge . '</charge>
-                            <appId>' . $appId . '</appId>
-                        </client>';
-            $body = trim($body_xml);
-        } else {
-            throw new Exception('只能json或xml，默认为json');
-        }
-        $data = $this->getResult($url, $body, $type, 'post');
-
-        return $data;
-    }
-
-    /**
      * @param $appId
      * @param $fromClient
-     * @param $to
+     * @param string $to
      * @param null   $fromSerNum
      * @param null   $toSerNum
      * @param string $type

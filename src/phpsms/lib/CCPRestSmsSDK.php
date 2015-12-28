@@ -40,8 +40,8 @@ class REST
     /**
      * 设置主帐号
      * 
-     * @param string AccountSid 主帐号
-     * @param string AccountToken 主帐号Token
+     * @param string $AccountSid   主帐号
+     * @param string $AccountToken 主帐号Token
      */
     public function setAccount($AccountSid, $AccountToken)
     {
@@ -52,7 +52,7 @@ class REST
     /**
      * 设置应用ID
      * 
-     * @param string AppId 应用ID
+     * @param string $AppId 应用ID
      */
     public function setAppId($AppId)
     {
@@ -62,7 +62,7 @@ class REST
     /**
      * 打印日志
      * 
-     * @param log 日志内容
+     * @param string $log
      */
     public function showlog($log)
     {
@@ -73,13 +73,20 @@ class REST
 
      /**
       * 发起HTTPS请求
+      *
+      * @param string $url
+      * @param mixed $data
+      * @param mixed $header
+      * @param mixed $post
+      *
+      * @return mixed
       */
      public function curl_post($url, $data, $header, $post = 1)
      {
          //初始化curl
-       $ch = curl_init();
-       //参数设置
-       $res = curl_setopt($ch, CURLOPT_URL, $url);
+         $ch = curl_init();
+         //参数设置
+         $res = curl_setopt($ch, CURLOPT_URL, $url);
          curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
          curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
          curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -90,15 +97,14 @@ class REST
          curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
          curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
          $result = curl_exec($ch);
-       //连接失败
-       if ($result === false) {
-           if ($this->BodyType === 'json') {
-               $result = '{"statusCode":"172001","statusMsg":"网络错误"}';
-           } else {
-               $result = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Response><statusCode>172001</statusCode><statusMsg>网络错误</statusMsg></Response>';
-           }
-       }
-
+         //连接失败
+         if ($result === false) {
+             if ($this->BodyType === 'json') {
+                 $result = '{"statusCode":"172001","statusMsg":"网络错误"}';
+             } else {
+                 $result = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Response><statusCode>172001</statusCode><statusMsg>网络错误</statusMsg></Response>';
+             }
+         }
          curl_close($ch);
 
          return $result;
@@ -107,15 +113,20 @@ class REST
     /**
      * 发送模板短信
      *
-     * @param to 短信接收彿手机号码集合,用英文逗号分开
-     * @param array 内容数据
-     * @param $tempId 模板Id
+     * @param string $to
+     *                       短信接收彿手机号码集合,用英文逗号分开
+     * @param array  $datas
+     *                       内容数据
+     * @param mixed  $tempId
+     *                       模板Id
+     *
+     * @return mixed
      */
     public function sendTemplateSMS($to, $datas, $tempId)
     {
         //主帐号鉴权信息验证，对必选参数进行判空。
         $auth = $this->accAuth();
-        if ($auth !== '') {
+        if ($auth !== true) {
             return $auth;
         }
         // 拼接请求包体
@@ -155,11 +166,6 @@ class REST
         } else { //xml格式
            $datas = simplexml_load_string(trim($result, " \t\n\r"));
         }
-      //  if($datas == FALSE){
-//            $datas = new stdClass();
-//            $datas->statusCode = '172003';
-//            $datas->statusMsg = '返回包体错误';
-//        }
         //重新装填数据
         if ($datas->statusCode === 0) {
             if ($this->BodyType === 'json') {
@@ -174,21 +180,23 @@ class REST
     /**
      * 语音验证码
      *
-     * @param null verifyCode 验证码内容，为数字和英文字母，不区分大小写，长度4-8位
-     * @param null playTimes 播放次数，1－3次
-     * @param null to 接收号码
-     * @param null displayNum 显示的主叫号码
-     * @param null respUrl 语音验证码状态通知回调地址，云通讯平台将向该Url地址发送呼叫结果通知
-     * @param null lang 语言类型
-     * @param null userData 第三方私有数据
-     * @param null welcomePrompt  欢迎提示音，在播放验证码语音前播放此内容（语音文件格式为wav）
-     * @param null playVerifyCode  语音验证码的内容全部播放此节点下的全部语音文件
+     * @param mixed $verifyCode     验证码内容，为数字和英文字母，不区分大小写，长度4-8位
+     * @param mixed $playTimes      播放次数，1－3次
+     * @param mixed $to             接收号码
+     * @param mixed $displayNum     显示的主叫号码
+     * @param mixed $respUrl        语音验证码状态通知回调地址，云通讯平台将向该Url地址发送呼叫结果通知
+     * @param mixed $lang           语言类型
+     * @param mixed $userData       第三方私有数据
+     * @param mixed $welcomePrompt  欢迎提示音，在播放验证码语音前播放此内容（语音文件格式为wav）
+     * @param mixed $playVerifyCode 语音验证码的内容全部播放此节点下的全部语音文件
+     *
+     * @return mixed
      */
     public function voiceVerify($verifyCode, $playTimes, $to, $displayNum, $respUrl, $lang, $userData, $welcomePrompt, $playVerifyCode)
     {
         //主帐号鉴权信息验证，对必选参数进行判空。
         $auth = $this->accAuth();
-        if ($auth !== '') {
+        if ($auth !== true) {
             return $auth;
         }
         // 拼接请求包体
@@ -233,6 +241,8 @@ class REST
 
    /**
     * 主帐号鉴权
+    *
+    * @return mixed
     */
    public function accAuth()
    {
@@ -278,6 +288,7 @@ class REST
 
            return $data;
        }
+
+       return true;
    }
 }
-?>
