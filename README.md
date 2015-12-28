@@ -16,7 +16,8 @@
 3. 允许推入队列，并自定义队列实现逻辑(与队列系统松散耦合)。
 4. 支持语音验证码。
 5. 短信/语音验证码发送前后钩子。
-6. 支持国内主流短信服务商，也可自定义代理器。
+6. 支持国内[主流短信服务商](#服务商)。
+7. [自定义代理器](#自定义代理器)和性感的[寄生代理器](#寄生代理器)。
 
 # 服务商
 
@@ -303,64 +304,62 @@ $enable = Sms::queue();
 
 # 自定义代理器
 
-配置项加入到config/agents.php中：
-
-> 请注意命名规范，Foo为代理器(服务商)名称。
-
+配置项加入到config/phpsms.php中键为`agents`的数组里：
 ```php
-   'Foo' => [
-        'apikey' => 'some info',
-        ...
-   ]
+//请注意命名规范，Foo为代理器(服务商)名称。
+'Foo' => [
+    'apikey' => 'some info',
+    ...
+]
 ```
 
 在agents目录下添加代理器类：
 
-**代理器建议类名为`FooAgent`，命名空间建议为`Toplan\PhpSms`，必须继承`Agent`抽象类。**
+**建议代理器类名为`FooAgent`，建议命名空间为`Toplan\PhpSms`，必须继承`Agent`抽象类。**
 
 > 如果命名空间不为`Toplan\PhpSms`则需要指定代理器类，详见高级配置。
 > 如果使用到其它api库，可以将api库放入lib文件夹中。
 
 ```php
-   namespace Toplan\PhpSms;
-   class FooAgent extends Agent {
-        //override
-        //发送短信一级入口
-        public function sendSms($tempId, $to, Array $data, $content){
-           //在这个方法中调用二级入口
-           //根据你使用的服务商的接口选择调用哪个方式发送短信
-           $this->sendContentSms($to, $content);
-           $this->sendTemplateSms($tempId, $to, Array $data);
-        }
+namespace Toplan\PhpSms;
+class FooAgent extends Agent {
+    //override
+    //发送短信一级入口
+    public function sendSms($tempId, $to, Array $data, $content){
+       //在这个方法中调用二级入口
+       //根据你使用的服务商的接口选择调用哪个方式发送短信
+       $this->sendContentSms($to, $content);
+       $this->sendTemplateSms($tempId, $to, Array $data);
+    }
 
-        //override
-        //发送短信二级入口：发送内容短信
-        public function sendContentSms($to, $content)
-        {
-            //获取配置文件中的参数
-            $x = $this->apikey;
-            //在这里实现发送内容短信，即直接发送内容
-            ...
-            //切记将发送结果存入到$this->result
-            $this->result['success'] = false;//是否发送成功
-            $this->result['info'] = $msg;//发送结果信息说明
-            $this->result['code'] = $code;//发送结果代码
-        }
+    //override
+    //发送短信二级入口：发送内容短信
+    public function sendContentSms($to, $content)
+    {
+        //获取配置文件中的参数
+        $x = $this->apikey;
+        //在这里实现发送内容短信，即直接发送内容
+        ...
+        //切记将发送结果存入到$this->result
+        $this->result['success'] = false;//是否发送成功
+        $this->result['info'] = $msg;//发送结果信息说明
+        $this->result['code'] = $code;//发送结果代码
+    }
 
-        //override
-        //发送短信二级入口：发送模板短信
-        public function sendTemplateSms($tempId, $to, Array $data)
-        {
-            //同上...
-        }
+    //override
+    //发送短信二级入口：发送模板短信
+    public function sendTemplateSms($tempId, $to, Array $data)
+    {
+        //同上...
+    }
 
-        //override
-        //发送语音验证码入口
-        public function voiceVerify($to, $code)
-        {
-            //同上...
-        }
-   }
+    //override
+    //发送语音验证码入口
+    public function voiceVerify($to, $code)
+    {
+        //同上...
+    }
+}
 ```
 至此, 新加代理器成功!
 
@@ -417,7 +416,6 @@ Sms::agents([
 
 # Todo list
 
-- [ ] 优化读取配置文件的逻辑，确保必须读取一次配置文件，这样将配置文件`agents`和`Sms::agents()`方法结合起来。
 - [ ] 可用代理器分组配置功能；短信发送时选择分组进行发送的功能。
 
 # Encourage
