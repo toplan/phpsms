@@ -33,7 +33,7 @@
 # 安装
 
 ```php
-composer require 'toplan/phpsms:~1.0.0'
+composer require 'toplan/phpsms:~1.2.0'
 ```
 
 # 快速上手
@@ -154,6 +154,9 @@ PhpSms::make()->to($to)->content($content)->send();
    Sms::enable('Luosimao', '80 backup');
    Sms::enable('YunPian', '100 backup');
 ```
+
+> `enable`静态方法的更多使用方法见[高级配置](#高级配置)
+
 ### Sms::agents($name, $config);
 
 手动设置代理器配置参数(优先级高于配置文件)，如：

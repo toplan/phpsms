@@ -341,14 +341,8 @@ class Sms
     protected static function configuration()
     {
         $config = [];
-        if (empty(self::$agentsName)) {
-            $config = include __DIR__ . '/../config/phpsms.php';
-            self::generatorAgentsName($config);
-        }
-        if (empty(self::$agentsConfig)) {
-            $config = $config ?: include __DIR__ . '/../config/phpsms.php';
-            self::generatorAgentsConfig($config);
-        }
+        self::generatorAgentsName($config);
+        self::generatorAgentsConfig($config);
         self::configValidator();
     }
 
@@ -357,10 +351,13 @@ class Sms
      *
      * @param array $config
      */
-    protected static function generatorAgentsName($config)
+    protected static function generatorAgentsName(&$config)
     {
-        $config = isset($config['enable']) ? $config['enable'] : null;
-        self::enable($config);
+        if (empty(self::$agentsName)) {
+            $config = $config ?: include __DIR__ . '/../config/phpsms.php';
+            $enableAgents = isset($config['enable']) ? $config['enable'] : null;
+            self::enable($enableAgents);
+        }
     }
 
     /**
@@ -368,10 +365,18 @@ class Sms
      *
      * @param array $config
      */
-    protected static function generatorAgentsConfig($config)
+    protected static function generatorAgentsConfig(&$config)
     {
-        $config = isset($config['agents']) ? $config['agents'] : [];
-        self::agents($config);
+        $diff = array_diff_key(self::$agentsName, self::$agentsConfig);
+        $diff = array_keys($diff);
+        if (count($diff)) {
+            $config = $config ?: include __DIR__ . '/../config/phpsms.php';
+            $agentsConfig = isset($config['agents']) ? $config['agents'] : [];
+            foreach ($diff as $name) {
+                $agentConfig = isset($agentsConfig[$name]) ? $agentsConfig[$name] : [];
+                self::agents($name, $agentConfig);
+            }
+        }
     }
 
     /**
@@ -451,6 +456,8 @@ class Sms
     }
 
     /**
+     * 从调度配置中拉取指定数据
+     *
      * @param $options
      * @param $name
      *
@@ -460,8 +467,7 @@ class Sms
     {
         $value = isset($options[$name]) ? $options[$name] : null;
         if ($name === 'backup') {
-            $value = isset($options[$name]) ?
-                     ($options[$name] ? 'backup' : '') : '';
+            $value = isset($options[$name]) ? ($options[$name] ? 'backup' : '') : '';
         }
         unset($options[$name]);
 
@@ -496,14 +502,14 @@ class Sms
     {
         if (!isset(self::$agents[$name])) {
             $configData['name'] = $name;
-            $className = isset($configData['agentClass']) ?
-                         $configData['agentClass'] : ('Toplan\\PhpSms\\' . $name . 'Agent');
-            if (class_exists($className)) {
-                //创建新代理器
-                self::$agents[$name] = new $className($configData);
-            } elseif (isset($configData['sendSms']) || isset($configData['voiceVerify'])) {
+            $className = isset($configData['agentClass']) ? $configData['agentClass'] : ('Toplan\\PhpSms\\' . $name . 'Agent');
+            if ((isset($configData['sendSms']) && is_callable($configData['sendSms'])) ||
+                (isset($configData['voiceVerify']) && is_callable($configData['voiceVerify']))) {
                 //将临时代理器寄生到LogAgent
                 self::$agents[$name] = new LogAgent($configData);
+            } elseif (class_exists($className)) {
+                //创建新代理器
+                self::$agents[$name] = new $className($configData);
             } else {
                 //无代理器可用
                 throw new PhpSmsException("Agent [$name] not support. If you are want to use parasitic agent, please set callable arguments: [sendSms] and [voiceVerify]");
