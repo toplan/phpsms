@@ -41,10 +41,10 @@ abstract class Agent
      *
      * @param       $tempId
      * @param       $to
-     * @param array $data
+     * @param array $tempData
      * @param       $content
      */
-    abstract public function sendSms($tempId, $to, array $data, $content);
+    abstract public function sendSms($tempId, $to, array $tempData, $content);
 
     /**
      * content sms send process
@@ -59,9 +59,9 @@ abstract class Agent
      *
      * @param       $tempId
      * @param       $to
-     * @param array $data
+     * @param array $tempData
      */
-    abstract public function sendTemplateSms($tempId, $to, array $data);
+    abstract public function sendTemplateSms($tempId, $to, array $tempData);
 
     /**
      * voice verify
@@ -152,11 +152,19 @@ abstract class Agent
     /**
      * get result
      *
-     * @return array
+     * @param null|string $name
+     *
+     * @return mixed
      */
-    public function getResult()
+    public function getResult($name = null)
     {
-        return $this->result;
+        if (empty($name)) {
+            return $this->result;
+        } elseif (array_key_exists("$name", $this->result)) {
+            return $this->result["$name"];
+        }
+
+        return;
     }
 
     /**

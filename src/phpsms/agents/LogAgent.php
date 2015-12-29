@@ -11,21 +11,20 @@ namespace Toplan\PhpSms;
  */
 class LogAgent extends Agent
 {
-    public function sendSms($tempId, $to, array $data, $content)
+    public function sendSms($tempId, $to, array $tempData, $content)
     {
+        //作为寄生代理器发送短信
         if (is_callable($this->sendSms)) {
-            //寄生代理器的发送短信
-            $result = call_user_func_array($this->sendSms, [$this, $to, $tempId, $data, $content]);
-            if ($result) {
-                $this->result = $result;
-            }
+            $smsData = compact('to', 'tempId', 'tempData', 'content');
+            call_user_func_array($this->sendSms, [$this, $smsData]);
 
             return;
         }
+        //作为测试代理器
         if ($content) {
             $this->sendContentSms($to, $content);
         } else {
-            $this->sendTemplateSms($tempId, $to, $data);
+            $this->sendTemplateSms($tempId, $to, $tempData);
         }
     }
 
@@ -35,7 +34,7 @@ class LogAgent extends Agent
         $this->result['info'] = 'send content sms success';
     }
 
-    public function sendTemplateSms($tempId, $to, array $data)
+    public function sendTemplateSms($tempId, $to, array $tempData)
     {
         $this->result['success'] = true;
         $this->result['info'] = 'send template sms success';
@@ -43,15 +42,14 @@ class LogAgent extends Agent
 
     public function voiceVerify($to, $code)
     {
+        //作为寄生代理器发送语音验证码
         if (is_callable($this->voiceVerify)) {
-            //寄生代理器发送语音验证码
-            $result = call_user_func_array($this->voiceVerify, [$this, $to, $code]);
-            if ($result) {
-                $this->result = $result;
-            }
+            $data = compact('to', 'code');
+            call_user_func_array($this->voiceVerify, [$this, $data]);
 
             return;
         }
+        //作为测试代理器
         $this->result['success'] = true;
         $this->result['info'] = "send voice verify to $to success [code = $code]";
     }

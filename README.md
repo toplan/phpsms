@@ -33,7 +33,7 @@
 # 安装
 
 ```php
-composer require 'toplan/phpsms:~1.0.0'
+composer require 'toplan/phpsms:~1.2.0'
 ```
 
 # 快速上手
@@ -154,6 +154,9 @@ PhpSms::make()->to($to)->content($content)->send();
    Sms::enable('Luosimao', '80 backup');
    Sms::enable('YunPian', '100 backup');
 ```
+
+> `enable`静态方法的更多使用方法见[高级配置](#高级配置)
+
 ### Sms::agents($name, $config);
 
 手动设置代理器配置参数(优先级高于配置文件)，如：
@@ -341,9 +344,9 @@ class FooAgent extends Agent {
         //在这里实现发送内容短信，即直接发送内容
         ...
         //切记将发送结果存入到$this->result
-        $this->result['success'] = false;//是否发送成功
-        $this->result['info'] = $msg;//发送结果信息说明
-        $this->result['code'] = $code;//发送结果代码
+        $this->result('success', true);//是否发送成功
+        $this->result('info', $msg);//发送结果信息说明
+        $this->result('code', $code);//发送结果代码
     }
 
     //override
@@ -388,7 +391,11 @@ Sms::enable([
     'TestAgent2' => [
         '20 backup',
 
-        'sendSms' => function($agent, $to, $template, $data, $content)) {
+        'sendSms' => function($agent, $data)) {
+            //$data为数组，包含了发送短信的相关数据:
+            //'to', 'tempId', 'tempData', 'content'
+            $to = $data['to'];
+
             //获取配置(如果设置了的话):
             $key = $agent->key;
 
@@ -402,7 +409,7 @@ Sms::enable([
             $agent->result('code', 'your code');
         },
 
-        'voiceVerify' => function($agent, $to, $code) {
+        'voiceVerify' => function($agent, $data) {
             //发送语音验证码，同上
         }
     ]

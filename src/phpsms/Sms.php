@@ -61,6 +61,8 @@ class Sms
      */
     protected static $enableHooks = [
         'beforeRun',
+        'beforeDriverRun',
+        'afterDriverRun',
         'afterRun',
     ];
 
@@ -308,28 +310,23 @@ class Sms
 
     /**
      * init
-     *
-     * @return mixed
      */
     protected static function init()
     {
         self::configuration();
-
-        return self::generatorTask();
+        $task = self::generatorTask();
+        self::createDrivers($task);
     }
 
     /**
      * generator a sms send task
      *
-     * @return null
+     * @return object
      */
     public static function generatorTask()
     {
-        if (!Balancer::getTask(self::TASK)) {
-            Balancer::task(self::TASK, function ($task) {
-                // create drivers
-                self::createAgents($task);
-            });
+        if (!Balancer::hasTask(self::TASK)) {
+            Balancer::task(self::TASK, null);
         }
 
         return Balancer::getTask(self::TASK);
@@ -341,14 +338,8 @@ class Sms
     protected static function configuration()
     {
         $config = [];
-        if (empty(self::$agentsName)) {
-            $config = include __DIR__ . '/../config/phpsms.php';
-            self::generatorAgentsName($config);
-        }
-        if (empty(self::$agentsConfig)) {
-            $config = $config ?: include __DIR__ . '/../config/phpsms.php';
-            self::generatorAgentsConfig($config);
-        }
+        self::generatorAgentsName($config);
+        self::generatorAgentsConfig($config);
         self::configValidator();
     }
 
@@ -357,10 +348,13 @@ class Sms
      *
      * @param array $config
      */
-    protected static function generatorAgentsName($config)
+    protected static function generatorAgentsName(&$config)
     {
-        $config = isset($config['enable']) ? $config['enable'] : null;
-        self::enable($config);
+        if (empty(self::$agentsName)) {
+            $config = $config ?: include __DIR__ . '/../config/phpsms.php';
+            $enableAgents = isset($config['enable']) ? $config['enable'] : null;
+            self::enable($enableAgents);
+        }
     }
 
     /**
@@ -368,10 +362,18 @@ class Sms
      *
      * @param array $config
      */
-    protected static function generatorAgentsConfig($config)
+    protected static function generatorAgentsConfig(&$config)
     {
-        $config = isset($config['agents']) ? $config['agents'] : [];
-        self::agents($config);
+        $diff = array_diff_key(self::$agentsName, self::$agentsConfig);
+        $diff = array_keys($diff);
+        if (count($diff)) {
+            $config = $config ?: include __DIR__ . '/../config/phpsms.php';
+            $agentsConfig = isset($config['agents']) ? $config['agents'] : [];
+            foreach ($diff as $name) {
+                $agentConfig = isset($agentsConfig[$name]) ? $agentsConfig[$name] : [];
+                self::agents($name, $agentConfig);
+            }
+        }
     }
 
     /**
@@ -391,22 +393,19 @@ class Sms
      *
      * @param $task
      */
-    protected static function createAgents($task)
+    protected static function createDrivers($task)
     {
         foreach (self::$agentsName as $name => $options) {
             //获取代理器配置
             $configData = self::getAgentConfigData($name);
             //解析代理器数组模式的调度配置
-            $data = self::parseAgentArrayOptions($options);
-            if ($data !== false) {
-                $opts = $name . ' ' . $data['driverOpts'];
+            if (is_array($options)) {
+                $data = self::parseAgentArrayOptions($options);
                 $configData = array_merge($configData, $data);
-            } else {
-                $opts = "$name $options";
+                $options = $data['driverOpts'];
             }
             //创建任务驱动器
-            $task->driver($opts)
-                 ->data($configData)
+            $task->driver("$name $options")->data($configData)
                  ->work(function ($driver) {
                      $configData = $driver->getDriverData();
                      $agent = self::getSmsAgent($driver->name, $configData);
@@ -432,15 +431,12 @@ class Sms
     /**
      * 解析可用代理器的数组模式的调度配置
      *
-     * @param mixed $options
+     * @param array $options
      *
-     * @return mixed
+     * @return array
      */
-    protected static function parseAgentArrayOptions($options)
+    protected static function parseAgentArrayOptions(array $options)
     {
-        if (!is_array($options)) {
-            return false;
-        }
         $agentClass = self::pullAgentOptionByName($options, 'agentClass');
         $sendSms = self::pullAgentOptionByName($options, 'sendSms');
         $voiceVerify = self::pullAgentOptionByName($options, 'voiceVerify');
@@ -451,6 +447,8 @@ class Sms
     }
 
     /**
+     * 从调度配置中拉取指定数据
+     *
      * @param $options
      * @param $name
      *
@@ -460,8 +458,7 @@ class Sms
     {
         $value = isset($options[$name]) ? $options[$name] : null;
         if ($name === 'backup') {
-            $value = isset($options[$name]) ?
-                     ($options[$name] ? 'backup' : '') : '';
+            $value = isset($options[$name]) ? ($options[$name] ? 'backup' : '') : '';
         }
         unset($options[$name]);
 
@@ -496,14 +493,14 @@ class Sms
     {
         if (!isset(self::$agents[$name])) {
             $configData['name'] = $name;
-            $className = isset($configData['agentClass']) ?
-                         $configData['agentClass'] : ('Toplan\\PhpSms\\' . $name . 'Agent');
-            if (class_exists($className)) {
-                //创建新代理器
-                self::$agents[$name] = new $className($configData);
-            } elseif (isset($configData['sendSms']) || isset($configData['voiceVerify'])) {
+            $className = isset($configData['agentClass']) ? $configData['agentClass'] : ('Toplan\\PhpSms\\' . $name . 'Agent');
+            if ((isset($configData['sendSms']) && is_callable($configData['sendSms'])) ||
+                (isset($configData['voiceVerify']) && is_callable($configData['voiceVerify']))) {
                 //将临时代理器寄生到LogAgent
                 self::$agents[$name] = new LogAgent($configData);
+            } elseif (class_exists($className)) {
+                //创建新代理器
+                self::$agents[$name] = new $className($configData);
             } else {
                 //无代理器可用
                 throw new PhpSmsException("Agent [$name] not support. If you are want to use parasitic agent, please set callable arguments: [sendSms] and [voiceVerify]");
@@ -539,7 +536,7 @@ class Sms
             foreach ($agentName as $name => $opt) {
                 self::enable($name, $opt);
             }
-        } elseif ($agentName && is_string($agentName) && (is_array($options) || is_string("$options"))) {
+        } elseif ($agentName && is_string($agentName) && $options !== null) {
             self::$agentsName["$agentName"] = is_array($options) ? $options : "$options";
         } elseif (is_int($agentName) && !is_array($options) && "$options") {
             self::$agentsName["$options"] = '1';
@@ -618,11 +615,13 @@ class Sms
     {
         $name = $name === 'beforeSend' ? 'beforeRun' : $name;
         $name = $name === 'afterSend' ? 'afterRun' : $name;
+        $name = $name === 'beforeAgentSend' ? 'beforeDriverRun' : $name;
+        $name = $name === 'afterAgentSend' ? 'afterDriverRun' : $name;
         if (in_array($name, self::$enableHooks)) {
             $handler = $args[0];
             $override = isset($args[1]) ? (bool) $args[1] : false;
-            if ($handler && is_callable($handler)) {
-                $task = self::init();
+            if (is_callable($handler)) {
+                $task = self::generatorTask();
                 $task->hook($name, $handler, $override);
             } else {
                 throw new PhpSmsException("Please give method static $name() a callable parameter");
