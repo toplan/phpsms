@@ -15,12 +15,29 @@ class AgentTest extends PHPUnit_Framework_TestCase
         $this->agent = new LogAgent($config);
     }
 
-    public function testResult()
+    public function testResultOriginValue()
     {
         $r = $this->agent->getResult();
         $this->assertArrayHasKey('success', $r);
         $this->assertArrayHasKey('info', $r);
         $this->assertArrayHasKey('code', $r);
+    }
+
+    public function testSetAndGetResult()
+    {
+        $this->agent->result('success', true);
+        $this->agent->result('info', 'info');
+        $this->agent->result('code', 'code');
+
+        $r = $this->agent->getResult();
+        $code = $this->agent->getResult('code');
+        $null = $this->agent->getResult('undefined');
+
+        $this->assertTrue($r['success']);
+        $this->assertEquals('info', $r['info']);
+        $this->assertEquals('code', $r['code']);
+        $this->assertEquals('code', $code);
+        $this->assertNull($null);
     }
 
     public function testGetConfig()
@@ -56,5 +73,26 @@ class AgentTest extends PHPUnit_Framework_TestCase
         $this->agent->voiceVerify('18280111111', '1111');
         $r = $this->agent->getResult();
         $this->assertTrue($r['success']);
+    }
+
+    public function testParasitic()
+    {
+        $parasiticAgent = new LogAgent([
+            'sendSms' => function ($agent, $data) {
+                $agent->result('info', 'parasitic_sms');
+                $agent->result('code', $data['to']);
+            },
+            'voiceVerify' => function ($agent, $data) {
+                $agent->result('info', 'parasitic_voice_verify');
+                $agent->result('code', $data['code']);
+            }
+        ]);
+        $parasiticAgent->sendSms('template id', '18280111111', [], 'content');
+        $this->assertEquals('parasitic_sms', $parasiticAgent->getResult('info'));
+        $this->assertEquals('18280111111', $parasiticAgent->getResult('code'));
+
+        $parasiticAgent->voiceVerify('18280111111', '2222');
+        $this->assertEquals('parasitic_voice_verify', $parasiticAgent->getResult('info'));
+        $this->assertEquals('2222', $parasiticAgent->getResult('code'));
     }
 }

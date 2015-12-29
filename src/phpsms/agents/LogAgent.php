@@ -11,11 +11,12 @@ namespace Toplan\PhpSms;
  */
 class LogAgent extends Agent
 {
-    public function sendSms($tempId, $to, array $data, $content)
+    public function sendSms($tempId, $to, array $tempData, $content)
     {
         //作为寄生代理器发送短信
         if (is_callable($this->sendSms)) {
-            call_user_func_array($this->sendSms, [$this, $to, $tempId, $data, $content]);
+            $smsData = compact('to', 'tempId', 'tempData', 'content');
+            call_user_func_array($this->sendSms, [$this, $smsData]);
 
             return;
         }
@@ -23,7 +24,7 @@ class LogAgent extends Agent
         if ($content) {
             $this->sendContentSms($to, $content);
         } else {
-            $this->sendTemplateSms($tempId, $to, $data);
+            $this->sendTemplateSms($tempId, $to, $tempData);
         }
     }
 
@@ -33,7 +34,7 @@ class LogAgent extends Agent
         $this->result['info'] = 'send content sms success';
     }
 
-    public function sendTemplateSms($tempId, $to, array $data)
+    public function sendTemplateSms($tempId, $to, array $tempData)
     {
         $this->result['success'] = true;
         $this->result['info'] = 'send template sms success';
@@ -43,7 +44,8 @@ class LogAgent extends Agent
     {
         //作为寄生代理器发送语音验证码
         if (is_callable($this->voiceVerify)) {
-            call_user_func_array($this->voiceVerify, [$this, $to, $code]);
+            $data = compact('to', 'code');
+            call_user_func_array($this->voiceVerify, [$this, $data]);
 
             return;
         }
