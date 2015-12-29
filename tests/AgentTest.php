@@ -85,7 +85,7 @@ class AgentTest extends PHPUnit_Framework_TestCase
             'voiceVerify' => function ($agent, $data) {
                 $agent->result('info', 'parasitic_voice_verify');
                 $agent->result('code', $data['code']);
-            }
+            },
         ]);
         $parasiticAgent->sendSms('template id', '18280111111', [], 'content');
         $this->assertEquals('parasitic_sms', $parasiticAgent->getResult('info'));
