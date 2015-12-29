@@ -321,7 +321,7 @@ class Sms
     /**
      * generator a sms send task
      *
-     * @return null
+     * @return object
      */
     public static function generatorTask()
     {

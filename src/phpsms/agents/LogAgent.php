@@ -13,15 +13,13 @@ class LogAgent extends Agent
 {
     public function sendSms($tempId, $to, array $data, $content)
     {
+        //作为寄生代理器发送短信
         if (is_callable($this->sendSms)) {
-            //寄生代理器的发送短信
-            $result = call_user_func_array($this->sendSms, [$this, $to, $tempId, $data, $content]);
-            if ($result) {
-                $this->result = $result;
-            }
+            call_user_func_array($this->sendSms, [$this, $to, $tempId, $data, $content]);
 
             return;
         }
+        //作为测试代理器
         if ($content) {
             $this->sendContentSms($to, $content);
         } else {
@@ -43,15 +41,13 @@ class LogAgent extends Agent
 
     public function voiceVerify($to, $code)
     {
+        //作为寄生代理器发送语音验证码
         if (is_callable($this->voiceVerify)) {
-            //寄生代理器发送语音验证码
-            $result = call_user_func_array($this->voiceVerify, [$this, $to, $code]);
-            if ($result) {
-                $this->result = $result;
-            }
+            call_user_func_array($this->voiceVerify, [$this, $to, $code]);
 
             return;
         }
+        //作为测试代理器
         $this->result['success'] = true;
         $this->result['info'] = "send voice verify to $to success [code = $code]";
     }
