@@ -164,7 +164,7 @@ abstract class Agent
             return $this->result["$name"];
         }
 
-        return null;
+        return;
     }
 
     /**
