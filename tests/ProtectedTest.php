@@ -22,12 +22,6 @@ class ProtectedTest extends PHPUnit_Framework_TestCase
         $config = include __DIR__ . '/../src/config/phpsms.php';
         $this->assertCount(count($config['enable']), Sms::getEnableAgents());
         $this->assertCount(count($config['enable']), Sms::getAgentsConfig());
-
-        Sms::enable(['Log', 'Luosimao', 'YunPian']);
-        $this->assertCount(3, Sms::getEnableAgents());
-
-        $obj2 = Sms::make();
-        $this->assertCount(3, Sms::getAgentsConfig());
     }
 
     public function testValidator()
