@@ -88,10 +88,14 @@ class Sms
 
     /**
      * construct
+     *
+     * @param bool $autoBoot
      */
-    public function __construct()
+    public function __construct($autoBoot = true)
     {
-        self::init();
+        if ($autoBoot) {
+            self::bootstrap();
+        }
     }
 
     /**
@@ -309,13 +313,15 @@ class Sms
     }
 
     /**
-     * init
+     * bootstrap
      */
-    protected static function init()
+    public static function bootstrap()
     {
         self::configuration();
         $task = self::generatorTask();
-        self::createDrivers($task);
+        if (!count($task->drivers)) {
+            self::createDrivers($task);
+        }
     }
 
     /**
@@ -449,12 +455,12 @@ class Sms
     /**
      * 从调度配置中拉取指定数据
      *
-     * @param $options
-     * @param $name
+     * @param array  $options
+     * @param string $name
      *
      * @return null|string
      */
-    protected static function pullAgentOptionByName(&$options, $name)
+    protected static function pullAgentOptionByName(array &$options, $name)
     {
         $value = isset($options[$name]) ? $options[$name] : null;
         if ($name === 'backup') {
