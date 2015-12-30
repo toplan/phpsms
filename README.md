@@ -320,7 +320,7 @@ $enable = Sms::queue();
 
 **建议代理器类名为`FooAgent`，建议命名空间为`Toplan\PhpSms`，必须继承`Agent`抽象类。**
 
-> 如果命名空间不为`Toplan\PhpSms`则需要指定代理器类，详见高级配置。
+> 如果类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，则需要指定代理器类，详见[高级配置](#高级配置)。
 > 如果使用到其它api库，可以将api库放入lib文件夹中。
 
 ```php
@@ -328,7 +328,7 @@ namespace Toplan\PhpSms;
 class FooAgent extends Agent {
     //override
     //发送短信一级入口
-    public function sendSms($tempId, $to, Array $data, $content){
+    public function sendSms($tempId, $to, array $tempData, $content){
        //在这个方法中调用二级入口
        //根据你使用的服务商的接口选择调用哪个方式发送短信
        $this->sendContentSms($to, $content);
@@ -351,7 +351,7 @@ class FooAgent extends Agent {
 
     //override
     //发送短信二级入口：发送模板短信
-    public function sendTemplateSms($tempId, $to, Array $data)
+    public function sendTemplateSms($tempId, $to, array $tempData)
     {
         //同上...
     }
@@ -370,7 +370,8 @@ class FooAgent extends Agent {
 
 ### 指定代理器类
 
-如果你自定义了一个代理器，但不是在`Toplan\PhpSms`命名空间下，那么你还可以在调度配置时指定代理器使用的类。
+如果你自定义了一个代理器，如果类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，
+那么你还可以在调度配置时通过`agentClass`指定你的代理器使用的类。
 
 ```php
 Sms::enable([

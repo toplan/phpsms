@@ -82,7 +82,7 @@ abstract class Agent
      *
      * @return mixed
      */
-    public function sockPost($url, $query, $port = 80)
+    public static function sockPost($url, $query, $port = 80)
     {
         $data = '';
         $info = parse_url($url);
@@ -122,7 +122,7 @@ abstract class Agent
      *               request:是否请求成功
      *               response:响应数据
      */
-    public function curl($url, array $params = [], $isPost = false)
+    public static function curl($url, array $params = [], $isPost = false)
     {
         $request = true;
         $ch = curl_init();

@@ -317,9 +317,9 @@ class Sms
      */
     public static function bootstrap()
     {
-        self::configuration();
         $task = self::generatorTask();
         if (!count($task->drivers)) {
+            self::configuration();
             self::createDrivers($task);
         }
     }
