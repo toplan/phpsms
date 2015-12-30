@@ -303,8 +303,6 @@ $enable = Sms::queue();
 
 > `$result`数据结构请参看[task-balancer](https://github.com/toplan/task-balancer)
 
-
-
 # 自定义代理器
 
 配置项加入到config/phpsms.php中键为`agents`的数组里：
@@ -332,7 +330,7 @@ class FooAgent extends Agent {
        //在这个方法中调用二级入口
        //根据你使用的服务商的接口选择调用哪个方式发送短信
        $this->sendContentSms($to, $content);
-       $this->sendTemplateSms($tempId, $to, Array $data);
+       $this->sendTemplateSms($tempId, $to, $tempData);
     }
 
     //override
@@ -368,41 +366,51 @@ class FooAgent extends Agent {
 
 # 高级配置
 
+代理器的高级配置可以通过配置文件(config/phpsms.php)中的`enable`项目配置，也可以通过`Sms::enable`静态方法配置。
+值得注意的是，高级配置的配置项的数据结构是数组。
+
 ### 指定代理器类
 
-如果你自定义了一个代理器，如果类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，
-那么你还可以在调度配置时通过`agentClass`指定你的代理器使用的类。
+> 如果你自定义了一个代理器，类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，那么你还可以在调度配置时指定你的代理器使用的类。
 
+* 配置方式：
+
+通过配置数组中`agentClass`键来指定类名。
+
+* 示例：
 ```php
-Sms::enable([
-    'TestAgent1' => [
+Sms::enable('Test1', [
         '10 backup',
         'agentClass' => 'Your\Namespace\YourAgent'
     ]
-]);
+);
 ```
 
 ### 寄生代理器
 
-如果你既不想使用已有代理器，也不想自己写自定义代理器，那么寄生代理器或许是个好的选择，无需定义代理器类，
-只需在调度配置时定义好发送短信和语音验证码的方式即可。
+> 如果你既不想使用已有代理器，也不想自己写自定义代理器，那么寄生代理器或许是个好的选择，无需定义代理器类，
+> 只需在调度配置时定义好发送短信和语音验证码的方式即可。
 
+* 配置方式：
+
+通过配置数组中`sendSms`和`voiceVerify`键来设置发送短信和语音验证码的方式。
+
+* 示例：
 ```php
 Sms::enable([
     'TestAgent2' => [
         '20 backup',
 
         'sendSms' => function($agent, $data)) {
-            //$data为数组，包含了发送短信的相关数据:
-            //'to', 'tempId', 'tempData', 'content'
-            $to = $data['to'];
-
             //获取配置(如果设置了的话):
             $key = $agent->key;
 
             //$agent实例可用方法:
             $agent->sockPost($url, $query);//fsockopen
             $agent->curl($url, array $params = [], $isPost = false);//curl
+
+            //$data为数组，包含了发送短信的相关数据:'to', 'tempId', 'tempData', 'content'
+            $to = $data['to'];
 
             //设置发送结果:
             $agent->result('success', true);
