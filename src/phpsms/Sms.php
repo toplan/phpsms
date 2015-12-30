@@ -43,7 +43,7 @@ class Sms
     /**
      * queue work
      *
-     * @var null
+     * @var \Closure
      */
     protected static $howToUseQueue = null;
 
