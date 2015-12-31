@@ -367,7 +367,7 @@ class FooAgent extends Agent {
 # 高级配置
 
 代理器的高级配置可以通过配置文件(config/phpsms.php)中的`enable`项目配置，也可以通过`Sms::enable`静态方法配置。
-值得注意的是，高级配置的配置项的数据结构是数组。
+值得注意的是，高级配置的配置值的数据结构是数组。
 
 ### 指定代理器类
 
@@ -375,7 +375,7 @@ class FooAgent extends Agent {
 
 * 配置方式：
 
-通过配置数组中`agentClass`键来指定类名。
+通过配置值中`agentClass`键来指定类名。
 
 * 示例：
 ```php
@@ -393,12 +393,12 @@ Sms::enable('Test1', [
 
 * 配置方式：
 
-通过配置数组中`sendSms`和`voiceVerify`键来设置发送短信和语音验证码的方式。
+通过配置值中`sendSms`和`voiceVerify`键来设置发送短信和语音验证码的方式。
 
 * 示例：
 ```php
 Sms::enable([
-    'TestAgent2' => [
+    'Test2' => [
         '20 backup',
 
         'sendSms' => function($agent, $tempId, $to, $tempData, $content)) {
@@ -421,8 +421,8 @@ Sms::enable([
     ]
 ]);
 Sms::agents([
-    'TestAgent2' => [
-        'key' => '...'
+    'Test2' => [
+        'key' => ...
     ]
 ]);
 ```

@@ -1,6 +1,7 @@
 <?php
 
 use Toplan\PhpSms\LogAgent;
+use Toplan\PhpSms\ParasiticAgent;
 
 class AgentTest extends PHPUnit_Framework_TestCase
 {
@@ -77,14 +78,14 @@ class AgentTest extends PHPUnit_Framework_TestCase
 
     public function testParasitic()
     {
-        $parasiticAgent = new LogAgent([
-            'sendSms' => function ($agent, $data) {
+        $parasiticAgent = new ParasiticAgent([
+            'sendSms' => function ($agent, $tempId, $to, $tempData, $content) {
                 $agent->result('info', 'parasitic_sms');
-                $agent->result('code', $data['to']);
+                $agent->result('code', $to);
             },
-            'voiceVerify' => function ($agent, $data) {
+            'voiceVerify' => function ($agent, $to, $code) {
                 $agent->result('info', 'parasitic_voice_verify');
-                $agent->result('code', $data['code']);
+                $agent->result('code', $code);
             },
         ]);
         $parasiticAgent->sendSms('template id', '18280111111', [], 'content');

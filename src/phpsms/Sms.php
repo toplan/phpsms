@@ -101,8 +101,8 @@ class Sms
     /**
      * create sms instance and set templates
      *
-     * @param null $agentName
-     * @param null $tempId
+     * @param mixed $agentName
+     * @param mixed $tempId
      *
      * @return Sms
      */
@@ -271,7 +271,10 @@ class Sms
         // whether to send sms immediately,
         // or push it to queue.
         if ($immediately) {
-            $result = Balancer::run(self::TASK, $this->getData(), $this->firstAgent);
+            $result = Balancer::run(self::TASK, [
+                'data' => $this->getData(),
+                'agent' => $this->firstAgent,
+            ]);
         } else {
             $result = $this->push();
         }
@@ -332,7 +335,7 @@ class Sms
     public static function generatorTask()
     {
         if (!Balancer::hasTask(self::TASK)) {
-            Balancer::task(self::TASK, null);
+            Balancer::task(self::TASK);
         }
 
         return Balancer::getTask(self::TASK);
