@@ -189,7 +189,7 @@ Sms::beforeSend(function($task, $prev, $index, $handlers){
 短信发送后钩子。
 ```php
 Sms::afterSend(function($task, $result, $prev, $index, $handlers){
-    //$results为短信发送后获得的结果数组
+    //$result为短信发送后获得的结果数组
     //do something here
 });
 ```
@@ -401,16 +401,13 @@ Sms::enable([
     'TestAgent2' => [
         '20 backup',
 
-        'sendSms' => function($agent, $data)) {
+        'sendSms' => function($agent, $tempId, $to, $tempData, $content)) {
             //获取配置(如果设置了的话):
             $key = $agent->key;
 
             //$agent实例可用方法:
             $agent->sockPost($url, $query);//fsockopen
-            $agent->curl($url, array $params = [], $isPost = false);//curl
-
-            //$data为数组，包含了发送短信的相关数据:'to', 'tempId', 'tempData', 'content'
-            $to = $data['to'];
+            $agent->curl($url, array $params, bool $isPost);//curl
 
             //设置发送结果:
             $agent->result('success', true);
@@ -418,7 +415,7 @@ Sms::enable([
             $agent->result('code', 'your code');
         },
 
-        'voiceVerify' => function($agent, $data) {
+        'voiceVerify' => function($agent, $to, $code) {
             //发送语音验证码，同上
         }
     ]

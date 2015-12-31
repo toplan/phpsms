@@ -502,14 +502,15 @@ class Sms
             $className = isset($configData['agentClass']) ? $configData['agentClass'] : ('Toplan\\PhpSms\\' . $name . 'Agent');
             if ((isset($configData['sendSms']) && is_callable($configData['sendSms'])) ||
                 (isset($configData['voiceVerify']) && is_callable($configData['voiceVerify']))) {
-                //将临时代理器寄生到LogAgent
-                self::$agents[$name] = new LogAgent($configData);
+                //创建寄生代理器
+                $configData['agentClass'] = '';
+                self::$agents[$name] = new ParasiticAgent($configData);
             } elseif (class_exists($className)) {
                 //创建新代理器
                 self::$agents[$name] = new $className($configData);
             } else {
                 //无代理器可用
-                throw new PhpSmsException("Agent [$name] not support. If you are want to use parasitic agent, please set callable arguments: [sendSms] and [voiceVerify]");
+                throw new PhpSmsException("Dose not support [$name] agent.");
             }
         }
 
