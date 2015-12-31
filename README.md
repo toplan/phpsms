@@ -174,7 +174,7 @@ PhpSms::make()->to($to)->content($content)->send();
 
 ### Sms::beforeSend($handler, $override);
 
-短信发送前钩子。
+发送前钩子。
 ```php
 Sms::beforeSend(function($task, $prev, $index, $handlers){
     //获取短信数据
@@ -182,18 +182,44 @@ Sms::beforeSend(function($task, $prev, $index, $handlers){
     //do something here
 });
 ```
-> 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer)的“beforeRun”钩子
+> 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“beforeRun”钩子
+
+### Sms::beforeAgentSend($handler, $override);
+
+代理器发送前钩子。
+```php
+Sms::beforeAgentSend(function($task, $driver, $prev, $index, $handlers){
+    //短信数据:
+    $smsData = $task->data;
+    //当前使用的代理器名称:
+    $agentName = $driver->name;
+});
+```
+> 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“beforeDriverRun”钩子
+
+### Sms::afterAgentSend($handler, $override);
+
+代理器发送后钩子。
+```php
+Sms::afterAgentSend(function($task, $result, $prev, $index, $handlers){
+     //$result为代理器的发送结果数据
+     $agentName = $result['driver'];
+     ...
+});
+```
+> 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“afterDriverRun”钩子
 
 ### Sms::afterSend($handler, $override);
 
-短信发送后钩子。
+发送后钩子。
 ```php
 Sms::afterSend(function($task, $result, $prev, $index, $handlers){
-    //$results为短信发送后获得的结果数组
-    //do something here
+    //$result为发送后获得的结果数组
+    $success = $result['success'];
+    ...
 });
 ```
-> 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer)的“afterRun”钩子
+> 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“afterRun”钩子
 
 ### Sms::queue($enable, $handler)
 
@@ -303,8 +329,6 @@ $enable = Sms::queue();
 
 > `$result`数据结构请参看[task-balancer](https://github.com/toplan/task-balancer)
 
-
-
 # 自定义代理器
 
 配置项加入到config/phpsms.php中键为`agents`的数组里：
@@ -320,7 +344,7 @@ $enable = Sms::queue();
 
 **建议代理器类名为`FooAgent`，建议命名空间为`Toplan\PhpSms`，必须继承`Agent`抽象类。**
 
-> 如果命名空间不为`Toplan\PhpSms`则需要指定代理器类，详见高级配置。
+> 如果类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，则需要指定代理器类，详见[高级配置](#高级配置)。
 > 如果使用到其它api库，可以将api库放入lib文件夹中。
 
 ```php
@@ -328,11 +352,11 @@ namespace Toplan\PhpSms;
 class FooAgent extends Agent {
     //override
     //发送短信一级入口
-    public function sendSms($tempId, $to, Array $data, $content){
+    public function sendSms($tempId, $to, array $tempData, $content){
        //在这个方法中调用二级入口
        //根据你使用的服务商的接口选择调用哪个方式发送短信
        $this->sendContentSms($to, $content);
-       $this->sendTemplateSms($tempId, $to, Array $data);
+       $this->sendTemplateSms($tempId, $to, $tempData);
     }
 
     //override
@@ -351,7 +375,7 @@ class FooAgent extends Agent {
 
     //override
     //发送短信二级入口：发送模板短信
-    public function sendTemplateSms($tempId, $to, Array $data)
+    public function sendTemplateSms($tempId, $to, array $tempData)
     {
         //同上...
     }
@@ -368,40 +392,48 @@ class FooAgent extends Agent {
 
 # 高级配置
 
+代理器的高级配置可以通过配置文件(config/phpsms.php)中的`enable`项目配置，也可以通过`Sms::enable`静态方法配置。
+值得注意的是，高级配置的配置值的数据结构是数组。
+
 ### 指定代理器类
 
-如果你自定义了一个代理器，但不是在`Toplan\PhpSms`命名空间下，那么你还可以在调度配置时指定代理器使用的类。
+> 如果你自定义了一个代理器，类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，那么你还可以在调度配置时指定你的代理器使用的类。
 
+* 配置方式：
+
+通过配置值中`agentClass`键来指定类名。
+
+* 示例：
 ```php
-Sms::enable([
-    'TestAgent1' => [
+Sms::enable('Test1', [
         '10 backup',
         'agentClass' => 'Your\Namespace\YourAgent'
     ]
-]);
+);
 ```
 
 ### 寄生代理器
 
-如果你既不想使用已有代理器，也不想自己写自定义代理器，那么寄生代理器或许是个好的选择，无需定义代理器类，
-只需在调度配置时定义好发送短信和语音验证码的方式即可。
+> 如果你既不想使用已有代理器，也不想自己写自定义代理器，那么寄生代理器或许是个好的选择，无需定义代理器类，
+> 只需在调度配置时定义好发送短信和语音验证码的方式即可。
 
+* 配置方式：
+
+通过配置值中`sendSms`和`voiceVerify`键来设置发送短信和语音验证码的方式。
+
+* 示例：
 ```php
 Sms::enable([
-    'TestAgent2' => [
+    'Test2' => [
         '20 backup',
 
-        'sendSms' => function($agent, $data)) {
-            //$data为数组，包含了发送短信的相关数据:
-            //'to', 'tempId', 'tempData', 'content'
-            $to = $data['to'];
-
+        'sendSms' => function($agent, $tempId, $to, $tempData, $content)) {
             //获取配置(如果设置了的话):
             $key = $agent->key;
 
             //$agent实例可用方法:
             $agent->sockPost($url, $query);//fsockopen
-            $agent->curl($url, array $params = [], $isPost = false);//curl
+            $agent->curl($url, array $params, bool $isPost);//curl
 
             //设置发送结果:
             $agent->result('success', true);
@@ -409,14 +441,14 @@ Sms::enable([
             $agent->result('code', 'your code');
         },
 
-        'voiceVerify' => function($agent, $data) {
+        'voiceVerify' => function($agent, $to, $code) {
             //发送语音验证码，同上
         }
     ]
 ]);
 Sms::agents([
-    'TestAgent2' => [
-        'key' => '...'
+    'Test2' => [
+        'key' => ...
     ]
 ]);
 ```

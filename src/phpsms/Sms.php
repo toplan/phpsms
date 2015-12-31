@@ -43,7 +43,7 @@ class Sms
     /**
      * queue work
      *
-     * @var null
+     * @var \Closure
      */
     protected static $howToUseQueue = null;
 
@@ -88,17 +88,21 @@ class Sms
 
     /**
      * construct
+     *
+     * @param bool $autoBoot
      */
-    public function __construct()
+    public function __construct($autoBoot = true)
     {
-        self::init();
+        if ($autoBoot) {
+            self::bootstrap();
+        }
     }
 
     /**
      * create sms instance and set templates
      *
-     * @param null $agentName
-     * @param null $tempId
+     * @param mixed $agentName
+     * @param mixed $tempId
      *
      * @return Sms
      */
@@ -267,7 +271,10 @@ class Sms
         // whether to send sms immediately,
         // or push it to queue.
         if ($immediately) {
-            $result = Balancer::run(self::TASK, $this->getData(), $this->firstAgent);
+            $result = Balancer::run(self::TASK, [
+                'data'  => $this->getData(),
+                'agent' => $this->firstAgent,
+            ]);
         } else {
             $result = $this->push();
         }
@@ -309,13 +316,15 @@ class Sms
     }
 
     /**
-     * init
+     * bootstrap
      */
-    protected static function init()
+    public static function bootstrap()
     {
-        self::configuration();
         $task = self::generatorTask();
-        self::createDrivers($task);
+        if (!count($task->drivers)) {
+            self::configuration();
+            self::createDrivers($task);
+        }
     }
 
     /**
@@ -326,7 +335,7 @@ class Sms
     public static function generatorTask()
     {
         if (!Balancer::hasTask(self::TASK)) {
-            Balancer::task(self::TASK, null);
+            Balancer::task(self::TASK);
         }
 
         return Balancer::getTask(self::TASK);
@@ -449,12 +458,12 @@ class Sms
     /**
      * 从调度配置中拉取指定数据
      *
-     * @param $options
-     * @param $name
+     * @param array  $options
+     * @param string $name
      *
      * @return null|string
      */
-    protected static function pullAgentOptionByName(&$options, $name)
+    protected static function pullAgentOptionByName(array &$options, $name)
     {
         $value = isset($options[$name]) ? $options[$name] : null;
         if ($name === 'backup') {
@@ -496,14 +505,15 @@ class Sms
             $className = isset($configData['agentClass']) ? $configData['agentClass'] : ('Toplan\\PhpSms\\' . $name . 'Agent');
             if ((isset($configData['sendSms']) && is_callable($configData['sendSms'])) ||
                 (isset($configData['voiceVerify']) && is_callable($configData['voiceVerify']))) {
-                //将临时代理器寄生到LogAgent
-                self::$agents[$name] = new LogAgent($configData);
+                //创建寄生代理器
+                $configData['agentClass'] = '';
+                self::$agents[$name] = new ParasiticAgent($configData);
             } elseif (class_exists($className)) {
                 //创建新代理器
                 self::$agents[$name] = new $className($configData);
             } else {
                 //无代理器可用
-                throw new PhpSmsException("Agent [$name] not support. If you are want to use parasitic agent, please set callable arguments: [sendSms] and [voiceVerify]");
+                throw new PhpSmsException("Dose not support [$name] agent.");
             }
         }
 

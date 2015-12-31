@@ -40,8 +40,8 @@ class YunTongXunAgent extends Agent
         if ($result !== null && $result->statusCode === 0) {
             $this->result['success'] = true;
         }
-        $this->result['info'] = $result->statusCode;
-        $this->result['code'] = $result->statusCode;
+        $this->result['info'] = (String) $result->statusCode;
+        $this->result['code'] = (String) $result->statusCode;
     }
 
     public function sendContentSms($to, $content)

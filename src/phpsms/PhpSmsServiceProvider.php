@@ -31,7 +31,7 @@ class PhpSmsServiceProvider extends ServiceProvider
         Sms::agents(config('phpsms.agents', []));
 
         $this->app->singleton('PhpSms', function ($app) {
-            return new Sms();
+            return new Sms(false);
         });
     }
 }
