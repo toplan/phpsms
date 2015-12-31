@@ -174,7 +174,7 @@ PhpSms::make()->to($to)->content($content)->send();
 
 ### Sms::beforeSend($handler, $override);
 
-短信发送前钩子。
+发送前钩子。
 ```php
 Sms::beforeSend(function($task, $prev, $index, $handlers){
     //获取短信数据
@@ -182,18 +182,44 @@ Sms::beforeSend(function($task, $prev, $index, $handlers){
     //do something here
 });
 ```
-> 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer)的“beforeRun”钩子
+> 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“beforeRun”钩子
+
+### Sms::beforeAgentSend($handler, $override);
+
+代理器发送前钩子。
+```php
+Sms::beforeAgentSend(function($task, $driver, $prev, $index, $handlers){
+    //短信数据:
+    $smsData = $task->data;
+    //当前使用的代理器名称:
+    $agentName = $driver->name;
+});
+```
+> 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“beforeDriverRun”钩子
+
+### Sms::afterAgentSend($handler, $override);
+
+代理器发送后钩子。
+```php
+Sms::afterAgentSend(function($task, $result, $prev, $index, $handlers){
+     //$result为代理器的发送结果数据
+     $agentName = $result['driver'];
+     ...
+});
+```
+> 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“afterDriverRun”钩子
 
 ### Sms::afterSend($handler, $override);
 
-短信发送后钩子。
+发送后钩子。
 ```php
 Sms::afterSend(function($task, $result, $prev, $index, $handlers){
-    //$result为短信发送后获得的结果数组
-    //do something here
+    //$result为发送后获得的结果数组
+    $success = $result['success'];
+    ...
 });
 ```
-> 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer)的“afterRun”钩子
+> 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“afterRun”钩子
 
 ### Sms::queue($enable, $handler)
 
