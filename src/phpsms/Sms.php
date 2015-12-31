@@ -272,7 +272,7 @@ class Sms
         // or push it to queue.
         if ($immediately) {
             $result = Balancer::run(self::TASK, [
-                'data' => $this->getData(),
+                'data'  => $this->getData(),
                 'agent' => $this->firstAgent,
             ]);
         } else {

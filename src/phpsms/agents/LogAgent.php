@@ -31,6 +31,6 @@ class LogAgent extends Agent
     public function voiceVerify($to, $code)
     {
         $this->result['success'] = true;
-        $this->result['info'] = "send voice verify success";
+        $this->result['info'] = 'send voice verify success';
     }
 }
