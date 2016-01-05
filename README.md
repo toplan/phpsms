@@ -116,7 +116,7 @@ Sms::voice('1111')->to('1828****349')->send();
 //服务提供器
 'providers' => [
     ...
-    Toplan\PhpSms\PhpSmsServiceProvide::class,
+    Toplan\PhpSms\PhpSmsServiceProvider::class,
 ]
 
 //别名
