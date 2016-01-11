@@ -23,18 +23,13 @@ class REST
     private $SoftVersion;
     private $Batch;  //时间戳
     private $BodyType = 'xml'; //包体格式，可填值：json 、xml
-    private $enabeLog = false; //日志开关。可填值：true、
-    private $Filename = './log.txt'; //日志文件
-    private $Handle;
 
-    public function __construct($ServerIP, $ServerPort, $SoftVersion, $filename)
+    public function __construct($ServerIP, $ServerPort, $SoftVersion)
     {
         $this->Batch = date('YmdHis');
         $this->ServerIP = $ServerIP;
         $this->ServerPort = $ServerPort;
         $this->SoftVersion = $SoftVersion;
-        $this->Filename = $filename;
-        $this->Handle = fopen($this->Filename, 'a');
     }
 
     /**
@@ -57,18 +52,6 @@ class REST
     public function setAppId($AppId)
     {
         $this->AppId = $AppId;
-    }
-
-    /**
-     * 打印日志
-     * 
-     * @param string $log
-     */
-    public function showlog($log)
-    {
-        if ($this->enabeLog) {
-            fwrite($this->Handle, $log . "\n");
-        }
     }
 
      /**
@@ -148,19 +131,16 @@ class REST
                     <datas>" . $data . '</datas>
                   </TemplateSMS>';
         }
-        $this->showlog('request body = ' . $body);
         // 大写的sig参数
         $sig = strtoupper(md5($this->AccountSid . $this->AccountToken . $this->Batch));
         // 生成请求URL
         $url = "https://$this->ServerIP:$this->ServerPort/$this->SoftVersion/Accounts/$this->AccountSid/SMS/TemplateSMS?sig=$sig";
-        $this->showlog('request url = ' . $url);
         // 生成授权：主帐户Id + 英文冒号 + 时间戳。
         $authen = base64_encode($this->AccountSid . ':' . $this->Batch);
         // 生成包头
         $header = array("Accept:application/$this->BodyType", "Content-Type:application/$this->BodyType;charset=utf-8", "Authorization:$authen");
         // 发送请求
         $result = $this->curl_post($url, $body, $header);
-        $this->showlog('response body = ' . $result);
         if ($this->BodyType === 'json') {//JSON格式
            $datas = json_decode($result);
         } else { //xml格式
@@ -217,19 +197,16 @@ class REST
 					<playVerifyCode>$playVerifyCode</playVerifyCode>
                   </VoiceVerify>";
         }
-        $this->showlog('request body = ' . $body);
         // 大写的sig参数
         $sig = strtoupper(md5($this->AccountSid . $this->AccountToken . $this->Batch));
         // 生成请求URL
         $url = "https://$this->ServerIP:$this->ServerPort/$this->SoftVersion/Accounts/$this->AccountSid/Calls/VoiceVerify?sig=$sig";
-        $this->showlog('request url = ' . $url);
         // 生成授权：主帐户Id + 英文冒号 + 时间戳。
         $authen = base64_encode($this->AccountSid . ':' . $this->Batch);
         // 生成包头
         $header = array("Accept:application/$this->BodyType", "Content-Type:application/$this->BodyType;charset=utf-8", "Authorization:$authen");
         // 发送请求
         $result = $this->curl_post($url, $body, $header);
-        $this->showlog('response body = ' . $result);
         if ($this->BodyType === 'json') {//JSON格式
             $datas = json_decode($result);
         } else { //xml格式

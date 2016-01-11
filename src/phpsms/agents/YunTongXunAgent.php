@@ -27,8 +27,7 @@ class YunTongXunAgent extends Agent
         $rest = new REST(
             $this->serverIP,
             $this->serverPort,
-            $this->softVersion,
-            null
+            $this->softVersion
         );
         $rest->setAccount($this->accountSid, $this->accountToken);
         $rest->setAppId($this->appId);
@@ -54,8 +53,7 @@ class YunTongXunAgent extends Agent
         $rest = new REST(
             $this->serverIP,
             $this->serverPort,
-            $this->softVersion,
-            null
+            $this->softVersion
         );
         $rest->setAccount($this->accountSid, $this->accountToken);
         $rest->setAppId($this->appId);
