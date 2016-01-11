@@ -83,7 +83,7 @@ class Ucpaas
      *
      * @return mixed|string
      */
-    private function getResult($url, $body = null, $type = 'json', $method)
+    private function getResult($url, $body, $type, $method)
     {
         $data = $this->connection($url, $body, $type, $method);
         if (isset($data) && !empty($data)) {
