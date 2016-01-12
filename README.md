@@ -33,7 +33,7 @@
 # 安装
 
 ```php
-composer require 'toplan/phpsms:~1.2.1'
+composer require 'toplan/phpsms:~1.2.2'
 ```
 
 # 快速上手
