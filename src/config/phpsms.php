@@ -94,7 +94,7 @@ return [
             'voiceLang' => 'zh',
 
             //语音验证码播放次数
-            'playTimes' => 3
+            'playTimes' => 3,
         ],
 
         /*

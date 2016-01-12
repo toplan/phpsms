@@ -13,7 +13,7 @@ use REST;
  * @property string $accountSid
  * @property string $accountToken
  * @property string $appId
- * @property integer $playTimes
+ * @property int $playTimes
  * @property string $voiceLang
  */
 class YunTongXunAgent extends Agent
