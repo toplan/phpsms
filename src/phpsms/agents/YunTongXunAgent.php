@@ -13,6 +13,8 @@ use REST;
  * @property string $accountSid
  * @property string $accountToken
  * @property string $appId
+ * @property integer $playTimes
+ * @property string $voiceLang
  */
 class YunTongXunAgent extends Agent
 {
@@ -32,15 +34,19 @@ class YunTongXunAgent extends Agent
         $rest->setAccount($this->accountSid, $this->accountToken);
         $rest->setAppId($this->appId);
         // 发送模板短信
-        if (is_array($data)) {
-            $data = array_values($data);
-        }
+        $data = array_values($data);
         $result = $rest->sendTemplateSMS($to, $data, $tempId);
-        if ($result !== null && $result->statusCode === 0) {
-            $this->result['success'] = true;
+        if ($result) {
+            $code = (String) $result->statusCode;
+            if ($code === '000000') {
+                $this->result['success'] = true;
+                $this->result['code'] = $code;
+                $this->result['info'] = 'smsSid:' . $result->TemplateSms->smsMessageSid;
+            } else {
+                $this->result['code'] = $code;
+                $this->result['info'] = (String) $result->statusMsg;
+            }
         }
-        $this->result['info'] = (String) $result->statusCode;
-        $this->result['code'] = (String) $result->statusCode;
     }
 
     public function sendContentSms($to, $content)
@@ -59,20 +65,20 @@ class YunTongXunAgent extends Agent
         $rest->setAppId($this->appId);
 
         // 调用语音验证码接口
-        $playTimes = 3;
-        $respUrl = null;
-        $lang = 'zh';
-        $userData = null;
+        $playTimes = intval($this->playTimes ?: 3);
+        $lang = $this->voiceLang ?: 'zh';
+        $userData = $respUrl = null;
         $result = $rest->voiceVerify($code, $playTimes, $to, null, $respUrl, $lang, $userData, null, null);
-        if ($result === null) {
-            return $this->result;
+        if ($result) {
+            $code = (String) $result->statusCode;
+            if ($code === '000000') {
+                $this->result['success'] = true;
+                $this->result['code'] = $code;
+                $this->result['info'] = 'callSid:' . $result->VoiceVerify->callSid;
+            } else {
+                $this->result['code'] = $code;
+                $this->result['info'] = (String) $result->statusMsg;
+            }
         }
-        if ($result->statusCode === 0) {
-            $this->result['success'] = true;
-        }
-        $this->result['info'] = $result->statusMsg;
-        $this->result['code'] = $result->statusCode;
-
-        return $this->result;
     }
 }
