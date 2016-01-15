@@ -6,9 +6,9 @@
 [![Latest Stable Version](https://img.shields.io/packagist/v/toplan/phpsms.svg)](https://packagist.org/packages/toplan/phpsms)
 [![Total Downloads](https://img.shields.io/packagist/dt/toplan/phpsms.svg)](https://packagist.org/packages/toplan/phpsms)
 
-可能是目前最靠谱、优雅的php短信发送库了。
+可能是目前最靠谱、优雅的php短信发送库了。从此不再为各种原因造成的个别短信发送失败而烦忧！
 
-> phpsms的任务负载均衡功能由[task-balancer](https://github.com/toplan/task-balancer)提供。
+> phpsms的任务均衡调度功能由[task-balancer](https://github.com/toplan/task-balancer)提供。
 
 # 特点
 1. 支持短信/语音发送均衡调度，可按代理器权重值均衡选择服务商发送。
@@ -40,9 +40,31 @@ composer require 'toplan/phpsms:~1.2.2'
 
 ###1. 配置
 
+- 配置代理器所需参数
+
+为你需要用到的短信服务商(即代理器)配置必要的参数。
+可以在`config\phpsms.php`中键为`agents`的数组中配置，也可以手动在程序中设置，示例如下：
+
+```php
+//example:
+Sms::agents([
+    'Luosimao' => [
+        //短信API key
+        'apikey' => 'your api key',
+        //语言验证API key
+        'voiceApikey' => 'your voice api key',
+    ],
+    'YunPian'  => [
+        //用户唯一标识，必须
+        'apikey' => 'your api key',
+    ]
+]);
+```
+
 - 配置可用代理器
 
-  在`config\phpsms.php`中键为`enable`的数组中配置。也可以手动在程序中设置：
+配置你的调度方案。可在`config\phpsms.php`中键为`enable`的数组中配置。也可以手动在程序中设置，示例如下：
+
 ```php
 //example:
 Sms::enable([
@@ -60,21 +82,6 @@ Sms::enable([
 > 如果按照以上配置，那么系统首次会尝试使用`Luosimao`或`YunPian`发送短信，且它们被使用的概率分别为`2/3`和`1/3`。
 > 如果使用其中一个代理器发送失败，那么会启用备用代理器，按照配置可知备用代理器有`YunPian`和`YunTongXun`，那么会依次调用直到发送成功或无备用代理器可用。
 > 值得注意的是，如果首次尝试的是`YunPian`，那么备用代理器将会只使用`YunTongXun`，也就是会排除使用过的代理器。
-
-- 配置代理器所需参数
-
-  在`config\phpsms.php`中键为`agents`的数组中配置。也可以手动在程序中设置：
-```php
-//example:
-Sms::agents([
-    'Luosimao' => [
-        //some options
-    ],
-    'YunPian'  => [
-        'apikey' => '...',
-    ]
-]);
-```
 
 ###2. Enjoy it!
 
@@ -108,7 +115,7 @@ Sms::voice('1111')->to('1828****349')->send();
 ###3. 在laravel中使用
 
 如果你只想单纯的在laravel中使用phpsms的功能可以按如下步骤操作，
-当然也为你准备了基于phpsms开发的增强版[laravel-sms](https://github.com/toplan/laravel-sms)
+当然也为你准备了基于phpsms开发的[laravel-sms](https://github.com/toplan/laravel-sms)
 
 * 在config/app.php中引入服务提供器
 
@@ -146,13 +153,13 @@ PhpSms::make()->to($to)->content($content)->send();
 
 手动设置可用代理器及其调度方案(优先级高于配置文件)，如：
 ```php
-   Sms::enable([
-        'Luosimao' => '80 backup'
-        'YunPian' => '100 backup'
-   ]);
-   //或
-   Sms::enable('Luosimao', '80 backup');
-   Sms::enable('YunPian', '100 backup');
+Sms::enable([
+    'Luosimao' => '80 backup'
+    'YunPian' => '100 backup'
+]);
+//或
+Sms::enable('Luosimao', '80 backup');
+Sms::enable('YunPian', '100 backup');
 ```
 
 > `enable`静态方法的更多使用方法见[高级配置](#高级配置)
@@ -161,15 +168,15 @@ PhpSms::make()->to($to)->content($content)->send();
 
 手动设置代理器配置参数(优先级高于配置文件)，如：
 ```php
-   Sms::agents([
-       'YunPian' => [
-           'apikey' => '',
-       ]
-   ]);
-   //或
-   Sms::agents('YunPian', [
-       'apikey' => '',
-   ]);
+Sms::agents([
+   'YunPian' => [
+       'apikey' => ...,
+   ]
+]);
+//或
+Sms::agents('YunPian', [
+   'apikey' => ...,
+]);
 ```
 
 ### Sms::beforeSend($handler, $override);
@@ -258,46 +265,70 @@ $enable = Sms::queue();
 //为false,表示当前关闭了队列。
 ```
 
+### getEnableAgents()
+
++ 方法类型：静态
+
++ 说明：获取代理器调度方案
+
+### getAgentsConfig()
+
++ 方法类型：静态
+
++ 说明：获取调度方案中所用代理器的配置
+
+### cleanEnableAgents()
+
++ 方法类型：静态
+
++ 说明：清空代理器调度方案
+
+### cleanAgentsConfig()
+
++ 方法类型：静态
+
++ 说明：清空所有代理器的配置
+
 ### Sms::make()
 
 生成发送短信的sms实例，并返回该实例。
 ```php
-  $sms = Sms::make();
+$sms = Sms::make();
 ```
 
 ### Sms::voice($code)
 
 生成发送语音验证码的sms实例，并返回该实例。
 ```php
-  $sms = Sms::voice($code)
+$sms = Sms::voice($code)
 ```
 ### $sms->to($mobile)
 
 设置发送给谁，并返回实例。
 ```php
-   $sms->to('1828*******');
+$sms->to('1828*******');
 ```
 
 ### $sms->template($templates)
 
 指定代理器进行设置或批量设置:
 ```php
-   //静态方法设置，并返回sms实例
-   Sms::make(['YunTongXun' => '20001', 'SubMail' => 'xxx', ...]);
-   //设置指定服务商的模板id
-   $sms->template('YunTongXun', '20001')->template('SubMail', 'xxx');
-   //一次性设置多个服务商的模板id
-   $sms->template(['YunTongXun' => '20001', 'SubMail' => 'xxx', ...]);
+//静态方法设置，并返回sms实例
+Sms::make(['YunTongXun' => '20001', 'SubMail' => 'xxx', ...]);
+//设置指定服务商的模板id
+$sms->template('YunTongXun', '20001')->template('SubMail', 'xxx');
+//一次性设置多个服务商的模板id
+$sms->template(['YunTongXun' => '20001', 'SubMail' => 'xxx', ...]);
 ```
 
-### $sms->data($templateData)
+### $sms->data($tempData)
 
 设置模板短信的模板数据，并返回实例对象，`$templateData`必须为数组。
 ```php
-  $sms = $sms->data([
-        'code' => $code,
-        'minutes' => $minutes
-      ]);
+$sms = $sms->data([
+    'code' => $code,
+    'minutes' => $minutes
+  ]);
 ```
 
 ### $sms->content($text)
@@ -305,14 +336,27 @@ $enable = Sms::queue();
 设置内容短信的内容，并返回实例对象。
 有些服务商(如YunPian,Luosimao)只支持内容短信(即直接发送短信内容)，那么就需要为它们设置短信内容。
 ```php
-  $sms = $sms->content('【签名】您的订单号是xxxx，祝你购物愉快。');
+$sms = $sms->content('【签名】您的订单号是xxxx，祝你购物愉快。');
+```
+
+### $sms->getData()
+
+获取Sms实例中的短信数据，结构如下：
+```php
+[
+    'to'           => ...,
+    'templates'    => [...],
+    'content'      => ...,
+    'templateData' => [...],
+    'voiceCode'    => ...,
+]
 ```
 
 ### $sms->agent($name)
 
 临时设置发送时使用的代理器(不会影响备用代理器的正常使用)，`$name`为代理器名称。
 ```php
-  $sms = $sms->agent('Luosimao');
+$sms = $sms->agent('Luosimao');
 ```
 > 通过该方法设置的代理器将获得绝对优先权，但只对当前短信实例有效。
 
@@ -320,11 +364,11 @@ $enable = Sms::queue();
 
 请求发送短信/语音验证码。
 ```php
-  //会遵循是否使用队列:
-  $result = $sms->send();
+//会遵循是否使用队列:
+$result = $sms->send();
 
-  //忽略是否使用队列:
-  $result = $sms->send(true);
+//忽略是否使用队列:
+$result = $sms->send(true);
 ```
 
 > `$result`数据结构请参看[task-balancer](https://github.com/toplan/task-balancer)
