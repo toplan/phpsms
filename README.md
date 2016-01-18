@@ -179,6 +179,22 @@ Sms::agents('YunPian', [
 ]);
 ```
 
+### Sms::getEnableAgents()
+
+获取代理器调度方案
+
+### Sms::getAgentsConfig()
+
+获取调度方案中所用代理器的配置
+
+### Sms::cleanEnableAgents()
+
+清空代理器调度方案
+
+### Sms::cleanAgentsConfig()
+
+清空所有代理器的配置
+
 ### Sms::beforeSend($handler [, $override]);
 
 发送前钩子。
@@ -264,22 +280,6 @@ $enable = Sms::queue();
 //为true,表示当前启用了队列。
 //为false,表示当前关闭了队列。
 ```
-
-### Sms::getEnableAgents()
-
-获取代理器调度方案
-
-### Sms::getAgentsConfig()
-
-获取调度方案中所用代理器的配置
-
-### Sms::cleanEnableAgents()
-
-清空代理器调度方案
-
-### Sms::cleanAgentsConfig()
-
-清空所有代理器的配置
 
 ### Sms::make()
 
