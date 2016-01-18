@@ -149,7 +149,7 @@ PhpSms::make()->to($to)->content($content)->send();
 
 # API
 
-### Sms::enable($name, $optionString)
+### Sms::enable($name [, $optionString])
 
 手动设置可用代理器及其调度方案(优先级高于配置文件)，如：
 ```php
@@ -164,7 +164,7 @@ Sms::enable('YunPian', '100 backup');
 
 > `enable`静态方法的更多使用方法见[高级配置](#高级配置)
 
-### Sms::agents($name, $config);
+### Sms::agents($name [, $config]);
 
 手动设置代理器配置参数(优先级高于配置文件)，如：
 ```php
@@ -179,7 +179,7 @@ Sms::agents('YunPian', [
 ]);
 ```
 
-### Sms::beforeSend($handler, $override);
+### Sms::beforeSend($handler [, $override]);
 
 发送前钩子。
 ```php
@@ -191,7 +191,7 @@ Sms::beforeSend(function($task, $prev, $index, $handlers){
 ```
 > 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“beforeRun”钩子
 
-### Sms::beforeAgentSend($handler, $override);
+### Sms::beforeAgentSend($handler [, $override]);
 
 代理器发送前钩子。
 ```php
@@ -204,7 +204,7 @@ Sms::beforeAgentSend(function($task, $driver, $prev, $index, $handlers){
 ```
 > 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“beforeDriverRun”钩子
 
-### Sms::afterAgentSend($handler, $override);
+### Sms::afterAgentSend($handler [, $override]);
 
 代理器发送后钩子。
 ```php
@@ -216,7 +216,7 @@ Sms::afterAgentSend(function($task, $result, $prev, $index, $handlers){
 ```
 > 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“afterDriverRun”钩子
 
-### Sms::afterSend($handler, $override);
+### Sms::afterSend($handler [, $override]);
 
 发送后钩子。
 ```php
@@ -265,29 +265,21 @@ $enable = Sms::queue();
 //为false,表示当前关闭了队列。
 ```
 
-### getEnableAgents()
+### Sms::getEnableAgents()
 
-+ 方法类型：静态
+获取代理器调度方案
 
-+ 说明：获取代理器调度方案
+### Sms::getAgentsConfig()
 
-### getAgentsConfig()
+获取调度方案中所用代理器的配置
 
-+ 方法类型：静态
+### Sms::cleanEnableAgents()
 
-+ 说明：获取调度方案中所用代理器的配置
+清空代理器调度方案
 
-### cleanEnableAgents()
+### Sms::cleanAgentsConfig()
 
-+ 方法类型：静态
-
-+ 说明：清空代理器调度方案
-
-### cleanAgentsConfig()
-
-+ 方法类型：静态
-
-+ 说明：清空所有代理器的配置
+清空所有代理器的配置
 
 ### Sms::make()
 
