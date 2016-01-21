@@ -91,18 +91,18 @@ use Toplan\PhpSms\Sms;
 
 // 只希望使用模板方式发送短信，可以不设置content。
 // 如:云通讯、Submail、Ucpaas
-Sms::make()->to('1828****349')->template($templates)->data(['12345', 5])->send();
+Sms::make()->to('1828****349')->template('YunTongXun', 'your_temp_id')->data(['12345', 5])->send();
 
 // 只希望使用内容方式放送，可以不设置模板id和模板数据data。
 // 如:云片、luosimao
-Sms::make()->to('1828****349')->content('【PhpSMS】亲爱的张三，欢迎访问，祝你工作愉快。')->send();
+Sms::make()->to('1828****349')->content('【签名】这是短信内容...')->send();
 
 // 同时确保能通过模板和内容方式发送。
 // 这样做的好处是，可以兼顾到各种类型服务商。
 Sms::make()->to('1828****349')
      ->template([
-         'YunTongXun' => '123',
-         'SubMail'    => '123'
+         'YunTongXun' => 'your_temp_id',
+         'SubMail'    => 'your_temp_id'
      ])
      ->data(['张三'])
      ->content('【签名】亲爱的张三，欢迎访问，祝你工作愉快。')
@@ -306,16 +306,27 @@ $sms->to('1828*******');
 指定代理器进行设置或批量设置:
 ```php
 //静态方法设置，并返回sms实例
-Sms::make(['YunTongXun' => '20001', 'SubMail' => 'xxx', ...]);
+Sms::make([
+    'YunTongXun' => 'your_temp_id',
+    'SubMail' => 'your_temp_id',
+    ...
+]);
+
 //设置指定服务商的模板id
-$sms->template('YunTongXun', '20001')->template('SubMail', 'xxx');
+$sms->template('YunTongXun', 'your_temp_id')
+    ->template('SubMail', 'your_temp_id');
+
 //一次性设置多个服务商的模板id
-$sms->template(['YunTongXun' => '20001', 'SubMail' => 'xxx', ...]);
+$sms->template([
+    'YunTongXun' => 'your_temp_id',
+    'SubMail' => 'your_temp_id',
+    ...
+]);
 ```
 
 ### $sms->data($tempData)
 
-设置模板短信的模板数据，并返回实例对象，`$templateData`必须为数组。
+设置模板短信的模板数据，并返回实例对象，`$tempData`必须为数组。
 ```php
 $sms = $sms->data([
     'code' => $code,
@@ -326,7 +337,7 @@ $sms = $sms->data([
 ### $sms->content($text)
 
 设置内容短信的内容，并返回实例对象。
-有些服务商(如YunPian,Luosimao)只支持内容短信(即直接发送短信内容)，那么就需要为它们设置短信内容。
+有些自带的代理器(如YunPian,Luosimao)使用的是内容短信(即直接发送短信内容)，那么就需要为它们设置短信内容。
 ```php
 $sms = $sms->content('【签名】您的订单号是xxxx，祝你购物愉快。');
 ```
@@ -348,7 +359,7 @@ $sms = $sms->content('【签名】您的订单号是xxxx，祝你购物愉快。
 
 临时设置发送时使用的代理器(不会影响备用代理器的正常使用)，`$name`为代理器名称。
 ```php
-$sms = $sms->agent('Luosimao');
+$sms = $sms->agent('YunPian');
 ```
 > 通过该方法设置的代理器将获得绝对优先权，但只对当前短信实例有效。
 
@@ -388,7 +399,8 @@ namespace Toplan\PhpSms;
 class FooAgent extends Agent {
     //override
     //发送短信一级入口
-    public function sendSms($tempId, $to, array $tempData, $content){
+    public function sendSms($tempId, $to, array $tempData, $content)
+    {
        //在这个方法中调用二级入口
        //根据你使用的服务商的接口选择调用哪个方式发送短信
        $this->sendContentSms($to, $content);
@@ -463,7 +475,7 @@ Sms::enable([
     'Test2' => [
         '20 backup',
 
-        'sendSms' => function($agent, $tempId, $to, $tempData, $content)) {
+        'sendSms' => function($agent, $tempId, $to, $tempData, $content){
             //获取配置(如果设置了的话):
             $key = $agent->key;
 
@@ -477,7 +489,7 @@ Sms::enable([
             $agent->result('code', 'your code');
         },
 
-        'voiceVerify' => function($agent, $to, $code) {
+        'voiceVerify' => function($agent, $to, $code){
             //发送语音验证码，同上
         }
     ]
