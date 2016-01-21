@@ -42,8 +42,7 @@ composer require 'toplan/phpsms:~1.2.2'
 
 - 配置代理器所需参数
 
-为你需要用到的短信服务商(即代理器)配置必要的参数。
-可以在`config\phpsms.php`中键为`agents`的数组中配置，也可以手动在程序中设置，示例如下：
+为你需要用到的短信服务商(即代理器)配置必要的参数。可以在`config\phpsms.php`中键为`agents`的数组中配置，也可以手动在程序中设置，示例如下：
 
 ```php
 //example:
@@ -89,23 +88,23 @@ Sms::enable([
 require('path/to/vendor/autoload.php');
 use Toplan\PhpSms\Sms;
 
-// 只希望使用模板方式发送短信，可以不设置content。
+// 只希望使用模板方式发送短信，可以不设置content
 // 如:云通讯、Submail、Ucpaas
-Sms::make()->to('1828****349')->template($templates)->data(['12345', 5])->send();
+Sms::make()->to('1828****349')->template('YunTongXun', 'your_temp_id')->data([...])->send();
 
-// 只希望使用内容方式放送，可以不设置模板id和模板数据data。
+// 只希望使用内容方式放送，可以不设置模板id和模板数据data
 // 如:云片、luosimao
-Sms::make()->to('1828****349')->content('【PhpSMS】亲爱的张三，欢迎访问，祝你工作愉快。')->send();
+Sms::make()->to('1828****349')->content('【签名】这是短信内容...')->send();
 
-// 同时确保能通过模板和内容方式发送。
-// 这样做的好处是，可以兼顾到各种类型服务商。
+// 同时确保能通过模板和内容方式发送
+// 这样做的好处是，可以兼顾到各种类型服务商
 Sms::make()->to('1828****349')
      ->template([
-         'YunTongXun' => '123',
-         'SubMail'    => '123'
+         'YunTongXun' => 'your_temp_id',
+         'SubMail'    => 'your_temp_id'
      ])
-     ->data(['张三'])
-     ->content('【签名】亲爱的张三，欢迎访问，祝你工作愉快。')
+     ->data([...])
+     ->content('【签名】这是短信内容...')
      ->send();
 
 //语言验证码
@@ -197,7 +196,7 @@ Sms::agents('YunPian', [
 
 ### Sms::beforeSend($handler [, $override]);
 
-发送前钩子。
+发送前钩子，示例：
 ```php
 Sms::beforeSend(function($task, $prev, $index, $handlers){
     //获取短信数据
@@ -209,7 +208,7 @@ Sms::beforeSend(function($task, $prev, $index, $handlers){
 
 ### Sms::beforeAgentSend($handler [, $override]);
 
-代理器发送前钩子。
+代理器发送前钩子，示例：
 ```php
 Sms::beforeAgentSend(function($task, $driver, $prev, $index, $handlers){
     //短信数据:
@@ -222,7 +221,7 @@ Sms::beforeAgentSend(function($task, $driver, $prev, $index, $handlers){
 
 ### Sms::afterAgentSend($handler [, $override]);
 
-代理器发送后钩子。
+代理器发送后钩子，示例：
 ```php
 Sms::afterAgentSend(function($task, $result, $prev, $index, $handlers){
      //$result为代理器的发送结果数据
@@ -234,7 +233,7 @@ Sms::afterAgentSend(function($task, $result, $prev, $index, $handlers){
 
 ### Sms::afterSend($handler [, $override]);
 
-发送后钩子。
+发送后钩子，示例：
 ```php
 Sms::afterSend(function($task, $result, $prev, $index, $handlers){
     //$result为发送后获得的结果数组
@@ -246,26 +245,31 @@ Sms::afterSend(function($task, $result, $prev, $index, $handlers){
 
 ### Sms::queue($enable, $handler)
 
-设置是否启用队列以及定义如何推送到队列。
+改方法可以设置是否启用队列以及定义如何推送到队列。
 
-> $handler可使用的参数:
->
-> `$sms` : Sms实例。
-> `$data` : Sms实例中的短信数据，等同于`$sms->getData()`。
+`$handler`可使用的参数:
++ `$sms` : Sms实例
++ `$data` : Sms实例中的短信数据，等同于`$sms->getData()`
 
 定义如何推送到队列：
 ```php
+//自动启用队列
 Sms::queue(function($sms, $data){
     //define how to push to queue.
-});//自动启用队列
-//or
+    ...
+});
+
+//第一个参数为true,启用队列
 Sms::queue(true, function($sms, $data){
     //define how to push to queue.
-});//第一个参数为true,启用队列。
-//or
+    ...
+});
+
+//第一个参数为false,暂时关闭队列
 Sms::queue(false, function($sms, $data){
     //define how to push to queue.
-});//第一个参数为false,暂时关闭队列。
+    ...
+});
 ```
 
 如果已经定义过如何推送到队列，还可以继续设置关闭/开启队列：
@@ -306,16 +310,27 @@ $sms->to('1828*******');
 指定代理器进行设置或批量设置:
 ```php
 //静态方法设置，并返回sms实例
-Sms::make(['YunTongXun' => '20001', 'SubMail' => 'xxx', ...]);
+Sms::make([
+    'YunTongXun' => 'your_temp_id',
+    'SubMail' => 'your_temp_id',
+    ...
+]);
+
 //设置指定服务商的模板id
-$sms->template('YunTongXun', '20001')->template('SubMail', 'xxx');
+$sms->template('YunTongXun', 'your_temp_id')
+    ->template('SubMail', 'your_temp_id');
+
 //一次性设置多个服务商的模板id
-$sms->template(['YunTongXun' => '20001', 'SubMail' => 'xxx', ...]);
+$sms->template([
+    'YunTongXun' => 'your_temp_id',
+    'SubMail' => 'your_temp_id',
+    ...
+]);
 ```
 
-### $sms->data($tempData)
+### $sms->data(array $tempData)
 
-设置模板短信的模板数据，并返回实例对象，`$templateData`必须为数组。
+设置模板短信的模板数据，并返回实例对象，`$tempData`必须为数组。
 ```php
 $sms = $sms->data([
     'code' => $code,
@@ -325,8 +340,7 @@ $sms = $sms->data([
 
 ### $sms->content($text)
 
-设置内容短信的内容，并返回实例对象。
-有些服务商(如YunPian,Luosimao)只支持内容短信(即直接发送短信内容)，那么就需要为它们设置短信内容。
+设置内容短信的内容，并返回实例对象。一些自带的代理器(如YunPian,Luosimao)使用的是内容短信(即直接发送短信内容)，那么就需要为它们设置短信内容。
 ```php
 $sms = $sms->content('【签名】您的订单号是xxxx，祝你购物愉快。');
 ```
@@ -348,7 +362,7 @@ $sms = $sms->content('【签名】您的订单号是xxxx，祝你购物愉快。
 
 临时设置发送时使用的代理器(不会影响备用代理器的正常使用)，`$name`为代理器名称。
 ```php
-$sms = $sms->agent('Luosimao');
+$sms = $sms->agent('YunPian');
 ```
 > 通过该方法设置的代理器将获得绝对优先权，但只对当前短信实例有效。
 
@@ -367,28 +381,31 @@ $result = $sms->send(true);
 
 # 自定义代理器
 
++ step 1
+
 配置项加入到config/phpsms.php中键为`agents`的数组里：
 ```php
 //请注意命名规范，Foo为代理器(服务商)名称。
 'Foo' => [
-    'apikey' => 'some info',
+    'apikey' => 'your api key',
     ...
 ]
 ```
 
-在agents目录下添加代理器类：
++ step 2
 
-**建议代理器类名为`FooAgent`，建议命名空间为`Toplan\PhpSms`，必须继承`Agent`抽象类。**
-
-> 如果类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，则需要指定代理器类，详见[高级配置](#高级配置)。
+在agents目录下添加代理器类，建议代理器类名为`FooAgent`，建议命名空间为`Toplan\PhpSms`，必须继承`Agent`抽象类。
+> 如果类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，在使用该代理器时则需要指定代理器类，详见[高级配置](#高级配置)。
 > 如果使用到其它api库，可以将api库放入lib文件夹中。
 
+一个自定义代理器的实现示例：
 ```php
 namespace Toplan\PhpSms;
 class FooAgent extends Agent {
     //override
     //发送短信一级入口
-    public function sendSms($tempId, $to, array $tempData, $content){
+    public function sendSms($tempId, $to, array $tempData, $content)
+    {
        //在这个方法中调用二级入口
        //根据你使用的服务商的接口选择调用哪个方式发送短信
        $this->sendContentSms($to, $content);
@@ -400,10 +417,13 @@ class FooAgent extends Agent {
     public function sendContentSms($to, $content)
     {
         //获取配置文件中的参数
-        $x = $this->apikey;
-        //在这里实现发送内容短信，即直接发送内容
-        ...
-        //切记将发送结果存入到$this->result
+        $key = $this->apikey;
+
+        //可用方法:
+        Agent::sockPost($url, $query);//fsockopen
+        Agent::curl($url, array $params, bool $isPost);//curl
+
+        //切记更新发送结果
         $this->result('success', true);//是否发送成功
         $this->result('info', $msg);//发送结果信息说明
         $this->result('code', $code);//发送结果代码
@@ -424,7 +444,6 @@ class FooAgent extends Agent {
     }
 }
 ```
-至此, 新加代理器成功!
 
 # 高级配置
 
@@ -442,10 +461,9 @@ class FooAgent extends Agent {
 * 示例：
 ```php
 Sms::enable('Test1', [
-        '10 backup',
-        'agentClass' => 'Your\Namespace\YourAgent'
-    ]
-);
+    '10 backup',
+    'agentClass' => 'Your\Namespace\YourAgent'
+]);
 ```
 
 ### 寄生代理器
@@ -462,22 +480,20 @@ Sms::enable('Test1', [
 Sms::enable([
     'Test2' => [
         '20 backup',
-
-        'sendSms' => function($agent, $tempId, $to, $tempData, $content)) {
+        'sendSms' => function($agent, $tempId, $to, $tempData, $content){
             //获取配置(如果设置了的话):
             $key = $agent->key;
 
-            //$agent实例可用方法:
-            $agent->sockPost($url, $query);//fsockopen
-            $agent->curl($url, array $params, bool $isPost);//curl
+            //可用方法:
+            Agent::sockPost($url, $query);//fsockopen
+            Agent::curl($url, array $params, bool $isPost);//curl
 
-            //设置发送结果:
+            //更新发送结果:
             $agent->result('success', true);
             $agent->result('info', 'some info');
             $agent->result('code', 'your code');
         },
-
-        'voiceVerify' => function($agent, $to, $code) {
+        'voiceVerify' => function($agent, $to, $code){
             //发送语音验证码，同上
         }
     ]
