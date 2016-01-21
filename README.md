@@ -89,23 +89,23 @@ Sms::enable([
 require('path/to/vendor/autoload.php');
 use Toplan\PhpSms\Sms;
 
-// 只希望使用模板方式发送短信，可以不设置content。
+// 只希望使用模板方式发送短信，可以不设置content
 // 如:云通讯、Submail、Ucpaas
-Sms::make()->to('1828****349')->template('YunTongXun', 'your_temp_id')->data(['12345', 5])->send();
+Sms::make()->to('1828****349')->template('YunTongXun', 'your_temp_id')->data([...])->send();
 
-// 只希望使用内容方式放送，可以不设置模板id和模板数据data。
+// 只希望使用内容方式放送，可以不设置模板id和模板数据data
 // 如:云片、luosimao
 Sms::make()->to('1828****349')->content('【签名】这是短信内容...')->send();
 
-// 同时确保能通过模板和内容方式发送。
-// 这样做的好处是，可以兼顾到各种类型服务商。
+// 同时确保能通过模板和内容方式发送
+// 这样做的好处是，可以兼顾到各种类型服务商
 Sms::make()->to('1828****349')
      ->template([
          'YunTongXun' => 'your_temp_id',
          'SubMail'    => 'your_temp_id'
      ])
-     ->data(['张三'])
-     ->content('【签名】亲爱的张三，欢迎访问，祝你工作愉快。')
+     ->data([...])
+     ->content('【签名】这是短信内容...')
      ->send();
 
 //语言验证码
@@ -324,7 +324,7 @@ $sms->template([
 ]);
 ```
 
-### $sms->data($tempData)
+### $sms->data(array $tempData)
 
 设置模板短信的模板数据，并返回实例对象，`$tempData`必须为数组。
 ```php
@@ -378,6 +378,8 @@ $result = $sms->send(true);
 
 # 自定义代理器
 
++ step1
+
 配置项加入到config/phpsms.php中键为`agents`的数组里：
 ```php
 //请注意命名规范，Foo为代理器(服务商)名称。
@@ -387,10 +389,9 @@ $result = $sms->send(true);
 ]
 ```
 
-在agents目录下添加代理器类：
++ step2
 
-**建议代理器类名为`FooAgent`，建议命名空间为`Toplan\PhpSms`，必须继承`Agent`抽象类。**
-
+在agents目录下添加代理器类，建议代理器类名为`FooAgent`，建议命名空间为`Toplan\PhpSms`，必须继承`Agent`抽象类。
 > 如果类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，则需要指定代理器类，详见[高级配置](#高级配置)。
 > 如果使用到其它api库，可以将api库放入lib文件夹中。
 
@@ -436,7 +437,6 @@ class FooAgent extends Agent {
     }
 }
 ```
-至此, 新加代理器成功!
 
 # 高级配置
 
