@@ -42,8 +42,7 @@ composer require 'toplan/phpsms:~1.2.2'
 
 - 配置代理器所需参数
 
-为你需要用到的短信服务商(即代理器)配置必要的参数。
-可以在`config\phpsms.php`中键为`agents`的数组中配置，也可以手动在程序中设置，示例如下：
+为你需要用到的短信服务商(即代理器)配置必要的参数。可以在`config\phpsms.php`中键为`agents`的数组中配置，也可以手动在程序中设置，示例如下：
 
 ```php
 //example:
@@ -197,7 +196,7 @@ Sms::agents('YunPian', [
 
 ### Sms::beforeSend($handler [, $override]);
 
-发送前钩子。
+发送前钩子，示例：
 ```php
 Sms::beforeSend(function($task, $prev, $index, $handlers){
     //获取短信数据
@@ -209,7 +208,7 @@ Sms::beforeSend(function($task, $prev, $index, $handlers){
 
 ### Sms::beforeAgentSend($handler [, $override]);
 
-代理器发送前钩子。
+代理器发送前钩子，示例：
 ```php
 Sms::beforeAgentSend(function($task, $driver, $prev, $index, $handlers){
     //短信数据:
@@ -222,7 +221,7 @@ Sms::beforeAgentSend(function($task, $driver, $prev, $index, $handlers){
 
 ### Sms::afterAgentSend($handler [, $override]);
 
-代理器发送后钩子。
+代理器发送后钩子，示例：
 ```php
 Sms::afterAgentSend(function($task, $result, $prev, $index, $handlers){
      //$result为代理器的发送结果数据
@@ -234,7 +233,7 @@ Sms::afterAgentSend(function($task, $result, $prev, $index, $handlers){
 
 ### Sms::afterSend($handler [, $override]);
 
-发送后钩子。
+发送后钩子，示例：
 ```php
 Sms::afterSend(function($task, $result, $prev, $index, $handlers){
     //$result为发送后获得的结果数组
@@ -246,26 +245,31 @@ Sms::afterSend(function($task, $result, $prev, $index, $handlers){
 
 ### Sms::queue($enable, $handler)
 
-设置是否启用队列以及定义如何推送到队列。
+改方法可以设置是否启用队列以及定义如何推送到队列。
 
-> $handler可使用的参数:
->
-> `$sms` : Sms实例。
-> `$data` : Sms实例中的短信数据，等同于`$sms->getData()`。
+`$handler`可使用的参数:
++ `$sms` : Sms实例
++ `$data` : Sms实例中的短信数据，等同于`$sms->getData()`
 
 定义如何推送到队列：
 ```php
+//自动启用队列
 Sms::queue(function($sms, $data){
     //define how to push to queue.
-});//自动启用队列
-//or
+    ...
+});
+
+//第一个参数为true,启用队列
 Sms::queue(true, function($sms, $data){
     //define how to push to queue.
-});//第一个参数为true,启用队列。
-//or
+    ...
+});
+
+//第一个参数为false,暂时关闭队列
 Sms::queue(false, function($sms, $data){
     //define how to push to queue.
-});//第一个参数为false,暂时关闭队列。
+    ...
+});
 ```
 
 如果已经定义过如何推送到队列，还可以继续设置关闭/开启队列：
@@ -336,8 +340,7 @@ $sms = $sms->data([
 
 ### $sms->content($text)
 
-设置内容短信的内容，并返回实例对象。
-有些自带的代理器(如YunPian,Luosimao)使用的是内容短信(即直接发送短信内容)，那么就需要为它们设置短信内容。
+设置内容短信的内容，并返回实例对象。一些自带的代理器(如YunPian,Luosimao)使用的是内容短信(即直接发送短信内容)，那么就需要为它们设置短信内容。
 ```php
 $sms = $sms->content('【签名】您的订单号是xxxx，祝你购物愉快。');
 ```
@@ -378,23 +381,24 @@ $result = $sms->send(true);
 
 # 自定义代理器
 
-+ step1
++ step 1
 
 配置项加入到config/phpsms.php中键为`agents`的数组里：
 ```php
 //请注意命名规范，Foo为代理器(服务商)名称。
 'Foo' => [
-    'apikey' => 'some info',
+    'apikey' => 'your api key',
     ...
 ]
 ```
 
-+ step2
++ step 2
 
 在agents目录下添加代理器类，建议代理器类名为`FooAgent`，建议命名空间为`Toplan\PhpSms`，必须继承`Agent`抽象类。
-> 如果类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，则需要指定代理器类，详见[高级配置](#高级配置)。
+> 如果类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，在使用该代理器时则需要指定代理器类，详见[高级配置](#高级配置)。
 > 如果使用到其它api库，可以将api库放入lib文件夹中。
 
+一个自定义代理器的实现示例：
 ```php
 namespace Toplan\PhpSms;
 class FooAgent extends Agent {
@@ -413,10 +417,13 @@ class FooAgent extends Agent {
     public function sendContentSms($to, $content)
     {
         //获取配置文件中的参数
-        $x = $this->apikey;
-        //在这里实现发送内容短信，即直接发送内容
-        ...
-        //切记将发送结果存入到$this->result
+        $key = $this->apikey;
+
+        //可用方法:
+        Agent::sockPost($url, $query);//fsockopen
+        Agent::curl($url, array $params, bool $isPost);//curl
+
+        //切记更新发送结果
         $this->result('success', true);//是否发送成功
         $this->result('info', $msg);//发送结果信息说明
         $this->result('code', $code);//发送结果代码
@@ -454,10 +461,9 @@ class FooAgent extends Agent {
 * 示例：
 ```php
 Sms::enable('Test1', [
-        '10 backup',
-        'agentClass' => 'Your\Namespace\YourAgent'
-    ]
-);
+    '10 backup',
+    'agentClass' => 'Your\Namespace\YourAgent'
+]);
 ```
 
 ### 寄生代理器
@@ -474,21 +480,19 @@ Sms::enable('Test1', [
 Sms::enable([
     'Test2' => [
         '20 backup',
-
         'sendSms' => function($agent, $tempId, $to, $tempData, $content){
             //获取配置(如果设置了的话):
             $key = $agent->key;
 
-            //$agent实例可用方法:
-            $agent->sockPost($url, $query);//fsockopen
-            $agent->curl($url, array $params, bool $isPost);//curl
+            //可用方法:
+            Agent::sockPost($url, $query);//fsockopen
+            Agent::curl($url, array $params, bool $isPost);//curl
 
-            //设置发送结果:
+            //更新发送结果:
             $agent->result('success', true);
             $agent->result('info', 'some info');
             $agent->result('code', 'your code');
         },
-
         'voiceVerify' => function($agent, $to, $code){
             //发送语音验证码，同上
         }
