@@ -37,14 +37,14 @@ class YunTongXunAgent extends Agent
         $data = array_values($data);
         $result = $rest->sendTemplateSMS($to, $data, $tempId);
         if ($result) {
-            $code = (String) $result->statusCode;
+            $code = (string) $result->statusCode;
             if ($code === '000000') {
                 $this->result['success'] = true;
                 $this->result['code'] = $code;
                 $this->result['info'] = 'smsSid:' . $result->TemplateSms->smsMessageSid;
             } else {
                 $this->result['code'] = $code;
-                $this->result['info'] = (String) $result->statusMsg;
+                $this->result['info'] = (string) $result->statusMsg;
             }
         }
     }
@@ -70,14 +70,14 @@ class YunTongXunAgent extends Agent
         $userData = $respUrl = null;
         $result = $rest->voiceVerify($code, $playTimes, $to, null, $respUrl, $lang, $userData, null, null);
         if ($result) {
-            $code = (String) $result->statusCode;
+            $code = (string) $result->statusCode;
             if ($code === '000000') {
                 $this->result['success'] = true;
                 $this->result['code'] = $code;
                 $this->result['info'] = 'callSid:' . $result->VoiceVerify->callSid;
             } else {
                 $this->result['code'] = $code;
-                $this->result['info'] = (String) $result->statusMsg;
+                $this->result['info'] = (string) $result->statusMsg;
             }
         }
     }

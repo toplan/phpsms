@@ -245,9 +245,9 @@ Sms::afterSend(function($task, $result, $prev, $index, $handlers){
 
 ### Sms::queue($enable, $handler)
 
-改方法可以设置是否启用队列以及定义如何推送到队列。
+该方法可以设置是否启用队列以及定义如何推送到队列。
 
-`$handler`可使用的参数:
+`$handler`匿名函数可使用的参数:
 + `$sms` : Sms实例
 + `$data` : Sms实例中的短信数据，等同于`$sms->getData()`
 
@@ -287,14 +287,26 @@ $enable = Sms::queue();
 
 ### Sms::make()
 
-生成发送短信的sms实例，并返回该实例。
+生成发送短信的sms实例，并返回实例。
 ```php
 $sms = Sms::make();
+
+//创建实例的同时设置短信内容：
+$sms = Sms::make('【签名】这是短信内容...');
+
+//创建实例的同时设置短信模版：
+$sms = Sms::make('YunTongXun', 'your_temp_id');
+//或
+$sms = Sms::make([
+    'YunTongXun' => 'your_temp_id',
+    'SubMail' => 'your_temp_id',
+    ...
+]);
 ```
 
 ### Sms::voice($code)
 
-生成发送语音验证码的sms实例，并返回该实例。
+生成发送语音验证码的sms实例，并返回实例。
 ```php
 $sms = Sms::voice($code)
 ```
@@ -307,15 +319,8 @@ $sms->to('1828*******');
 
 ### $sms->template($templates)
 
-指定代理器进行设置或批量设置:
+指定代理器设置模版id或批量设置，并返回实例。
 ```php
-//静态方法设置，并返回sms实例
-Sms::make([
-    'YunTongXun' => 'your_temp_id',
-    'SubMail' => 'your_temp_id',
-    ...
-]);
-
 //设置指定服务商的模板id
 $sms->template('YunTongXun', 'your_temp_id')
     ->template('SubMail', 'your_temp_id');
@@ -332,7 +337,7 @@ $sms->template([
 
 设置模板短信的模板数据，并返回实例对象，`$tempData`必须为数组。
 ```php
-$sms = $sms->data([
+$sms->data([
     'code' => $code,
     'minutes' => $minutes
   ]);
@@ -342,12 +347,12 @@ $sms = $sms->data([
 
 设置内容短信的内容，并返回实例对象。一些自带的代理器(如YunPian,Luosimao)使用的是内容短信(即直接发送短信内容)，那么就需要为它们设置短信内容。
 ```php
-$sms = $sms->content('【签名】您的订单号是xxxx，祝你购物愉快。');
+$sms->content('【签名】您的订单号是xxxx，祝你购物愉快。');
 ```
 
 ### $sms->getData()
 
-获取Sms实例中的短信数据，结构如下：
+获取Sms实例中的短信数据，返回数组，其结构如下：
 ```php
 [
     'to'           => ...,
@@ -360,9 +365,9 @@ $sms = $sms->content('【签名】您的订单号是xxxx，祝你购物愉快。
 
 ### $sms->agent($name)
 
-临时设置发送时使用的代理器(不会影响备用代理器的正常使用)，`$name`为代理器名称。
+临时设置发送时使用的代理器(不会影响备用代理器的正常使用)，并返回实例，`$name`为代理器名称。
 ```php
-$sms = $sms->agent('YunPian');
+$sms->agent('YunPian');
 ```
 > 通过该方法设置的代理器将获得绝对优先权，但只对当前短信实例有效。
 

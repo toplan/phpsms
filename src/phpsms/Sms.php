@@ -185,7 +185,7 @@ class Sms
      */
     public function content($content)
     {
-        $this->smsData['content'] = trim((String) $content);
+        $this->smsData['content'] = trim((string) $content);
 
         return $this;
     }
@@ -237,7 +237,7 @@ class Sms
      */
     public function agent($name)
     {
-        $this->firstAgent = (String) $name;
+        $this->firstAgent = (string) $name;
 
         return $this;
     }
@@ -484,7 +484,7 @@ class Sms
     protected static function getAgentConfigData($name)
     {
         return isset(self::$agentsConfig[$name]) ?
-               (Array) self::$agentsConfig[$name] : [];
+               (array) self::$agentsConfig[$name] : [];
     }
 
     /**
