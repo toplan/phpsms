@@ -90,6 +90,9 @@ return [
             //REST版本号，在官网文档REST介绍中获得。
             'softVersion' => '2013-12-26',
 
+            //包体格式，可填值：json 、xml
+            'bodyType' => 'xml',
+
             //语音验证码使用的语言类型
             'voiceLang' => 'zh',
 
