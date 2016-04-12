@@ -163,8 +163,6 @@ abstract class Agent
         } elseif (array_key_exists("$name", $this->result)) {
             return $this->result["$name"];
         }
-
-        return;
     }
 
     /**
@@ -192,7 +190,5 @@ abstract class Agent
         if (array_key_exists($name, $this->config)) {
             return $this->config["$name"];
         }
-
-        return;
     }
 }
