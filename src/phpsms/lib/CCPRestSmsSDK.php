@@ -149,6 +149,10 @@ class REST
         } else { //xml格式
            $datas = simplexml_load_string(trim($result, " \t\n\r"));
         }
+        // 重新装填数据
+        if (isset($datas->templateSMS)) {
+            $datas->TemplateSMS = $datas->templateSMS;
+        }
 
         return $datas;
     }

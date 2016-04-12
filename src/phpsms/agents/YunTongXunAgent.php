@@ -43,7 +43,7 @@ class YunTongXunAgent extends Agent
             if ($code === '000000') {
                 $this->result['success'] = true;
                 $this->result['code'] = $code;
-                $this->result['info'] = 'smsSid:' . $result->templateSMS->smsMessageSid;
+                $this->result['info'] = 'smsSid:' . $result->TemplateSMS->smsMessageSid;
             } else {
                 $this->result['code'] = $code;
                 $this->result['info'] = (string) $result->statusMsg;
