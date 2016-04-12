@@ -34,7 +34,7 @@ class REST
 
     /**
      * 设置主帐号
-     * 
+     *
      * @param string $AccountSid   主帐号
      * @param string $AccountToken 主帐号Token
      */
@@ -46,7 +46,7 @@ class REST
 
     /**
      * 设置应用ID
-     * 
+     *
      * @param string $AppId 应用ID
      */
     public function setAppId($AppId)
