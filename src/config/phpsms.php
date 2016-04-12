@@ -91,7 +91,7 @@ return [
             'softVersion' => '2013-12-26',
 
             //包体格式，可填值：json 、xml
-            'bodyType' => 'xml',
+            'bodyType' => 'json',
 
             //语音验证码使用的语言类型
             'voiceLang' => 'zh',
