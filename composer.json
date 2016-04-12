@@ -23,7 +23,7 @@
         "src/phpsms/",
         "src/phpsms/agents/"
       ],
-      "Toplan\\PhpSms\\Facades": [
+      "Toplan\\PhpSms\\Facades\\": [
         "src/phpsms/facades/"
       ]
     },
