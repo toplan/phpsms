@@ -4,7 +4,7 @@ namespace Toplan\PhpSms;
 
 /**
  * Class UcpaasAgent
- *          
+ *
  * @property string $accountSid
  * @property string $accountToken
  * @property string $appId
