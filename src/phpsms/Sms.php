@@ -273,7 +273,7 @@ class Sms
         if ($immediately) {
             $result = Balancer::run(self::TASK, [
                 'data'  => $this->getData(),
-                'agent' => $this->firstAgent,
+                'driver' => $this->firstAgent,
             ]);
         } else {
             $result = $this->push();
