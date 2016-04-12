@@ -10,6 +10,7 @@ use REST;
  * @property string $serverIP
  * @property string $serverPort
  * @property string $softVersion
+ * @property string $bodyType
  * @property string $accountSid
  * @property string $accountToken
  * @property string $appId
@@ -29,7 +30,8 @@ class YunTongXunAgent extends Agent
         $rest = new REST(
             $this->serverIP,
             $this->serverPort,
-            $this->softVersion
+            $this->softVersion,
+            $this->bodyType
         );
         $rest->setAccount($this->accountSid, $this->accountToken);
         $rest->setAppId($this->appId);
@@ -41,7 +43,7 @@ class YunTongXunAgent extends Agent
             if ($code === '000000') {
                 $this->result['success'] = true;
                 $this->result['code'] = $code;
-                $this->result['info'] = 'smsSid:' . $result->TemplateSms->smsMessageSid;
+                $this->result['info'] = 'smsSid:' . $result->TemplateSMS->smsMessageSid;
             } else {
                 $this->result['code'] = $code;
                 $this->result['info'] = (string) $result->statusMsg;
@@ -59,7 +61,8 @@ class YunTongXunAgent extends Agent
         $rest = new REST(
             $this->serverIP,
             $this->serverPort,
-            $this->softVersion
+            $this->softVersion,
+            $this->bodyType
         );
         $rest->setAccount($this->accountSid, $this->accountToken);
         $rest->setAppId($this->appId);

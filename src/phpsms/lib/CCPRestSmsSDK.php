@@ -24,12 +24,15 @@ class REST
     private $Batch;  //时间戳
     private $BodyType = 'xml'; //包体格式，可填值：json 、xml
 
-    public function __construct($ServerIP, $ServerPort, $SoftVersion)
+    public function __construct($ServerIP, $ServerPort, $SoftVersion, $BodyType = 'xml')
     {
         $this->Batch = date('YmdHis');
         $this->ServerIP = $ServerIP;
         $this->ServerPort = $ServerPort;
         $this->SoftVersion = $SoftVersion;
+        if (in_array($BodyType, ['xml', 'json'])) {
+            $this->BodyType = $BodyType;
+        }
     }
 
     /**
@@ -146,12 +149,9 @@ class REST
         } else { //xml格式
            $datas = simplexml_load_string(trim($result, " \t\n\r"));
         }
-        //重新装填数据
-        if ($datas->statusCode === 0) {
-            if ($this->BodyType === 'json') {
-                $datas->TemplateSMS = $datas->templateSMS;
-                unset($datas->templateSMS);
-            }
+        // 重新装填数据
+        if (isset($datas->templateSMS)) {
+            $datas->TemplateSMS = $datas->templateSMS;
         }
 
         return $datas;
