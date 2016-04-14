@@ -2,6 +2,7 @@
 
 namespace Toplan\PhpSms;
 
+use SuperClosure\Serializer;
 use Toplan\TaskBalance\Balancer;
 
 /**
@@ -17,7 +18,7 @@ class Sms
     /**
      * agents instance
      */
-    protected static $agents;
+    protected static $agents = [];
 
     /**
      * agents`s name
@@ -85,6 +86,18 @@ class Sms
      * @var string
      */
     protected $firstAgent = null;
+
+    /**
+     * a instance of class 'SuperClosure\Serializer'
+     * @var null
+     */
+    protected static $serializer = null;
+
+    /**
+     * store the static properties of Sms class when serialize a instance
+     * @var array
+     */
+    protected $_status_before_enqueue_ = [];
 
     /**
      * construct
@@ -513,7 +526,7 @@ class Sms
                 self::$agents[$name] = new $className($configData);
             } else {
                 //无代理器可用
-                throw new PhpSmsException("Dose not support [$name] agent.");
+                throw new PhpSmsException("Do not support [$name] agent.");
             }
         }
 
@@ -656,6 +669,138 @@ class Sms
             $this->__callStatic($name, $args);
         } catch (\Exception $e) {
             throw $e;
+        }
+    }
+
+    /**
+     * serialize magic method
+     * store current sms instance status
+     *
+     * @return array
+     */
+    public function __sleep()
+    {
+        $this->_status_before_enqueue_['enableAgents'] = self::serializeEnableAgents();
+        $this->_status_before_enqueue_['agentsConfig'] = self::getAgentsConfig();
+        $this->_status_before_enqueue_['handlers'] = self::serializeHandlers();
+        
+        return ['pushedToQueue', 'smsData', 'firstAgent', '_status_before_enqueue_'];
+    }
+
+    /**
+     * unserialize magic method
+     */
+    public function __wakeup()
+    {
+        $status = $this->_status_before_enqueue_;
+        self::$agentsName = self::unserializeEnableAgents($status['enableAgents']);
+        self::$agentsConfig = $status['agentsConfig'];
+        self::reinstallHandlers($status['handlers']);
+        self::bootstrap();
+    }
+
+    /**
+     * get a serializer
+     *
+     * @return Serializer
+     */
+    public static function getSerializer()
+    {
+        if (!self::$serializer) {
+            self::$serializer = new Serializer();
+        }
+
+        return self::$serializer;
+    }
+
+    /**
+     * serialize enable agents
+     *
+     * @return array
+     */
+    protected static function serializeEnableAgents()
+    {
+        $serializer = self::getSerializer();
+        $enableAgents = self::getEnableAgents();
+        foreach ($enableAgents as $name => &$options) {
+            if (is_array($options)) {
+                if (isset($options['sendSms']) && is_callable($options['sendSms'])) {
+                    $options['sendSms'] = $serializer->serialize($options['sendSms']);
+                    var_dump($options['sendSms']);
+                }
+                if (isset($options['voiceVerify']) && is_callable($options['voiceVerify'])) {
+                    $options['voiceVerify'] = $serializer->serialize($options['voiceVerify']);
+                }
+            }
+        }
+
+        return $enableAgents;
+    }
+
+    /**
+     * unserialize enable agents
+     *
+     * @param array $serialized
+     *
+     * @return mixed
+     */
+    protected static function unserializeEnableAgents(array $serialized)
+    {
+        $serializer = self::getSerializer();
+        foreach ($serialized as $name => &$options) {
+            if (is_array($options)) {
+                if (isset($options['sendSms'])) {
+                    $options['sendSms'] = $serializer->unserialize($options['sendSms']);
+                }
+                if (isset($options['voiceVerify'])) {
+                    $options['voiceVerify'] = $serializer->unserialize($options['voiceVerify']);
+                }
+            }
+        }
+
+        return $serialized;
+    }
+
+    /**
+     * serialize these hooks` handlers:
+     * 'beforeRun','beforeDriverRun','afterDriverRun','afterRun'
+     *
+     * @return array
+     */
+    protected static function serializeHandlers()
+    {
+        $hooks = [];
+        $serializer = self::getSerializer();
+        $task = self::generatorTask();
+        foreach ($task->handlers as $hookName => $handlers) {
+            foreach ($handlers as $handler) {
+                $serialized = $serializer->serialize($handler);
+                if (!isset($hooks[$hookName])) {
+                    $hooks[$hookName] = [];
+                }
+                array_push($hooks[$hookName], $serialized);
+            }
+        }
+
+        return $hooks;
+    }
+
+    /**
+     * reinstall hooks` handlers by serialized handlers
+     *
+     * @param array $handlers
+     */
+    protected static function reinstallHandlers(array $handlers)
+    {
+        $serializer = self::getSerializer();
+        foreach ($handlers as $hookName => $serializedHandlers) {
+            foreach ($serializedHandlers as $index => $handler) {
+                if (is_string($handler)) {
+                    $handler = $serializer->unserialize($handler);
+                }
+                $override = $index === 0;
+                self::$hookName($handler, $override);
+            }
         }
     }
 }
