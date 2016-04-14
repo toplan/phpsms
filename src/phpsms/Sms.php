@@ -89,12 +89,14 @@ class Sms
 
     /**
      * a instance of class 'SuperClosure\Serializer'
+     *
      * @var null
      */
     protected static $serializer = null;
 
     /**
      * store the static properties of Sms class when serialize a instance
+     *
      * @var array
      */
     protected $_status_before_enqueue_ = [];
@@ -335,7 +337,7 @@ class Sms
      */
     public static function bootstrap($force = false)
     {
-        if (!!$force) {
+        if ((bool) $force) {
             Balancer::destroy(self::TASK);
         }
         $task = self::generatorTask();
@@ -688,7 +690,7 @@ class Sms
         $this->_status_before_enqueue_['enableAgents'] = self::serializeEnableAgents();
         $this->_status_before_enqueue_['agentsConfig'] = self::getAgentsConfig();
         $this->_status_before_enqueue_['handlers'] = self::serializeHandlers();
-        
+
         return ['pushedToQueue', 'smsData', 'firstAgent', '_status_before_enqueue_'];
     }
 

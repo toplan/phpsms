@@ -16,7 +16,7 @@ class SerializeTest extends PHPUnit_Framework_TestCase
             'sendSms'     => function ($agent) {
                 $agent->result(Agent::SUCCESS, true);
                 $agent->result(Agent::INFO, 'some_info');
-            }
+            },
         ]);
         Sms::beforeSend(function () {
             print_r('[_before_send_]');
