@@ -25,10 +25,11 @@ class ParasiticAgent extends Agent
             $this->sendSmsRunning = true;
             try {
                 call_user_func_array($this->sendSms, [$this, $tempId, $to, $tempData, $content]);
-            } catch (\Exception $e) {
-                throw $e;
-            } finally {
                 $this->sendSmsRunning = false;
+            } catch (\Exception $e) {
+                $this->sendSmsRunning = false;
+
+                throw $e;
             }
         } else {
             throw new PhpSmsException('Please do not use `$agent->sendSms()` in closure.');
@@ -54,10 +55,11 @@ class ParasiticAgent extends Agent
             $this->voiceVerifyRunning = true;
             try {
                 call_user_func_array($this->voiceVerify, [$this, $to, $code]);
-            } catch (\Exception $e) {
-                throw $e;
-            } finally {
                 $this->voiceVerifyRunning = false;
+            } catch (\Exception $e) {
+                $this->voiceVerifyRunning = false;
+
+                throw $e;
             }
         } else {
             throw new PhpSmsException('Please do not use `$agent->voiceVerify()` in closure.');
