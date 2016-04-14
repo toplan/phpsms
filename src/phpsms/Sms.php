@@ -90,7 +90,7 @@ class Sms
     /**
      * a instance of class 'SuperClosure\Serializer'
      *
-     * @var null
+     * @var Serializer
      */
     protected static $serializer = null;
 
@@ -728,16 +728,11 @@ class Sms
      */
     protected static function serializeEnableAgents()
     {
-        $serializer = self::getSerializer();
         $enableAgents = self::getEnableAgents();
         foreach ($enableAgents as $name => &$options) {
             if (is_array($options)) {
-                if (isset($options['sendSms']) && is_callable($options['sendSms'])) {
-                    $options['sendSms'] = $serializer->serialize($options['sendSms']);
-                }
-                if (isset($options['voiceVerify']) && is_callable($options['voiceVerify'])) {
-                    $options['voiceVerify'] = $serializer->serialize($options['voiceVerify']);
-                }
+                self::serializeAndReplace($options, 'sendSms');
+                self::serializeAndReplace($options, 'voiceVerify');
             }
         }
 
@@ -753,19 +748,42 @@ class Sms
      */
     protected static function unserializeEnableAgents(array $serialized)
     {
-        $serializer = self::getSerializer();
         foreach ($serialized as $name => &$options) {
             if (is_array($options)) {
-                if (isset($options['sendSms'])) {
-                    $options['sendSms'] = $serializer->unserialize($options['sendSms']);
-                }
-                if (isset($options['voiceVerify'])) {
-                    $options['voiceVerify'] = $serializer->unserialize($options['voiceVerify']);
-                }
+                self::unserializeAndReplace($options, 'sendSms');
+                self::unserializeAndReplace($options, 'voiceVerify');
             }
         }
 
         return $serialized;
+    }
+
+    /**
+     * serialize character value of a array and replace it
+     *
+     * @param array $options
+     * @param       $key
+     */
+    protected static function serializeAndReplace(array &$options, $key)
+    {
+        if (isset($options["$key"]) && is_callable($options["$key"])) {
+            $serializer = self::getSerializer();
+            $options["$key"] = (string) $serializer->serialize($options["$key"]);
+        }
+    }
+
+    /**
+     * unserialize character value of a array and replace it
+     *
+     * @param array $options
+     * @param       $key
+     */
+    protected static function unserializeAndReplace(array &$options, $key)
+    {
+        if (isset($options["$key"])) {
+            $serializer = self::getSerializer();
+            $options["$key"] = $serializer->unserialize($options["$key"]);
+        }
     }
 
     /**
