@@ -30,6 +30,15 @@
 | [云之讯](http://www.ucpaas.com/)        | √ | × | √ | -- | ￥0.050/条 |
 | [聚合数据](https://www.juhe.cn/)        | √ | × | √ | -- | ￥0.035/条 |
 
+# 公告
+
+1. 如果在使用队列相关功能时出现如下错误:
+
+```php
+Fatal error：Maximum function nesting level of ‘100′ reached, aborting!
+```
+需要在`/etc/php5/mods-available/xdebug.ini`(Linux)中新加`xdebug.max_nesting_level=500`
+
 # 安装
 
 ```php
