@@ -330,9 +330,14 @@ class Sms
 
     /**
      * bootstrap
+     *
+     * @param bool $force
      */
-    public static function bootstrap()
+    public static function bootstrap($force = false)
     {
+        if (!!$force) {
+            Balancer::destroy(self::TASK);
+        }
         $task = self::generatorTask();
         if (!count($task->drivers)) {
             self::configuration();
@@ -689,14 +694,15 @@ class Sms
 
     /**
      * unserialize magic method
+     * note: the force bootstrap must before reinstall handlers!
      */
     public function __wakeup()
     {
         $status = $this->_status_before_enqueue_;
         self::$agentsName = self::unserializeEnableAgents($status['enableAgents']);
         self::$agentsConfig = $status['agentsConfig'];
+        self::bootstrap(true);
         self::reinstallHandlers($status['handlers']);
-        self::bootstrap();
     }
 
     /**
@@ -726,7 +732,6 @@ class Sms
             if (is_array($options)) {
                 if (isset($options['sendSms']) && is_callable($options['sendSms'])) {
                     $options['sendSms'] = $serializer->serialize($options['sendSms']);
-                    var_dump($options['sendSms']);
                 }
                 if (isset($options['voiceVerify']) && is_callable($options['voiceVerify'])) {
                     $options['voiceVerify'] = $serializer->serialize($options['voiceVerify']);
