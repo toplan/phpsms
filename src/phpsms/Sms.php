@@ -687,9 +687,11 @@ class Sms
      */
     public function __sleep()
     {
-        $this->_status_before_enqueue_['enableAgents'] = self::serializeEnableAgents();
-        $this->_status_before_enqueue_['agentsConfig'] = self::getAgentsConfig();
-        $this->_status_before_enqueue_['handlers'] = self::serializeHandlers();
+        if (self::needSerializeStatusWhenSleep()) {
+            $this->_status_before_enqueue_['enableAgents'] = self::serializeEnableAgents();
+            $this->_status_before_enqueue_['agentsConfig'] = self::getAgentsConfig();
+            $this->_status_before_enqueue_['handlers'] = self::serializeHandlers();
+        }
 
         return ['pushedToQueue', 'smsData', 'firstAgent', '_status_before_enqueue_'];
     }
@@ -700,11 +702,28 @@ class Sms
      */
     public function __wakeup()
     {
+        if (!self::needSerializeStatusWhenSleep()) {
+            return;
+        }
         $status = $this->_status_before_enqueue_;
         self::$agentsName = self::unserializeEnableAgents($status['enableAgents']);
         self::$agentsConfig = $status['agentsConfig'];
         self::bootstrap(true);
         self::reinstallHandlers($status['handlers']);
+    }
+
+    /**
+     * whether to need to serialize status when call sleep
+     *
+     * @return bool
+     */
+    public static function needSerializeStatusWhenSleep()
+    {
+        if (CheckFramework::is('laravel')) {
+            return config('queue.default') !== 'sync';
+        }
+
+        return true;
     }
 
     /**

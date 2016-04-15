@@ -41,7 +41,7 @@ Fatal error：Maximum function nesting level of ‘100′ reached, aborting!
 # 安装
 
 ```php
-composer require 'toplan/phpsms:~1.3.0'
+composer require 'toplan/phpsms:~1.3.1'
 ```
 
 # 快速上手
