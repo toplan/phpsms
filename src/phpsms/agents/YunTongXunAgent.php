@@ -67,22 +67,23 @@ class YunTongXunAgent extends Agent
 
     protected function setResult($result)
     {
-        if ($result) {
-            $code = (string) $result->statusCode;
-            $success = $code === '000000';
-            $info = $code;
-            if ($success) {
-                $info = (string) $result->statusMsg;
-            } else {
-                if (isset($result->TemplateSMS)) {
-                    $info = 'smsSid:' . $result->TemplateSMS->smsMessageSid;
-                } elseif (isset($result->VoiceVerify)) {
-                    $info = 'callSid:' . $result->VoiceVerify->callSid;
-                }
-            }
-            $this->result(Agent::SUCCESS, $success);
-            $this->result(Agent::CODE, $code);
-            $this->result(Agent::INFO, $info);
+        if (!$result) {
+            return;
         }
+        $code = (string) $result->statusCode;
+        $success = $code === '000000';
+        $info = $code;
+        if ($success) {
+            $info = (string) $result->statusMsg;
+        } else {
+            if (isset($result->TemplateSMS)) {
+                $info = 'smsSid:' . $result->TemplateSMS->smsMessageSid;
+            } elseif (isset($result->VoiceVerify)) {
+                $info = 'callSid:' . $result->VoiceVerify->callSid;
+            }
+        }
+        $this->result(Agent::SUCCESS, $success);
+        $this->result(Agent::CODE, $code);
+        $this->result(Agent::INFO, $info);
     }
 }

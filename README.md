@@ -192,7 +192,7 @@ Sms::agents('YunPian', [
 
 ### Sms::getAgentsConfig()
 
-获取调度方案中所用代理器的配置
+获取代理器配置
 
 ### Sms::cleanEnableAgents()
 
