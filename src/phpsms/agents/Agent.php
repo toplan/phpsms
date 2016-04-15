@@ -150,30 +150,22 @@ abstract class Agent
     }
 
     /**
-     * get result
-     *
-     * @param null|string $name
-     *
-     * @return mixed
-     */
-    public function getResult($name = null)
-    {
-        if (empty($name)) {
-            return $this->result;
-        } elseif (array_key_exists("$name", $this->result)) {
-            return $this->result["$name"];
-        }
-    }
-
-    /**
-     * set result
+     * set/get result data
      *
      * @param $name
      * @param $value
+     *
+     * @return mixed
      */
-    public function result($name, $value)
+    public function result($name = null, $value = null)
     {
+        if ($name === null) {
+            return $this->result;
+        }
         if (array_key_exists($name, $this->result)) {
+            if ($value === null) {
+                return $this->result["$name"];
+            }
             $this->result["$name"] = $value;
         }
     }

@@ -1,12 +1,11 @@
 # PhpSms
 [![StyleCI](https://styleci.io/repos/44543599/shield)](https://styleci.io/repos/44543599)
 [![Build Status](https://travis-ci.org/toplan/phpsms.svg?branch=master)](https://travis-ci.org/toplan/phpsms)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/toplan/phpsms/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/toplan/phpsms/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/toplan/phpsms/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/toplan/phpsms/?branch=master)
 [![Latest Stable Version](https://img.shields.io/packagist/v/toplan/phpsms.svg)](https://packagist.org/packages/toplan/phpsms)
 [![Total Downloads](https://img.shields.io/packagist/dt/toplan/phpsms.svg)](https://packagist.org/packages/toplan/phpsms)
 
-可能是目前最靠谱、优雅的php短信发送库了。从此不再为各种原因造成的个别短信发送失败而烦忧！
+可能是目前相当靠谱、优雅、聪明的php短信发送库了。从此不再为各种原因造成的个别短信发送失败而烦忧！
 
 > phpsms的任务均衡调度功能由[task-balancer](https://github.com/toplan/task-balancer)提供。
 

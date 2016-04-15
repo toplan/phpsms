@@ -446,7 +446,7 @@ class Sms
                          $template = isset($templates[$driver->name]) ? $templates[$driver->name] : 0;
                          $agent->sendSms($template, $to, $templateData, $content);
                      }
-                     $result = $agent->getResult();
+                     $result = $agent->result();
                      if ($result['success']) {
                          $driver->success();
                      }
