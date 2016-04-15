@@ -722,6 +722,7 @@ class Sms
         if (CheckFramework::is('laravel')) {
             return config('queue.default') !== 'sync';
         }
+
         return true;
     }
 

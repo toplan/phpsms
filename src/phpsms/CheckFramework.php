@@ -11,6 +11,7 @@ class CheckFramework
         if (method_exists(new self(), $staticMethod)) {
             return self::$staticMethod();
         }
+
         return false;
     }
 
@@ -19,10 +20,12 @@ class CheckFramework
         if (function_exists('app')) {
             try {
                 $laravel = app();
+
                 return (bool) $laravel::VERSION;
             } catch (\Exception $e) {
             }
         }
+
         return false;
     }
 }
