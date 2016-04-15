@@ -5,7 +5,7 @@
 [![Latest Stable Version](https://img.shields.io/packagist/v/toplan/phpsms.svg)](https://packagist.org/packages/toplan/phpsms)
 [![Total Downloads](https://img.shields.io/packagist/dt/toplan/phpsms.svg)](https://packagist.org/packages/toplan/phpsms)
 
-可能是目前相当靠谱、优雅、聪明的php短信发送库了。从此不再为各种原因造成的个别短信发送失败而烦忧！
+可能是目前最靠谱、优雅、聪明的php短信发送库了。从此不再为各种原因造成的个别短信发送失败而烦忧！
 
 > phpsms的任务均衡调度功能由[task-balancer](https://github.com/toplan/task-balancer)提供。
 
@@ -509,11 +509,6 @@ Sms::enable([
         'voiceVerify' => function($agent, $to, $code){
             //发送语音验证码，同上
         }
-    ]
-]);
-Sms::agents([
-    'Test2' => [
-        'key' => ...
     ]
 ]);
 ```
