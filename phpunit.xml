@@ -23,6 +23,9 @@
         <testsuite name="send sms">
             <file>./tests/SmsTest.php</file>
         </testsuite>
+        <testsuite name="serialize sms">
+            <file>./tests/SerializeTest.php</file>
+        </testsuite>
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">

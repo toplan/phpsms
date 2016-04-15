@@ -1,12 +1,11 @@
 # PhpSms
 [![StyleCI](https://styleci.io/repos/44543599/shield)](https://styleci.io/repos/44543599)
 [![Build Status](https://travis-ci.org/toplan/phpsms.svg?branch=master)](https://travis-ci.org/toplan/phpsms)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/toplan/phpsms/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/toplan/phpsms/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/toplan/phpsms/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/toplan/phpsms/?branch=master)
 [![Latest Stable Version](https://img.shields.io/packagist/v/toplan/phpsms.svg)](https://packagist.org/packages/toplan/phpsms)
 [![Total Downloads](https://img.shields.io/packagist/dt/toplan/phpsms.svg)](https://packagist.org/packages/toplan/phpsms)
 
-可能是目前最靠谱、优雅的php短信发送库了。从此不再为各种原因造成的个别短信发送失败而烦忧！
+可能是目前相当靠谱、优雅、聪明的php短信发送库了。从此不再为各种原因造成的个别短信发送失败而烦忧！
 
 > phpsms的任务均衡调度功能由[task-balancer](https://github.com/toplan/task-balancer)提供。
 
@@ -30,10 +29,19 @@
 | [云之讯](http://www.ucpaas.com/)        | √ | × | √ | -- | ￥0.050/条 |
 | [聚合数据](https://www.juhe.cn/)        | √ | × | √ | -- | ￥0.035/条 |
 
+# 公告
+
+1. 如果在使用队列相关功能时出现如下错误:
+
+```php
+Fatal error：Maximum function nesting level of ‘100′ reached, aborting!
+```
+需要在`/etc/php5/mods-available/xdebug.ini`(Linux)中新加`xdebug.max_nesting_level=500`
+
 # 安装
 
 ```php
-composer require 'toplan/phpsms:~1.2.3'
+composer require 'toplan/phpsms:~1.3.0'
 ```
 
 # 快速上手

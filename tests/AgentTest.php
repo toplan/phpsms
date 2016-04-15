@@ -18,7 +18,7 @@ class AgentTest extends PHPUnit_Framework_TestCase
 
     public function testResultOriginValue()
     {
-        $r = $this->agent->getResult();
+        $r = $this->agent->result();
         $this->assertArrayHasKey('success', $r);
         $this->assertArrayHasKey('info', $r);
         $this->assertArrayHasKey('code', $r);
@@ -30,9 +30,9 @@ class AgentTest extends PHPUnit_Framework_TestCase
         $this->agent->result('info', 'info');
         $this->agent->result('code', 'code');
 
-        $r = $this->agent->getResult();
-        $code = $this->agent->getResult('code');
-        $null = $this->agent->getResult('undefined');
+        $r = $this->agent->result();
+        $code = $this->agent->result('code');
+        $null = $this->agent->result('undefined');
 
         $this->assertTrue($r['success']);
         $this->assertEquals('info', $r['info']);
@@ -56,7 +56,7 @@ class AgentTest extends PHPUnit_Framework_TestCase
     public function testSendTemplateSms()
     {
         $this->agent->sendSms('template id', '18280111111', [], null);
-        $r = $this->agent->getResult();
+        $r = $this->agent->result();
         $this->assertTrue($r['success']);
         $this->assertEquals('send template sms success', $r['info']);
     }
@@ -64,7 +64,7 @@ class AgentTest extends PHPUnit_Framework_TestCase
     public function testSendContentSms()
     {
         $this->agent->sendSms('template id', '18280111111', [], 'content');
-        $r = $this->agent->getResult();
+        $r = $this->agent->result();
         $this->assertTrue($r['success']);
         $this->assertEquals('send content sms success', $r['info']);
     }
@@ -72,7 +72,7 @@ class AgentTest extends PHPUnit_Framework_TestCase
     public function testSendVoiceVerify()
     {
         $this->agent->voiceVerify('18280111111', '1111');
-        $r = $this->agent->getResult();
+        $r = $this->agent->result();
         $this->assertTrue($r['success']);
     }
 
@@ -89,11 +89,11 @@ class AgentTest extends PHPUnit_Framework_TestCase
             },
         ]);
         $parasiticAgent->sendSms('template id', '18280111111', [], 'content');
-        $this->assertEquals('parasitic_sms', $parasiticAgent->getResult('info'));
-        $this->assertEquals('18280111111', $parasiticAgent->getResult('code'));
+        $this->assertEquals('parasitic_sms', $parasiticAgent->result('info'));
+        $this->assertEquals('18280111111', $parasiticAgent->result('code'));
 
         $parasiticAgent->voiceVerify('18280111111', '2222');
-        $this->assertEquals('parasitic_voice_verify', $parasiticAgent->getResult('info'));
-        $this->assertEquals('2222', $parasiticAgent->getResult('code'));
+        $this->assertEquals('parasitic_voice_verify', $parasiticAgent->result('info'));
+        $this->assertEquals('2222', $parasiticAgent->result('code'));
     }
 }
