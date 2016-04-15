@@ -731,8 +731,8 @@ class Sms
         $enableAgents = self::getEnableAgents();
         foreach ($enableAgents as $name => &$options) {
             if (is_array($options)) {
-                self::serializeAndReplace($options, 'sendSms');
-                self::serializeAndReplace($options, 'voiceVerify');
+                self::serializeClosureAndReplace($options, 'sendSms');
+                self::serializeClosureAndReplace($options, 'voiceVerify');
             }
         }
 
@@ -750,8 +750,8 @@ class Sms
     {
         foreach ($serialized as $name => &$options) {
             if (is_array($options)) {
-                self::unserializeAndReplace($options, 'sendSms');
-                self::unserializeAndReplace($options, 'voiceVerify');
+                self::unserializeToClosureAndReplace($options, 'sendSms');
+                self::unserializeToClosureAndReplace($options, 'voiceVerify');
             }
         }
 
@@ -759,12 +759,12 @@ class Sms
     }
 
     /**
-     * serialize character value of a array and replace it
+     * serialize character closure value of a array and replace origin value
      *
      * @param array $options
      * @param       $key
      */
-    protected static function serializeAndReplace(array &$options, $key)
+    protected static function serializeClosureAndReplace(array &$options, $key)
     {
         if (isset($options["$key"]) && is_callable($options["$key"])) {
             $serializer = self::getSerializer();
@@ -773,12 +773,12 @@ class Sms
     }
 
     /**
-     * unserialize character value of a array and replace it
+     * unserialize character string of a array to closure and replace origin value
      *
      * @param array $options
      * @param       $key
      */
-    protected static function unserializeAndReplace(array &$options, $key)
+    protected static function unserializeToClosureAndReplace(array &$options, $key)
     {
         if (isset($options["$key"])) {
             $serializer = self::getSerializer();
