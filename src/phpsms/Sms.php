@@ -266,8 +266,6 @@ class Sms
      */
     public function send($immediately = false)
     {
-        $this->validator();
-
         // if disable push to queue,
         // send the sms immediately.
         if (!self::$enableQueue) {
@@ -332,14 +330,9 @@ class Sms
 
     /**
      * bootstrap
-     *
-     * @param bool $force
      */
-    public static function bootstrap($force = false)
+    public static function bootstrap()
     {
-        if ((bool) $force) {
-            Balancer::destroy(self::TASK);
-        }
         $task = self::generatorTask();
         if (!count($task->drivers)) {
             self::configuration();
@@ -541,20 +534,6 @@ class Sms
     }
 
     /**
-     * validate
-     *
-     * @throws PhpSmsException
-     */
-    protected function validator()
-    {
-        if (!$this->smsData['to']) {
-            throw new PhpSmsException('Please set send sms(or voice verify) to who use `to()` method.');
-        }
-
-        return true;
-    }
-
-    /**
      * set enable agents
      *
      * @param      $agentName
@@ -710,7 +689,8 @@ class Sms
         $status = $this->_status_before_enqueue_;
         self::$agentsName = self::unserializeEnableAgents($status['enableAgents']);
         self::$agentsConfig = $status['agentsConfig'];
-        self::bootstrap(true);
+        Balancer::destroy(self::TASK);
+        self::bootstrap();
         self::reinstallHandlers($status['handlers']);
     }
 
