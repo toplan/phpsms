@@ -5,7 +5,7 @@
 [![Latest Stable Version](https://img.shields.io/packagist/v/toplan/phpsms.svg)](https://packagist.org/packages/toplan/phpsms)
 [![Total Downloads](https://img.shields.io/packagist/dt/toplan/phpsms.svg)](https://packagist.org/packages/toplan/phpsms)
 
-可能是目前最靠谱、优雅、聪明的php短信发送库了。从此不再为各种原因造成的个别短信发送失败而烦忧！
+可能是目前最聪明、优雅的php短信发送库了。从此不再为各种原因造成的个别短信发送失败而烦忧！
 
 > phpsms的任务均衡调度功能由[toplan/task-balancer](https://github.com/toplan/task-balancer)提供。
 
@@ -96,27 +96,28 @@ Sms::enable([
 require('path/to/vendor/autoload.php');
 use Toplan\PhpSms\Sms;
 
+// 接收人手机号
 $to = '1828****349';
+// 短信模版
 $templates = [
     'YunTongXun' => 'your_temp_id',
     'SubMail'    => 'your_temp_id'
 ];
+// 模版数据
 $tempData = [
-    'name' => 'toplan',
-    'code' => '87392'
+    'code' => '87392',
+    'minutes' => '5'
 ];
+// 短信内容
 $content = '【签名】这是短信内容...';
 
-// 只希望使用模板方式发送短信，可以不设置content
-// 如:云通讯、Submail、Ucpaas
+// 只希望使用模板方式发送短信,可以不设置content(如:云通讯、Submail、Ucpaas)
 Sms::make()->to($to)->template($templates)->data($tempData)->send();
 
-// 只希望使用内容方式放送，可以不设置模板id和模板data
-// 如:云片、luosimao
+// 只希望使用内容方式放送,可以不设置模板id和模板data(如:云片、luosimao)
 Sms::make()->to($to)->content($content)->send();
 
-// 同时确保能通过模板和内容方式发送
-// 这样做的好处是，可以兼顾到各种类型服务商
+// 同时确保能通过模板和内容方式发送,这样做的好处是,可以兼顾到各种类型服务商
 Sms::make()->to($to)
      ->template($templates)
      ->data($tempData)
@@ -217,7 +218,9 @@ Sms::agents('YunPian', [
 Sms::beforeSend(function($task, $prev, $index, $handlers){
     //获取短信数据
     $smsData = $task->data;
-    //do something here
+    ...
+    //如果返回false会终止发送任务
+    return true;
 });
 ```
 > 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“beforeRun”钩子
@@ -231,6 +234,8 @@ Sms::beforeAgentSend(function($task, $driver, $prev, $index, $handlers){
     $smsData = $task->data;
     //当前使用的代理器名称:
     $agentName = $driver->name;
+    //如果返回false会停止使用当前代理器
+    return true;
 });
 ```
 > 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“beforeDriverRun”钩子
