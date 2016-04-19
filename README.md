@@ -7,7 +7,7 @@
 
 可能是目前最靠谱、优雅、聪明的php短信发送库了。从此不再为各种原因造成的个别短信发送失败而烦忧！
 
-> phpsms的任务均衡调度功能由[task-balancer](https://github.com/toplan/task-balancer)提供。
+> phpsms的任务均衡调度功能由[toplan/task-balancer](https://github.com/toplan/task-balancer)提供。
 
 # 特点
 1. 支持短信/语音发送均衡调度，可按代理器权重值均衡选择服务商发送。
@@ -41,7 +41,7 @@ Fatal error：Maximum function nesting level of ‘100′ reached, aborting!
 # 安装
 
 ```php
-composer require 'toplan/phpsms:~1.3.1'
+composer require 'toplan/phpsms:~1.3.2'
 ```
 
 # 快速上手

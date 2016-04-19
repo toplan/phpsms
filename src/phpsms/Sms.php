@@ -21,14 +21,14 @@ class Sms
     protected static $agents = [];
 
     /**
-     * agents`s name
+     * enable agents` name
      *
      * @var
      */
     protected static $agentsName = [];
 
     /**
-     * agents`s config
+     * agents` config
      *
      * @var
      */
@@ -304,7 +304,7 @@ class Sms
      *
      * @return mixed
      */
-    protected function push()
+    public function push()
     {
         if (is_callable(self::$howToUseQueue)) {
             try {
@@ -687,10 +687,12 @@ class Sms
      */
     public function __sleep()
     {
-        if (self::needSerializeStatusWhenSleep()) {
+        try {
             $this->_status_before_enqueue_['enableAgents'] = self::serializeEnableAgents();
             $this->_status_before_enqueue_['agentsConfig'] = self::getAgentsConfig();
             $this->_status_before_enqueue_['handlers'] = self::serializeHandlers();
+        } catch (\Exception $e) {
+            //swallow exception
         }
 
         return ['pushedToQueue', 'smsData', 'firstAgent', '_status_before_enqueue_'];
@@ -702,7 +704,7 @@ class Sms
      */
     public function __wakeup()
     {
-        if (!self::needSerializeStatusWhenSleep()) {
+        if (empty($this->_status_before_enqueue_)) {
             return;
         }
         $status = $this->_status_before_enqueue_;
@@ -710,20 +712,6 @@ class Sms
         self::$agentsConfig = $status['agentsConfig'];
         self::bootstrap(true);
         self::reinstallHandlers($status['handlers']);
-    }
-
-    /**
-     * whether to need to serialize status when call sleep
-     *
-     * @return bool
-     */
-    public static function needSerializeStatusWhenSleep()
-    {
-        if (CheckFramework::is('laravel')) {
-            return config('queue.default') !== 'sync';
-        }
-
-        return true;
     }
 
     /**
