@@ -36,7 +36,7 @@
 ```php
 Fatal error：Maximum function nesting level of ‘100′ reached, aborting!
 ```
-需要在`/etc/php5/mods-available/xdebug.ini`(Linux)中新加`xdebug.max_nesting_level=500`
+可在`/etc/php5/mods-available/xdebug.ini`(Linux)中新加`xdebug.max_nesting_level=500`
 
 # 安装
 
@@ -96,27 +96,35 @@ Sms::enable([
 require('path/to/vendor/autoload.php');
 use Toplan\PhpSms\Sms;
 
+$to = '1828****349';
+$templates = [
+    'YunTongXun' => 'your_temp_id',
+    'SubMail'    => 'your_temp_id'
+];
+$tempData = [
+    'name' => 'toplan',
+    'code' => '87392'
+];
+$content = '【签名】这是短信内容...';
+
 // 只希望使用模板方式发送短信，可以不设置content
 // 如:云通讯、Submail、Ucpaas
-Sms::make()->to('1828****349')->template('YunTongXun', 'your_temp_id')->data([...])->send();
+Sms::make()->to($to)->template($templates)->data($tempData)->send();
 
-// 只希望使用内容方式放送，可以不设置模板id和模板数据data
+// 只希望使用内容方式放送，可以不设置模板id和模板data
 // 如:云片、luosimao
-Sms::make()->to('1828****349')->content('【签名】这是短信内容...')->send();
+Sms::make()->to($to)->content($content)->send();
 
 // 同时确保能通过模板和内容方式发送
 // 这样做的好处是，可以兼顾到各种类型服务商
-Sms::make()->to('1828****349')
-     ->template([
-         'YunTongXun' => 'your_temp_id',
-         'SubMail'    => 'your_temp_id'
-     ])
-     ->data([...])
-     ->content('【签名】这是短信内容...')
+Sms::make()->to($to)
+     ->template($templates)
+     ->data($tempData)
+     ->content($content)
      ->send();
 
-//语言验证码
-Sms::voice('1111')->to('1828****349')->send();
+// 语言验证码
+Sms::voice('89093')->to($to)->send();
 ```
 
 ###3. 在laravel中使用
@@ -437,9 +445,9 @@ class FooAgent extends Agent {
         Agent::curl($url, array $params, bool $isPost);//curl
 
         //切记更新发送结果
-        $this->result('success', true);//是否发送成功
-        $this->result('info', $msg);//发送结果信息说明
-        $this->result('code', $code);//发送结果代码
+        $this->result(Agent::SUCCESS, true);//是否发送成功
+        $this->result(Agent::INFO, $msg);//发送结果信息说明
+        $this->result(Agent::CODE, $code);//发送结果代码
     }
 
     //override
@@ -502,9 +510,9 @@ Sms::enable([
             Agent::curl($url, array $params, bool $isPost);//curl
 
             //更新发送结果:
-            $agent->result('success', true);
-            $agent->result('info', 'some info');
-            $agent->result('code', 'your code');
+            $agent->result(Agent::SUCCESS, true);
+            $agent->result(Agent::INFO, 'some info');
+            $agent->result(Agent::CODE, 'your code');
         },
         'voiceVerify' => function($agent, $to, $code){
             //发送语音验证码，同上
