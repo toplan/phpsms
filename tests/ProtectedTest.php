@@ -23,12 +23,4 @@ class ProtectedTest extends PHPUnit_Framework_TestCase
         $this->assertCount(count($config['enable']), Sms::getEnableAgents());
         $this->assertCount(count($config['enable']), Sms::getAgentsConfig());
     }
-
-    public function testValidator()
-    {
-        $method = self::getPrivateMethod('validator');
-        $obj = Sms::make()->to('18280000000');
-        $r = $method->invokeArgs($obj, []);
-        $this->assertTrue($r);
-    }
 }
