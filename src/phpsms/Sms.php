@@ -12,25 +12,29 @@ class Sms
 {
     /**
      * sms send task name
+     *
+     * @var string
      */
     const TASK = 'PhpSms';
 
     /**
      * agents instance
+     *
+     * @var array
      */
     protected static $agents = [];
 
     /**
      * enable agents` name
      *
-     * @var
+     * @var array
      */
     protected static $agentsName = [];
 
     /**
      * agents` config
      *
-     * @var
+     * @var array
      */
     protected static $agentsConfig = [];
 
@@ -75,7 +79,7 @@ class Sms
     protected $smsData = [
         'to'           => null,
         'templates'    => [],
-        'content'      => '',
+        'content'      => null,
         'templateData' => [],
         'voiceCode'    => null,
     ];
@@ -321,10 +325,16 @@ class Sms
     /**
      * get sms data
      *
-     * @return array
+     * @param null|string $name
+     *
+     * @return mixed
      */
-    public function getData()
+    public function getData($name = null)
     {
+        if (is_string($name) && isset($this->smsData["$name"])) {
+            return $this->smsData[$name];
+        }
+
         return $this->smsData;
     }
 
@@ -462,7 +472,7 @@ class Sms
         $agentClass = self::pullAgentOptionByName($options, 'agentClass');
         $sendSms = self::pullAgentOptionByName($options, 'sendSms');
         $voiceVerify = self::pullAgentOptionByName($options, 'voiceVerify');
-        $backup = self::pullAgentOptionByName($options, 'backup');
+        $backup = self::pullAgentOptionByName($options, 'backup') ? 'backup' : '';
         $driverOpts = implode(' ', array_values($options)) . " $backup";
 
         return compact('agentClass', 'sendSms', 'voiceVerify', 'driverOpts');
@@ -474,14 +484,14 @@ class Sms
      * @param array  $options
      * @param string $name
      *
-     * @return null|string
+     * @return mixed
      */
     protected static function pullAgentOptionByName(array &$options, $name)
     {
-        $value = isset($options[$name]) ? $options[$name] : null;
-        if ($name === 'backup') {
-            $value = isset($options[$name]) ? ($options[$name] ? 'backup' : '') : '';
+        if (!isset($options[$name])) {
+            return null;
         }
+        $value = $options[$name];
         unset($options[$name]);
 
         return $value;
@@ -496,8 +506,7 @@ class Sms
      */
     protected static function getAgentConfigData($name)
     {
-        return isset(self::$agentsConfig[$name]) ?
-               (array) self::$agentsConfig[$name] : [];
+        return isset(self::$agentsConfig[$name]) ? self::$agentsConfig[$name] : [];
     }
 
     /**
@@ -597,18 +606,22 @@ class Sms
     }
 
     /**
-     * tear down enable agents
+     * tear down enable agents and prepare to create and start a new balance task,
+     * so before do it must destroy old task instance.
      */
     public static function cleanEnableAgents()
     {
+        Balancer::destroy(self::TASK);
         self::$agentsName = [];
     }
 
     /**
-     * tear down agents config
+     * tear down agents config and prepare to create and start a new balance task,
+     * so before do it must destroy old task instance.
      */
     public static function cleanAgentsConfig()
     {
+        Balancer::destroy(self::TASK);
         self::$agentsConfig = [];
     }
 
