@@ -58,7 +58,7 @@ class JuHeAgent extends Agent
     {
         if ($result['request']) {
             $result = json_decode($result['response'], true);
-            if ($result['error_code'] === '0') {
+            if ($result['error_code'] === 0) {
                 $this->result['success'] = true;
             } else {
                 $this->result['info'] = $result['reason'] . '|result:' . json_encode($result['result'] ?: '');

@@ -38,6 +38,8 @@ class SmsTest extends PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('templateData', $data);
         $this->assertArrayHasKey('content', $data);
         $this->assertArrayHasKey('voiceCode', $data);
+        self::$sms->to('...');
+        $this->assertEquals('...', self::$sms->getData('to'));
     }
 
     public function smsData()
