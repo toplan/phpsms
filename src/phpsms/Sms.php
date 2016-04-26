@@ -15,14 +15,15 @@ use Toplan\TaskBalance\Balancer;
 class Sms
 {
     /**
-     * Sms send task name.
+     * Send task`s name.
      *
      * @var string
      */
     const TASK = 'PhpSms';
 
     /**
-     * Send agent instances.
+     * SMS agents(service providers),
+     * they are instances of class [Toplan\PhpSms\Agent].
      *
      * @var array
      */
@@ -69,14 +70,14 @@ class Sms
     ];
 
     /**
-     * A instance of class 'SuperClosure\Serializer'
+     * An instance of class [SuperClosure\Serializer]
      *
      * @var Serializer
      */
     protected static $serializer = null;
 
     /**
-     * All the data of SMS/voice verify.
+     * SMS(or voice verify) data container.
      *
      * @var array
      */
@@ -103,14 +104,15 @@ class Sms
     protected $pushedToQueue = false;
 
     /**
-     * Status container, store some data when serialize a instance(before enqueue).
+     * Status container,
+     * store config data before serialize a instance(before enqueue).
      *
      * @var array
      */
     protected $_status_before_enqueue_ = [];
 
     /**
-     * Constructor of Sms class
+     * Constructor
      *
      * @param bool $autoBoot
      */
@@ -122,11 +124,11 @@ class Sms
     }
 
     /**
-     * Bootstrap sms send task balance system.
+     * Boot balanced send task.
      */
     public static function bootstrap()
     {
-        $task = self::generatorTask();
+        $task = self::getTask();
         if (!count($task->drivers)) {
             self::configuration();
             self::createDrivers($task);
@@ -134,11 +136,11 @@ class Sms
     }
 
     /**
-     * Generator a sms send task.
+     * Get or generate a balanced task instance for send SMS/voice verify.
      *
      * @return object
      */
-    public static function generatorTask()
+    public static function getTask()
     {
         if (!Balancer::hasTask(self::TASK)) {
             Balancer::task(self::TASK);
@@ -153,8 +155,10 @@ class Sms
     protected static function configuration()
     {
         $config = [];
-        self::generatorAgentsName($config);
-        self::generatorAgentsConfig($config);
+        if (empty(self::$agentsName)) {
+            self::ReadEnableAgentsFromConfig($config);
+        }
+        self::ReadAgentsConfigFromConfig($config);
         self::configValidator();
     }
 
@@ -163,13 +167,11 @@ class Sms
      *
      * @param array $config
      */
-    protected static function generatorAgentsName(&$config)
+    protected static function ReadEnableAgentsFromConfig(&$config)
     {
-        if (empty(self::$agentsName)) {
-            $config = $config ?: include __DIR__ . '/../config/phpsms.php';
-            $enableAgents = isset($config['enable']) ? $config['enable'] : null;
-            self::enable($enableAgents);
-        }
+        $config = $config ?: include __DIR__ . '/../config/phpsms.php';
+        $enableAgents = isset($config['enable']) ? $config['enable'] : null;
+        self::enable($enableAgents);
     }
 
     /**
@@ -177,7 +179,7 @@ class Sms
      *
      * @param array $config
      */
-    protected static function generatorAgentsConfig(&$config)
+    protected static function ReadAgentsConfigFromConfig(&$config)
     {
         $diff = array_diff_key(self::$agentsName, self::$agentsConfig);
         $diff = array_keys($diff);
@@ -204,7 +206,7 @@ class Sms
     }
 
     /**
-     * Create drivers for sms send task.
+     * Create drivers of the balanced task.
      *
      * @param $task
      */
@@ -294,8 +296,8 @@ class Sms
     }
 
     /**
-     * Get a sms agent instance,
-     * if null, will create a new agent instance
+     * Get a sms agent instance by agent name,
+     * if null, will try to create a new agent instance.
      *
      * @param string $name
      * @param array  $configData
@@ -348,7 +350,7 @@ class Sms
     }
 
     /**
-     * Set config info for enabled agents.
+     * Set config info by agent name.
      *
      * @param array|string $agentName
      * @param array        $config
@@ -411,7 +413,7 @@ class Sms
 
     /**
      * Create a sms instance which send SMS,
-     * and set SMS templates/content
+     * and set SMS templates or content.
      *
      * @param mixed $agentName
      * @param mixed $tempId
@@ -451,7 +453,7 @@ class Sms
     }
 
     /**
-     * Set whether to use queue, and define how to use the queue.
+     * Set whether to use queue, and define how to use queue.
      *
      * @param mixed $enable
      * @param mixed $handler
@@ -542,7 +544,7 @@ class Sms
     }
 
     /**
-     * Set the first agent`s name.
+     * Set the first agent by agent`s name.
      *
      * @param string $name
      *
@@ -584,7 +586,7 @@ class Sms
     }
 
     /**
-     * Push to queue use custom method.
+     * Push to queue by custom method.
      *
      * @throws \Exception | PhpSmsException
      *
@@ -607,7 +609,7 @@ class Sms
     }
 
     /**
-     * Get data of SMS/voice verify.
+     * Get all the data of SMS/voice verify.
      *
      * @param null|string $name
      *
@@ -640,7 +642,7 @@ class Sms
             $handler = $args[0];
             $override = isset($args[1]) ? (bool) $args[1] : false;
             if (is_callable($handler)) {
-                $task = self::generatorTask();
+                $task = self::getTask();
                 $task->hook($name, $handler, $override);
             } else {
                 throw new PhpSmsException("Please give method static $name() a callable parameter");
@@ -793,7 +795,7 @@ class Sms
     {
         $hooks = [];
         $serializer = self::getSerializer();
-        $task = self::generatorTask();
+        $task = self::getTask();
         foreach ($task->handlers as $hookName => $handlers) {
             foreach ($handlers as $handler) {
                 $serialized = $serializer->serialize($handler);
