@@ -73,7 +73,7 @@ class YunTongXunAgent extends Agent
         $code = (string) $result->statusCode;
         $success = $code === '000000';
         $info = $code;
-        if ($success) {
+        if (!$success) {
             $info = (string) $result->statusMsg;
         } else {
             if (isset($result->TemplateSMS)) {
