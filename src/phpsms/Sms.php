@@ -8,7 +8,6 @@ use Toplan\TaskBalance\Balancer;
 /**
  * Class Sms
  *
- * @package Toplan\PhpSms
  *
  * @author toplan<toplan710@gmail.com>
  */
