@@ -273,7 +273,7 @@ class Sms
     protected static function pullAgentOptionByName(array &$options, $name)
     {
         if (!isset($options[$name])) {
-            return null;
+            return;
         }
         $value = $options[$name];
         unset($options[$name]);
