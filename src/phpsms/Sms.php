@@ -4,6 +4,7 @@ namespace Toplan\PhpSms;
 
 use SuperClosure\Serializer;
 use Toplan\TaskBalance\Balancer;
+use Toplan\TaskBalance\Task;
 
 /**
  * Class Sms
@@ -138,7 +139,7 @@ class Sms
     /**
      * Get or generate a balanced task instance for send SMS/voice verify.
      *
-     * @return object
+     * @return Task
      */
     public static function getTask()
     {
@@ -156,10 +157,10 @@ class Sms
     {
         $config = [];
         if (empty(self::$agentsName)) {
-            self::ReadEnableAgentsFromConfig($config);
+            self::initEnableAgents($config);
         }
-        self::ReadAgentsConfigFromConfig($config);
-        self::configValidator();
+        self::initAgentsConfig($config);
+        self::validateConfig();
     }
 
     /**
@@ -167,7 +168,7 @@ class Sms
      *
      * @param array $config
      */
-    protected static function ReadEnableAgentsFromConfig(&$config)
+    protected static function initEnableAgents(array &$config)
     {
         $config = $config ?: include __DIR__ . '/../config/phpsms.php';
         $enableAgents = isset($config['enable']) ? $config['enable'] : null;
@@ -179,7 +180,7 @@ class Sms
      *
      * @param array $config
      */
-    protected static function ReadAgentsConfigFromConfig(&$config)
+    protected static function initAgentsConfig(array &$config)
     {
         $diff = array_diff_key(self::$agentsName, self::$agentsConfig);
         $diff = array_keys($diff);
@@ -194,14 +195,14 @@ class Sms
     }
 
     /**
-     * Config values validator.
+     * validate configuration.
      *
      * @throws PhpSmsException
      */
-    protected static function configValidator()
+    protected static function validateConfig()
     {
         if (!count(self::$agentsName)) {
-            throw new PhpSmsException('Please set at least one enable agent in config file(config/phpsms.php) or use method enable()');
+            throw new PhpSmsException('Please configure at least one agent');
         }
     }
 
@@ -210,7 +211,7 @@ class Sms
      *
      * @param $task
      */
-    protected static function createDrivers($task)
+    protected static function createDrivers(Task $task)
     {
         foreach (self::$agentsName as $name => $options) {
             //获取代理器配置
@@ -822,8 +823,7 @@ class Sms
                 if (is_string($handler)) {
                     $handler = $serializer->unserialize($handler);
                 }
-                $override = $index === 0;
-                self::$hookName($handler, $override);
+                self::$hookName($handler, $index === 0);
             }
         }
     }
