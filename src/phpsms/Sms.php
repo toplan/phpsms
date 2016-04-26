@@ -129,6 +129,9 @@ class Sms
     public static function bootstrap()
     {
         $task = self::getTask();
+
+        //注意这里判断有没有驱动,不能用empty,因为empty不能检查语句,
+        //而恰巧$task->drivers是通过'__get'魔术方法获取的.
         if (!count($task->drivers)) {
             self::configuration();
             self::createDrivers($task);
@@ -158,7 +161,8 @@ class Sms
         if (empty(self::$agentsName)) {
             self::initEnableAgents($config);
         }
-        self::initAgentsConfig($config);
+        $diff = array_diff_key(self::$agentsName, self::$agentsConfig);
+        self::initAgentsConfig(array_keys($diff), $config);
         self::validateConfig();
     }
 
@@ -169,7 +173,7 @@ class Sms
      */
     protected static function initEnableAgents(array &$config)
     {
-        $config = $config ?: include __DIR__ . '/../config/phpsms.php';
+        $config = empty($config) ? include __DIR__ . '/../config/phpsms.php' : $config;
         $enableAgents = isset($config['enable']) ? $config['enable'] : null;
         self::enable($enableAgents);
     }
@@ -177,19 +181,19 @@ class Sms
     /**
      * Try to read and set enabled agents` config from config file.
      *
+     * @param array $agents
      * @param array $config
      */
-    protected static function initAgentsConfig(array &$config)
+    protected static function initAgentsConfig(array $agents, array &$config)
     {
-        $diff = array_diff_key(self::$agentsName, self::$agentsConfig);
-        $diff = array_keys($diff);
-        if (count($diff)) {
-            $config = $config ?: include __DIR__ . '/../config/phpsms.php';
-            $agentsConfig = isset($config['agents']) ? $config['agents'] : [];
-            foreach ($diff as $name) {
-                $agentConfig = isset($agentsConfig[$name]) ? $agentsConfig[$name] : [];
-                self::agents($name, $agentConfig);
-            }
+        if (empty($agents)) {
+            return;
+        }
+        $config = empty($config) ? include __DIR__ . '/../config/phpsms.php' : $config;
+        $agentsConfig = isset($config['agents']) ? $config['agents'] : [];
+        foreach ($agents as $name) {
+            $agentConfig = isset($agentsConfig[$name]) ? $agentsConfig[$name] : [];
+            self::agents($name, $agentConfig);
         }
     }
 

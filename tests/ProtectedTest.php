@@ -6,7 +6,7 @@ class ProtectedTest extends PHPUnit_Framework_TestCase
 {
     public static function getPrivateMethod($name)
     {
-        $obj = new Sms();
+        $obj = new Sms(false);
         $class = new ReflectionClass($obj);
         $method = $class->getMethod($name);
         $method->setAccessible(true);
@@ -17,7 +17,7 @@ class ProtectedTest extends PHPUnit_Framework_TestCase
     public function testConfiguration()
     {
         $method = self::getPrivateMethod('configuration');
-        $obj = new Sms();
+        $obj = new Sms(false);
         $method->invokeArgs($obj, []);
         $config = include __DIR__ . '/../src/config/phpsms.php';
         $this->assertCount(count($config['enable']), Sms::getEnableAgents());
