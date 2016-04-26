@@ -130,8 +130,8 @@ class Sms
     {
         $task = self::getTask();
 
-        //注意这里判断有没有驱动,不能用empty,因为empty不能检查语句,
-        //而恰巧$task->drivers是通过'__get'魔术方法获取的.
+        //注意这里判断Task实例有没有drivers,不能用empty,因为其不能检查语句,
+        //而恰巧Task实例获取drivers是通过魔术方法获取的.
         if (!count($task->drivers)) {
             self::configuration();
             self::createDrivers($task);
@@ -174,7 +174,7 @@ class Sms
     protected static function initEnableAgents(array &$config)
     {
         $config = empty($config) ? include __DIR__ . '/../config/phpsms.php' : $config;
-        $enableAgents = isset($config['enable']) ? $config['enable'] : null;
+        $enableAgents = isset($config['enable']) ? $config['enable'] : [];
         self::enable($enableAgents);
     }
 
