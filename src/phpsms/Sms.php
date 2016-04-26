@@ -9,7 +9,6 @@ use Toplan\TaskBalance\Task;
 /**
  * Class Sms
  *
- * @package Toplan\PhpSms
  *
  * @author toplan<toplan710@gmail.com>
  */
@@ -209,7 +208,7 @@ class Sms
     /**
      * Create drivers of the balanced task.
      *
-     * @param $task
+     * @param Task $task
      */
     protected static function createDrivers(Task $task)
     {
