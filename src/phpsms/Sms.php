@@ -130,7 +130,7 @@ class Sms
     {
         $task = self::getTask();
 
-        //注意这里判断Task实例有没有drivers,不能用empty,因为其不能检查语句,
+        //注意这里不能用'empty',因为其不能检查语句,
         //而恰巧Task实例获取drivers是通过魔术方法获取的.
         if (!count($task->drivers)) {
             self::configuration();
@@ -204,7 +204,7 @@ class Sms
      */
     protected static function validateConfig()
     {
-        if (!count(self::$agentsName)) {
+        if (empty(self::$agentsName)) {
             throw new PhpSmsException('Please configure at least one agent');
         }
     }
