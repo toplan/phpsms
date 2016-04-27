@@ -277,7 +277,7 @@ class Sms
     /**
      * Pull the value of the specified option out of the array.
      *
-     * @param array  $options
+     * @param array      $options
      * @param int|string $name
      *
      * @return mixed
@@ -345,7 +345,7 @@ class Sms
                 self::scheme($name, $value);
             }
         } elseif ($agentName && is_string($agentName)) {
-            self::$scheme["$agentName"] = is_array($scheme) ? $scheme: "$scheme";
+            self::$scheme["$agentName"] = is_array($scheme) ? $scheme : "$scheme";
         } elseif (is_int($agentName) && $scheme && is_string($scheme)) {
             self::$scheme["$scheme"] = '';
         }
@@ -366,7 +366,7 @@ class Sms
     public static function config($agentName = null, $config = null)
     {
         if (($agentName === null || is_string($agentName)) && $config === null) {
-            return $agentName === null ? self::$agentsConfig:
+            return $agentName === null ? self::$agentsConfig :
                 (isset(self::$agentsConfig[$agentName]) ? self::$agentsConfig[$agentName] : []);
         }
         if (is_array($agentName)) {
