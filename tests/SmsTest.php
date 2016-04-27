@@ -26,7 +26,7 @@ class SmsTest extends PHPUnit_Framework_TestCase
 
     public function testGetTask()
     {
-        $task = Sms::generatorTask();
+        $task = Sms::getTask();
         $this->assertInstanceOf('Toplan\TaskBalance\Task', $task);
     }
 

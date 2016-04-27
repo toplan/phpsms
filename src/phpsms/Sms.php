@@ -4,63 +4,61 @@ namespace Toplan\PhpSms;
 
 use SuperClosure\Serializer;
 use Toplan\TaskBalance\Balancer;
+use Toplan\TaskBalance\Task;
 
 /**
  * Class Sms
+ *
+ *
+ * @author toplan<toplan710@gmail.com>
  */
 class Sms
 {
     /**
-     * sms send task name
+     * Send task`s name.
      *
      * @var string
      */
     const TASK = 'PhpSms';
 
     /**
-     * agents instance
+     * SMS agents(service providers),
+     * they are instances of class [Toplan\PhpSms\Agent].
      *
      * @var array
      */
     protected static $agents = [];
 
     /**
-     * enable agents` name
+     * The enabled agents` name.
      *
      * @var array
      */
     protected static $agentsName = [];
 
     /**
-     * agents` config
+     * The enabled agents` config info.
      *
      * @var array
      */
     protected static $agentsConfig = [];
 
     /**
-     * whether to enable queue
+     * Whether to use queue.
      *
      * @var bool
      */
     protected static $enableQueue = false;
 
     /**
-     * queue work
+     * How to push to queue.
      *
      * @var \Closure
      */
     protected static $howToUseQueue = null;
 
     /**
-     * sms already pushed to queue
-     *
-     * @var bool
-     */
-    protected $pushedToQueue = false;
-
-    /**
-     * hook handlers
+     * The enable hooks for balance task.
      *
      * @var array
      */
@@ -72,7 +70,14 @@ class Sms
     ];
 
     /**
-     * sms data
+     * An instance of class [SuperClosure\Serializer]
+     *
+     * @var Serializer
+     */
+    protected static $serializer = null;
+
+    /**
+     * SMS(or voice verify) data container.
      *
      * @var array
      */
@@ -85,28 +90,29 @@ class Sms
     ];
 
     /**
-     * first agent for send sms/voice verify
+     * The name of first agent.
      *
-     * @var string
+     * @var string|null
      */
     protected $firstAgent = null;
 
     /**
-     * a instance of class 'SuperClosure\Serializer'
+     * Whether the current instance has already pushed to queue.
      *
-     * @var Serializer
+     * @var bool
      */
-    protected static $serializer = null;
+    protected $pushedToQueue = false;
 
     /**
-     * store the static properties of Sms class when serialize a instance
+     * Status container,
+     * store config data before serialize a instance(before enqueue).
      *
      * @var array
      */
     protected $_status_before_enqueue_ = [];
 
     /**
-     * construct
+     * Constructor
      *
      * @param bool $autoBoot
      */
@@ -118,232 +124,14 @@ class Sms
     }
 
     /**
-     * create sms instance and set templates
-     *
-     * @param mixed $agentName
-     * @param mixed $tempId
-     *
-     * @return Sms
-     */
-    public static function make($agentName = null, $tempId = null)
-    {
-        $sms = new self();
-        if (is_array($agentName)) {
-            $sms->template($agentName);
-        } elseif ($agentName && is_string($agentName)) {
-            if ($tempId === null) {
-                $sms->content($agentName);
-            } elseif (is_string("$tempId")) {
-                $sms->template($agentName, $tempId);
-            }
-        }
-
-        return $sms;
-    }
-
-    /**
-     * send voice verify
-     *
-     * @param $code
-     *
-     * @return Sms
-     */
-    public static function voice($code)
-    {
-        $sms = new self();
-        $sms->smsData['voiceCode'] = $code;
-
-        return $sms;
-    }
-
-    /**
-     * set how to use queue.
-     *
-     * @param $enable
-     * @param $handler
-     *
-     * @return bool
-     */
-    public static function queue($enable = null, $handler = null)
-    {
-        if ($enable === null && $handler === null) {
-            return self::$enableQueue;
-        }
-        if (is_callable($enable)) {
-            $handler = $enable;
-            $enable = true;
-        }
-        self::$enableQueue = (bool) $enable;
-        if (is_callable($handler)) {
-            self::$howToUseQueue = $handler;
-        }
-
-        return self::$enableQueue;
-    }
-
-    /**
-     * set the mobile number
-     *
-     * @param $mobile
-     *
-     * @return $this
-     */
-    public function to($mobile)
-    {
-        $this->smsData['to'] = $mobile;
-
-        return $this;
-    }
-
-    /**
-     * set content for content sms
-     *
-     * @param $content
-     *
-     * @return $this
-     */
-    public function content($content)
-    {
-        $this->smsData['content'] = trim((string) $content);
-
-        return $this;
-    }
-
-    /**
-     * set template id for template sms
-     *
-     * @param $agentName
-     * @param $tempId
-     *
-     * @return $this
-     */
-    public function template($agentName, $tempId = null)
-    {
-        if (is_array($agentName)) {
-            foreach ($agentName as $k => $v) {
-                $this->template($k, $v);
-            }
-        } elseif ($agentName && $tempId) {
-            if (!isset($this->smsData['templates']) || !is_array($this->smsData['templates'])) {
-                $this->smsData['templates'] = [];
-            }
-            $this->smsData['templates']["$agentName"] = $tempId;
-        }
-
-        return $this;
-    }
-
-    /**
-     * set data for template sms
-     *
-     * @param array $data
-     *
-     * @return $this
-     */
-    public function data(array $data)
-    {
-        $this->smsData['templateData'] = $data;
-
-        return $this;
-    }
-
-    /**
-     * set the first agent
-     *
-     * @param $name
-     *
-     * @return $this
-     */
-    public function agent($name)
-    {
-        $this->firstAgent = (string) $name;
-
-        return $this;
-    }
-
-    /**
-     * start send
-     *
-     * @param bool $immediately
-     *
-     * @return mixed
-     */
-    public function send($immediately = false)
-    {
-        // if disable push to queue,
-        // send the sms immediately.
-        if (!self::$enableQueue) {
-            $immediately = true;
-        }
-
-        // whatever 'PhpSms' whether to enable or disable push to queue,
-        // if you are already pushed sms instance to queue,
-        // you can recall the method `send()` in queue job without `true` parameter.
-        //
-        // So this mechanism in order to make you convenient use the method `send()` in queue system.
-        if ($this->pushedToQueue) {
-            $immediately = true;
-        }
-
-        // whether to send sms immediately,
-        // or push it to queue.
-        if ($immediately) {
-            $result = Balancer::run(self::TASK, [
-                'data'   => $this->getData(),
-                'driver' => $this->firstAgent,
-            ]);
-        } else {
-            $result = $this->push();
-        }
-
-        return $result;
-    }
-
-    /**
-     * push sms send task to queue
-     *
-     * @throws \Exception | PhpSmsException
-     *
-     * @return mixed
-     */
-    public function push()
-    {
-        if (is_callable(self::$howToUseQueue)) {
-            try {
-                $this->pushedToQueue = true;
-
-                return call_user_func_array(self::$howToUseQueue, [$this, $this->smsData]);
-            } catch (\Exception $e) {
-                $this->pushedToQueue = false;
-                throw $e;
-            }
-        } else {
-            throw new PhpSmsException('Please define how to use queue by method `queue($enable, $handler)`');
-        }
-    }
-
-    /**
-     * get sms data
-     *
-     * @param null|string $name
-     *
-     * @return mixed
-     */
-    public function getData($name = null)
-    {
-        if (is_string($name) && isset($this->smsData["$name"])) {
-            return $this->smsData[$name];
-        }
-
-        return $this->smsData;
-    }
-
-    /**
-     * bootstrap
+     * Boot balanced send task.
      */
     public static function bootstrap()
     {
-        $task = self::generatorTask();
+        $task = self::getTask();
+
+        //注意这里不能用'empty',因为其不能检查语句,
+        //而恰巧Task实例获取drivers是通过魔术方法获取的.
         if (!count($task->drivers)) {
             self::configuration();
             self::createDrivers($task);
@@ -351,11 +139,11 @@ class Sms
     }
 
     /**
-     * generator a sms send task
+     * Get or generate a balanced task instance for send SMS/voice verify.
      *
-     * @return object
+     * @return Task
      */
-    public static function generatorTask()
+    public static function getTask()
     {
         if (!Balancer::hasTask(self::TASK)) {
             Balancer::task(self::TASK);
@@ -365,67 +153,68 @@ class Sms
     }
 
     /**
-     * configuration
+     * Configuration.
      */
     protected static function configuration()
     {
         $config = [];
-        self::generatorAgentsName($config);
-        self::generatorAgentsConfig($config);
-        self::configValidator();
-    }
-
-    /**
-     * generate enabled agents name
-     *
-     * @param array $config
-     */
-    protected static function generatorAgentsName(&$config)
-    {
         if (empty(self::$agentsName)) {
-            $config = $config ?: include __DIR__ . '/../config/phpsms.php';
-            $enableAgents = isset($config['enable']) ? $config['enable'] : null;
-            self::enable($enableAgents);
+            self::initEnableAgents($config);
         }
+        $diff = array_diff_key(self::$agentsName, self::$agentsConfig);
+        self::initAgentsConfig(array_keys($diff), $config);
+        self::validateConfig();
     }
 
     /**
-     * generator agents config
+     * Try to read and set enable agents` name from config file.
      *
      * @param array $config
      */
-    protected static function generatorAgentsConfig(&$config)
+    protected static function initEnableAgents(array &$config)
     {
-        $diff = array_diff_key(self::$agentsName, self::$agentsConfig);
-        $diff = array_keys($diff);
-        if (count($diff)) {
-            $config = $config ?: include __DIR__ . '/../config/phpsms.php';
-            $agentsConfig = isset($config['agents']) ? $config['agents'] : [];
-            foreach ($diff as $name) {
-                $agentConfig = isset($agentsConfig[$name]) ? $agentsConfig[$name] : [];
-                self::agents($name, $agentConfig);
-            }
+        $config = empty($config) ? include __DIR__ . '/../config/phpsms.php' : $config;
+        $enableAgents = isset($config['enable']) ? $config['enable'] : [];
+        self::enable($enableAgents);
+    }
+
+    /**
+     * Try to read and set enabled agents` config from config file.
+     *
+     * @param array $agents
+     * @param array $config
+     */
+    protected static function initAgentsConfig(array $agents, array &$config)
+    {
+        if (empty($agents)) {
+            return;
+        }
+        $config = empty($config) ? include __DIR__ . '/../config/phpsms.php' : $config;
+        $agentsConfig = isset($config['agents']) ? $config['agents'] : [];
+        foreach ($agents as $name) {
+            $agentConfig = isset($agentsConfig[$name]) ? $agentsConfig[$name] : [];
+            self::agents($name, $agentConfig);
         }
     }
 
     /**
-     * config value validator
+     * validate configuration.
      *
      * @throws PhpSmsException
      */
-    protected static function configValidator()
+    protected static function validateConfig()
     {
-        if (!count(self::$agentsName)) {
-            throw new PhpSmsException('Please set at least one enable agent in config file(config/phpsms.php) or use method enable()');
+        if (empty(self::$agentsName)) {
+            throw new PhpSmsException('Please configure at least one agent');
         }
     }
 
     /**
-     * create drivers for sms send task
+     * Create drivers of the balanced task.
      *
-     * @param $task
+     * @param Task $task
      */
-    protected static function createDrivers($task)
+    protected static function createDrivers(Task $task)
     {
         foreach (self::$agentsName as $name => $options) {
             //获取代理器配置
@@ -461,6 +250,7 @@ class Sms
     }
 
     /**
+     * Parse the enabled agents` scheduling config data.
      * 解析可用代理器的数组模式的调度配置
      *
      * @param array $options
@@ -479,7 +269,7 @@ class Sms
     }
 
     /**
-     * 从调度配置中拉取指定数据
+     * Pull the character option data from the scheduling config.
      *
      * @param array  $options
      * @param string $name
@@ -498,9 +288,9 @@ class Sms
     }
 
     /**
-     * get agent config data by name
+     * Get agent config data by name.
      *
-     * @param $name
+     * @param string $name
      *
      * @return array
      */
@@ -510,11 +300,11 @@ class Sms
     }
 
     /**
-     * get a sms agent instance,
-     * if null, will create a new agent instance
+     * Get a sms agent instance by agent name,
+     * if null, will try to create a new agent instance.
      *
-     * @param       $name
-     * @param array $configData
+     * @param string $name
+     * @param array  $configData
      *
      * @throws PhpSmsException
      *
@@ -543,10 +333,10 @@ class Sms
     }
 
     /**
-     * set enable agents
+     * Set enable agents.
      *
-     * @param      $agentName
-     * @param null $options
+     * @param mixed $agentName
+     * @param mixed $options
      */
     public static function enable($agentName, $options = null)
     {
@@ -564,10 +354,10 @@ class Sms
     }
 
     /**
-     * set config for available agents
+     * Set config info by agent name.
      *
-     * @param       $agentName
-     * @param array $config
+     * @param array|string $agentName
+     * @param array        $config
      *
      * @throws PhpSmsException
      */
@@ -586,7 +376,7 @@ class Sms
     }
 
     /**
-     * get enable agents
+     * Get the enabled agents` name.
      *
      * @return array
      */
@@ -596,7 +386,7 @@ class Sms
     }
 
     /**
-     * get agents config info
+     * Get the enabled agents` config info.
      *
      * @return array
      */
@@ -606,7 +396,7 @@ class Sms
     }
 
     /**
-     * tear down enable agents and prepare to create and start a new balance task,
+     * Tear down enable agents and prepare to create and start a new balance task,
      * so before do it must destroy old task instance.
      */
     public static function cleanEnableAgents()
@@ -616,7 +406,7 @@ class Sms
     }
 
     /**
-     * tear down agents config and prepare to create and start a new balance task,
+     * Tear down agents config and prepare to create and start a new balance task,
      * so before do it must destroy old task instance.
      */
     public static function cleanAgentsConfig()
@@ -626,10 +416,223 @@ class Sms
     }
 
     /**
-     * overload static method
+     * Create a sms instance which send SMS,
+     * and set SMS templates or content.
      *
-     * @param $name
-     * @param $args
+     * @param mixed $agentName
+     * @param mixed $tempId
+     *
+     * @return Sms
+     */
+    public static function make($agentName = null, $tempId = null)
+    {
+        $sms = new self();
+        if (is_array($agentName)) {
+            $sms->template($agentName);
+        } elseif ($agentName && is_string($agentName)) {
+            if ($tempId === null) {
+                $sms->content($agentName);
+            } elseif (is_string("$tempId")) {
+                $sms->template($agentName, $tempId);
+            }
+        }
+
+        return $sms;
+    }
+
+    /**
+     * Create a sms instance which send voice verify,
+     * and set verify code.
+     *
+     * @param string|int $code
+     *
+     * @return Sms
+     */
+    public static function voice($code)
+    {
+        $sms = new self();
+        $sms->smsData['voiceCode'] = $code;
+
+        return $sms;
+    }
+
+    /**
+     * Set whether to use queue, and define how to use queue.
+     *
+     * @param mixed $enable
+     * @param mixed $handler
+     *
+     * @return bool
+     */
+    public static function queue($enable = null, $handler = null)
+    {
+        if ($enable === null && $handler === null) {
+            return self::$enableQueue;
+        }
+        if (is_callable($enable)) {
+            $handler = $enable;
+            $enable = true;
+        }
+        self::$enableQueue = (bool) $enable;
+        if (is_callable($handler)) {
+            self::$howToUseQueue = $handler;
+        }
+
+        return self::$enableQueue;
+    }
+
+    /**
+     * Set the receiver`s mobile number.
+     *
+     * @param string $mobile
+     *
+     * @return $this
+     */
+    public function to($mobile)
+    {
+        $this->smsData['to'] = $mobile;
+
+        return $this;
+    }
+
+    /**
+     * Set content for content SMS.
+     *
+     * @param string $content
+     *
+     * @return $this
+     */
+    public function content($content)
+    {
+        $this->smsData['content'] = trim((string) $content);
+
+        return $this;
+    }
+
+    /**
+     * Set template id for template SMS.
+     *
+     * @param mixed $agentName
+     * @param mixed $tempId
+     *
+     * @return $this
+     */
+    public function template($agentName, $tempId = null)
+    {
+        if (is_array($agentName)) {
+            foreach ($agentName as $k => $v) {
+                $this->template($k, $v);
+            }
+        } elseif ($agentName && $tempId) {
+            if (!isset($this->smsData['templates']) || !is_array($this->smsData['templates'])) {
+                $this->smsData['templates'] = [];
+            }
+            $this->smsData['templates']["$agentName"] = $tempId;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set template data for template SMS.
+     *
+     * @param array $data
+     *
+     * @return $this
+     */
+    public function data(array $data)
+    {
+        $this->smsData['templateData'] = $data;
+
+        return $this;
+    }
+
+    /**
+     * Set the first agent by agent`s name.
+     *
+     * @param string $name
+     *
+     * @return $this
+     */
+    public function agent($name)
+    {
+        $this->firstAgent = (string) $name;
+
+        return $this;
+    }
+
+    /**
+     * Start send SMS/voice verify.
+     *
+     * If give a true parameter, will immediately start whatever whether to use queue.
+     * if you are already pushed sms instance to queue, you can recall the method `send()` in queue job without `true` parameter,
+     * so this mechanism in order to make you convenient use the method `send()` in queue system.
+     *
+     * @param bool $immediately
+     *
+     * @return mixed
+     */
+    public function send($immediately = false)
+    {
+        if (!self::$enableQueue || $this->pushedToQueue) {
+            $immediately = true;
+        }
+        if ($immediately) {
+            $result = Balancer::run(self::TASK, [
+                'data'   => $this->getData(),
+                'driver' => $this->firstAgent,
+            ]);
+        } else {
+            $result = $this->push();
+        }
+
+        return $result;
+    }
+
+    /**
+     * Push to queue by custom method.
+     *
+     * @throws \Exception | PhpSmsException
+     *
+     * @return mixed
+     */
+    public function push()
+    {
+        if (is_callable(self::$howToUseQueue)) {
+            try {
+                $this->pushedToQueue = true;
+
+                return call_user_func_array(self::$howToUseQueue, [$this, $this->smsData]);
+            } catch (\Exception $e) {
+                $this->pushedToQueue = false;
+                throw $e;
+            }
+        } else {
+            throw new PhpSmsException('Please define how to use queue by method `queue($enable, $handler)`');
+        }
+    }
+
+    /**
+     * Get all the data of SMS/voice verify.
+     *
+     * @param null|string $name
+     *
+     * @return mixed
+     */
+    public function getData($name = null)
+    {
+        if (is_string($name) && isset($this->smsData["$name"])) {
+            return $this->smsData[$name];
+        }
+
+        return $this->smsData;
+    }
+
+    /**
+     * Overload static method.
+     *
+     * @param string $name
+     * @param array  $args
      *
      * @throws PhpSmsException
      */
@@ -643,7 +646,7 @@ class Sms
             $handler = $args[0];
             $override = isset($args[1]) ? (bool) $args[1] : false;
             if (is_callable($handler)) {
-                $task = self::generatorTask();
+                $task = self::getTask();
                 $task->hook($name, $handler, $override);
             } else {
                 throw new PhpSmsException("Please give method static $name() a callable parameter");
@@ -654,10 +657,10 @@ class Sms
     }
 
     /**
-     * overload method
+     * Overload method.
      *
-     * @param $name
-     * @param $args
+     * @param string $name
+     * @param array  $args
      *
      * @throws PhpSmsException
      * @throws \Exception
@@ -672,8 +675,8 @@ class Sms
     }
 
     /**
-     * serialize magic method
-     * store current sms instance status
+     * Serialize magic method,
+     * store current sms instance status.
      *
      * @return array
      */
@@ -691,7 +694,7 @@ class Sms
     }
 
     /**
-     * unserialize magic method
+     * Unserialize magic method,
      * note: the force bootstrap must before reinstall handlers!
      */
     public function __wakeup()
@@ -708,7 +711,7 @@ class Sms
     }
 
     /**
-     * get a serializer
+     * Get a closure serializer.
      *
      * @return Serializer
      */
@@ -722,7 +725,7 @@ class Sms
     }
 
     /**
-     * serialize enable agents
+     * Serialize enabled agents.
      *
      * @return array
      */
@@ -740,7 +743,7 @@ class Sms
     }
 
     /**
-     * unserialize enable agents
+     * Unserialize enabled agents.
      *
      * @param array $serialized
      *
@@ -759,10 +762,10 @@ class Sms
     }
 
     /**
-     * serialize character closure value of a array and replace origin value
+     * Serialize character closure value of a array and replace origin value.
      *
-     * @param array $options
-     * @param       $key
+     * @param array  $options
+     * @param string $key
      */
     protected static function serializeClosureAndReplace(array &$options, $key)
     {
@@ -773,10 +776,10 @@ class Sms
     }
 
     /**
-     * unserialize character string of a array to closure and replace origin value
+     * Unserialize character string of a array to closure and replace origin value.
      *
-     * @param array $options
-     * @param       $key
+     * @param array  $options
+     * @param string $key
      */
     protected static function unserializeToClosureAndReplace(array &$options, $key)
     {
@@ -787,8 +790,8 @@ class Sms
     }
 
     /**
-     * serialize these hooks` handlers:
-     * 'beforeRun','beforeDriverRun','afterDriverRun','afterRun'
+     * Serialize these hooks` handlers:
+     * 'beforeRun','beforeDriverRun','afterDriverRun','afterRun'.
      *
      * @return array
      */
@@ -796,7 +799,7 @@ class Sms
     {
         $hooks = [];
         $serializer = self::getSerializer();
-        $task = self::generatorTask();
+        $task = self::getTask();
         foreach ($task->handlers as $hookName => $handlers) {
             foreach ($handlers as $handler) {
                 $serialized = $serializer->serialize($handler);
@@ -811,7 +814,7 @@ class Sms
     }
 
     /**
-     * reinstall hooks` handlers by serialized handlers
+     * Reinstall balance task hooks` handlers by serialized handlers.
      *
      * @param array $handlers
      */
@@ -823,8 +826,7 @@ class Sms
                 if (is_string($handler)) {
                     $handler = $serializer->unserialize($handler);
                 }
-                $override = $index === 0;
-                self::$hookName($handler, $override);
+                self::$hookName($handler, $index === 0);
             }
         }
     }
