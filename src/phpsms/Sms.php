@@ -15,15 +15,14 @@ use Toplan\TaskBalance\Task;
 class Sms
 {
     /**
-     * Send task`s name.
+     * The default name of balancing task.
      *
      * @var string
      */
     const TASK = 'PhpSms';
 
     /**
-     * SMS agents(service providers),
-     * they are instances of class [Toplan\PhpSms\Agent].
+     * The instances of class [Toplan\PhpSms\Agent].
      *
      * @var array
      */
@@ -37,28 +36,28 @@ class Sms
     protected static $agentsName = [];
 
     /**
-     * The enabled agents` config info.
+     * The enabled agents` configuration information.
      *
      * @var array
      */
     protected static $agentsConfig = [];
 
     /**
-     * Whether to use queue.
+     * Whether to use the queue.
      *
      * @var bool
      */
     protected static $enableQueue = false;
 
     /**
-     * How to push to queue.
+     * How to use the queue.
      *
      * @var \Closure
      */
     protected static $howToUseQueue = null;
 
     /**
-     * The enable hooks for balance task.
+     * The enable hooks for balancing task.
      *
      * @var array
      */
@@ -70,14 +69,14 @@ class Sms
     ];
 
     /**
-     * An instance of class [SuperClosure\Serializer]
+     * An instance of class [SuperClosure\Serializer] use for serialization closures.
      *
      * @var Serializer
      */
     protected static $serializer = null;
 
     /**
-     * SMS(or voice verify) data container.
+     * SMS/voice verify data container.
      *
      * @var array
      */
@@ -97,7 +96,7 @@ class Sms
     protected $firstAgent = null;
 
     /**
-     * Whether the current instance has already pushed to queue.
+     * Whether the current instance has already pushed to the queue system.
      *
      * @var bool
      */
@@ -105,7 +104,7 @@ class Sms
 
     /**
      * Status container,
-     * store config data before serialize a instance(before enqueue).
+     * store some configuration information before serialize current instance(before enqueue).
      *
      * @var array
      */
@@ -124,7 +123,7 @@ class Sms
     }
 
     /**
-     * Boot balanced send task.
+     * Boot balancing task for send SMS/voice verify.
      */
     public static function bootstrap()
     {
@@ -139,7 +138,7 @@ class Sms
     }
 
     /**
-     * Get or generate a balanced task instance for send SMS/voice verify.
+     * Get or generate a balancing task instance for send SMS/voice verify.
      *
      * @return Task
      */
@@ -167,7 +166,7 @@ class Sms
     }
 
     /**
-     * Try to read and set enable agents` name from config file.
+     * Try to read enable agents` name from config file.
      *
      * @param array $config
      */
@@ -179,7 +178,7 @@ class Sms
     }
 
     /**
-     * Try to read and set enabled agents` config from config file.
+     * Try to initialize the specified agents` configuration information.
      *
      * @param array $agents
      * @param array $config
@@ -210,7 +209,7 @@ class Sms
     }
 
     /**
-     * Create drivers of the balanced task.
+     * Create drivers for the balancing task.
      *
      * @param Task $task
      */
@@ -250,8 +249,8 @@ class Sms
     }
 
     /**
-     * Parse the enabled agents` scheduling config data.
-     * 解析可用代理器的数组模式的调度配置
+     * Parsing scheduling configuration.
+     * 解析代理器的数组模式的调度配置
      *
      * @param array $options
      *
@@ -269,7 +268,7 @@ class Sms
     }
 
     /**
-     * Pull the character option data from the scheduling config.
+     * Pull the value of the specified option out of the scheduling configuration.
      *
      * @param array  $options
      * @param string $name
@@ -288,7 +287,7 @@ class Sms
     }
 
     /**
-     * Get agent config data by name.
+     * Get agent configuration information by name.
      *
      * @param string $name
      *
@@ -354,7 +353,7 @@ class Sms
     }
 
     /**
-     * Set config info by agent name.
+     * Set configuration information by agent name.
      *
      * @param array|string $agentName
      * @param array        $config
@@ -386,7 +385,7 @@ class Sms
     }
 
     /**
-     * Get the enabled agents` config info.
+     * Get the enabled agents` configuration information.
      *
      * @return array
      */
@@ -396,7 +395,7 @@ class Sms
     }
 
     /**
-     * Tear down enable agents and prepare to create and start a new balance task,
+     * Tear down enable agent and prepare to create and start a new balancing task,
      * so before do it must destroy old task instance.
      */
     public static function cleanEnableAgents()
@@ -406,7 +405,7 @@ class Sms
     }
 
     /**
-     * Tear down agents config and prepare to create and start a new balance task,
+     * Tear down agent config and prepare to create and start a new balancing task,
      * so before do it must destroy old task instance.
      */
     public static function cleanAgentsConfig()
@@ -416,8 +415,8 @@ class Sms
     }
 
     /**
-     * Create a sms instance which send SMS,
-     * and set SMS templates or content.
+     * Create a sms instance send SMS,
+     * your can also set SMS templates or content at the same time.
      *
      * @param mixed $agentName
      * @param mixed $tempId
@@ -441,8 +440,8 @@ class Sms
     }
 
     /**
-     * Create a sms instance which send voice verify,
-     * and set verify code.
+     * Create a sms instance send voice verify,
+     * your can also set verify code at the same time.
      *
      * @param string|int $code
      *
@@ -457,7 +456,7 @@ class Sms
     }
 
     /**
-     * Set whether to use queue, and define how to use queue.
+     * Set whether to use the queue system, and define how to use it.
      *
      * @param mixed $enable
      * @param mixed $handler
@@ -482,7 +481,7 @@ class Sms
     }
 
     /**
-     * Set the receiver`s mobile number.
+     * Set the recipient`s mobile number.
      *
      * @param string $mobile
      *
@@ -496,7 +495,7 @@ class Sms
     }
 
     /**
-     * Set content for content SMS.
+     * Set the content for content SMS.
      *
      * @param string $content
      *
@@ -510,7 +509,7 @@ class Sms
     }
 
     /**
-     * Set template id for template SMS.
+     * Set the template id for template SMS.
      *
      * @param mixed $agentName
      * @param mixed $tempId
@@ -534,7 +533,7 @@ class Sms
     }
 
     /**
-     * Set template data for template SMS.
+     * Set the template data for template SMS.
      *
      * @param array $data
      *
@@ -548,7 +547,7 @@ class Sms
     }
 
     /**
-     * Set the first agent by agent`s name.
+     * Set the first agent by name.
      *
      * @param string $name
      *
@@ -564,8 +563,8 @@ class Sms
     /**
      * Start send SMS/voice verify.
      *
-     * If give a true parameter, will immediately start whatever whether to use queue.
-     * if you are already pushed sms instance to queue, you can recall the method `send()` in queue job without `true` parameter,
+     * If give a true parameter, this system will immediately start request to send SMS/voice verify whatever whether to use the queue.
+     * if you are already pushed sms instance to the queue, you can recall the method `send()` in queue system without `true` parameter,
      * so this mechanism in order to make you convenient use the method `send()` in queue system.
      *
      * @param bool $immediately
@@ -590,7 +589,7 @@ class Sms
     }
 
     /**
-     * Push to queue by custom method.
+     * Push to the queue by a custom method.
      *
      * @throws \Exception | PhpSmsException
      *
@@ -814,7 +813,7 @@ class Sms
     }
 
     /**
-     * Reinstall balance task hooks` handlers by serialized handlers.
+     * Reinstall balancing task hooks` handlers by serialized handlers.
      *
      * @param array $handlers
      */
