@@ -41,7 +41,7 @@ Fatal error：Maximum function nesting level of ‘100′ reached, aborting!
 # 安装
 
 ```php
-composer require 'toplan/phpsms:>=1.3.4'
+composer require 'toplan/phpsms:~1.4'
 ```
 
 # 快速上手
@@ -54,7 +54,7 @@ composer require 'toplan/phpsms:>=1.3.4'
 
 ```php
 //example:
-Sms::agents([
+Sms::config([
     'Luosimao' => [
         //短信API key
         'apikey' => 'your api key',
@@ -68,13 +68,13 @@ Sms::agents([
 ]);
 ```
 
-- 配置可用代理器
+- 配置代理器调度方案
 
-配置你的调度方案。可在`config\phpsms.php`中键为`enable`的数组中配置。也可以手动在程序中设置，示例如下：
+可在`config\phpsms.php`中键为`scheme`的数组中配置。也可以手动在程序中设置，示例如下：
 
 ```php
 //example:
-Sms::enable([
+Sms::scheme([
     //被使用概率为2/3
     'Luosimao' => '20',
 
@@ -165,51 +165,67 @@ PhpSms::make()->to($to)->content($content)->send();
 
 # API
 
-### Sms::enable($name [, $optionString])
+### Sms::scheme(name [, scheme])
 
-手动设置可用代理器及其调度方案(优先级高于配置文件)，如：
+- 设置
+
+手动设置可用代理器及其调度方案(优先级高于配置文件),如：
 ```php
-Sms::enable([
+Sms::scheme([
     'Luosimao' => '80 backup'
     'YunPian' => '100 backup'
 ]);
 //或
-Sms::enable('Luosimao', '80 backup');
-Sms::enable('YunPian', '100 backup');
+Sms::scheme('Luosimao', '80 backup');
+Sms::scheme('YunPian', '100 backup');
+```
+- 获取
+
+通过该方法还能获取所有或指定代理器的调度信息,如:
+```php
+//获取所有的调度信息:
+Sms::scheme();
+
+//获取指定代理器的调度信息:
+Sms::scheme('Luosimao');
 ```
 
-> `enable`静态方法的更多使用方法见[高级配置](#高级配置)
+> `scheme`静态方法的更多使用方法见[高级调度配置](#高级调度配置)
 
-### Sms::agents($name [, $config]);
+### Sms::config(name [, config]);
+
+- 设置
 
 手动设置代理器配置参数(优先级高于配置文件)，如：
 ```php
-Sms::agents([
+Sms::config([
    'YunPian' => [
        'apikey' => ...,
    ]
 ]);
 //或
-Sms::agents('YunPian', [
+Sms::config('YunPian', [
    'apikey' => ...,
 ]);
 ```
+- 获取
 
-### Sms::getEnableAgents()
+通过该方法还能获取所有或指定代理器的配置数据,如:
+```php
+//获取所有的配置数据:
+Sms::config();
 
-获取代理器调度方案
+//获取指定代理器的配置数据:
+Sms::config('Luosimao');
+```
 
-### Sms::getAgentsConfig()
+### Sms::cleanScheme()
 
-获取代理器配置
-
-### Sms::cleanEnableAgents()
-
-清空代理器调度方案
+清空代理器调度信息.
 
 ### Sms::cleanAgentsConfig()
 
-清空所有代理器的配置
+清空所有代理器的配置.
 
 ### Sms::beforeSend($handler [, $override]);
 
@@ -405,20 +421,71 @@ $result = $sms->send(true);
 
 > `$result`数据结构请参看[task-balancer](https://github.com/toplan/task-balancer)
 
+# 高级调度配置
+
+代理器的高级配置可以通过配置文件(config/phpsms.php)中的`scheme`项目配置，也可以通过`Sms::scheme(...)`静态方法配置。
+值得注意的是，高级配置的配置值的数据结构是数组。
+
+### 指定代理器类
+
+> 如果你自定义了一个代理器，类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，那么你还可以在调度配置时指定你的代理器使用的类。
+
+* 配置方式：
+
+通过配置值中`agentClass`键来指定类名。
+
+* 示例：
+```php
+Sms::scheme('YourAgent', [
+    '10 backup',
+    'agentClass' => 'Your\Namespace\YourAgent'
+]);
+```
+
+### 寄生代理器
+
+> 如果你既不想使用已有代理器，也不想自己写自定义代理器，那么寄生代理器或许是个好的选择，无需定义代理器类，
+> 只需在调度配置时定义好发送短信和语音验证码的方式即可。
+
+* 配置方式：
+
+通过配置值中`sendSms`和`voiceVerify`键来设置发送短信和语音验证码的方式。
+
+* 示例：
+```php
+Sms::scheme([
+    'Agent1' => [
+        '20 backup',
+        'sendSms' => function($agent, $tempId, $to, $tempData, $content){
+            //获取配置(如果设置了的话):
+            $key = $agent->key;
+            ...
+            //更新发送结果:
+            $agent->result(Agent::SUCCESS, true);
+            $agent->result(Agent::INFO, 'some info');
+            $agent->result(Agent::CODE, 'your code');
+        },
+        'voiceVerify' => function($agent, $to, $code){
+            //发送语音验证码，同上
+        }
+    ]
+]);
+```
+
 # 自定义代理器
 
-+ step 1
+- step 1
 
-配置项加入到config/phpsms.php中键为`agents`的数组里：
+配置项加入到config/phpsms.php中键为`agents`的数组里
 ```php
-//请注意命名规范，Foo为代理器(服务商)名称。
+//example:
 'Foo' => [
     'apikey' => 'your api key',
     ...
 ]
 ```
 
-+ step 2
+- step 2
 
 在agents目录下添加代理器类，建议代理器类名为`FooAgent`，建议命名空间为`Toplan\PhpSms`，必须继承`Agent`抽象类。
 > 如果类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，在使用该代理器时则需要指定代理器类，详见[高级配置](#高级配置)。
@@ -445,7 +512,7 @@ class FooAgent extends Agent {
         //获取配置文件中的参数
         $key = $this->apikey;
 
-        //可用方法:
+        //Agent内置的静态方法:
         Agent::sockPost($url, $query);//fsockopen
         Agent::curl($url, array $params, bool $isPost);//curl
 
@@ -469,61 +536,6 @@ class FooAgent extends Agent {
         //同上...
     }
 }
-```
-
-# 高级配置
-
-代理器的高级配置可以通过配置文件(config/phpsms.php)中的`enable`项目配置，也可以通过`Sms::enable`静态方法配置。
-值得注意的是，高级配置的配置值的数据结构是数组。
-
-### 指定代理器类
-
-> 如果你自定义了一个代理器，类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，那么你还可以在调度配置时指定你的代理器使用的类。
-
-* 配置方式：
-
-通过配置值中`agentClass`键来指定类名。
-
-* 示例：
-```php
-Sms::enable('Test1', [
-    '10 backup',
-    'agentClass' => 'Your\Namespace\YourAgent'
-]);
-```
-
-### 寄生代理器
-
-> 如果你既不想使用已有代理器，也不想自己写自定义代理器，那么寄生代理器或许是个好的选择，无需定义代理器类，
-> 只需在调度配置时定义好发送短信和语音验证码的方式即可。
-
-* 配置方式：
-
-通过配置值中`sendSms`和`voiceVerify`键来设置发送短信和语音验证码的方式。
-
-* 示例：
-```php
-Sms::enable([
-    'Test2' => [
-        '20 backup',
-        'sendSms' => function($agent, $tempId, $to, $tempData, $content){
-            //获取配置(如果设置了的话):
-            $key = $agent->key;
-
-            //可用方法:
-            Agent::sockPost($url, $query);//fsockopen
-            Agent::curl($url, array $params, bool $isPost);//curl
-
-            //更新发送结果:
-            $agent->result(Agent::SUCCESS, true);
-            $agent->result(Agent::INFO, 'some info');
-            $agent->result(Agent::CODE, 'your code');
-        },
-        'voiceVerify' => function($agent, $to, $code){
-            //发送语音验证码，同上
-        }
-    ]
-]);
 ```
 
 # Todo list

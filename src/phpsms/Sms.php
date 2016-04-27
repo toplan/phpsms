@@ -29,14 +29,18 @@ class Sms
     protected static $agents = [];
 
     /**
-     * The enabled agents` name.
+     * Agents use scheme, these agents are available.
+     * example: [
+     *   'Agent1' => '10 backup',
+     *   'Agent2' => '20 backup',
+     * ]
      *
      * @var array
      */
-    protected static $agentsName = [];
+    protected static $scheme = [];
 
     /**
-     * The enabled agents` configuration information.
+     * The agents` configuration information.
      *
      * @var array
      */
@@ -57,11 +61,11 @@ class Sms
     protected static $howToUseQueue = null;
 
     /**
-     * The enable hooks for balancing task.
+     * The available hooks for balancing task.
      *
      * @var array
      */
-    protected static $enableHooks = [
+    protected static $availableHooks = [
         'beforeRun',
         'beforeDriverRun',
         'afterDriverRun',
@@ -157,24 +161,24 @@ class Sms
     protected static function configuration()
     {
         $config = [];
-        if (empty(self::$agentsName)) {
-            self::initEnableAgents($config);
+        if (empty(self::$scheme)) {
+            self::initScheme($config);
         }
-        $diff = array_diff_key(self::$agentsName, self::$agentsConfig);
+        $diff = array_diff_key(self::$scheme, self::$agentsConfig);
         self::initAgentsConfig(array_keys($diff), $config);
         self::validateConfig();
     }
 
     /**
-     * Try to read enable agents` name from config file.
+     * Try to read agent use scheme from config file.
      *
      * @param array $config
      */
-    protected static function initEnableAgents(array &$config)
+    protected static function initScheme(array &$config)
     {
         $config = empty($config) ? include __DIR__ . '/../config/phpsms.php' : $config;
-        $enableAgents = isset($config['enable']) ? $config['enable'] : [];
-        self::enable($enableAgents);
+        $scheme = isset($config['scheme']) ? $config['scheme'] : [];
+        self::scheme($scheme);
     }
 
     /**
@@ -192,7 +196,7 @@ class Sms
         $agentsConfig = isset($config['agents']) ? $config['agents'] : [];
         foreach ($agents as $name) {
             $agentConfig = isset($agentsConfig[$name]) ? $agentsConfig[$name] : [];
-            self::agents($name, $agentConfig);
+            self::config($name, $agentConfig);
         }
     }
 
@@ -203,7 +207,7 @@ class Sms
      */
     protected static function validateConfig()
     {
-        if (empty(self::$agentsName)) {
+        if (empty(self::$scheme)) {
             throw new PhpSmsException('Please configure at least one agent');
         }
     }
@@ -215,17 +219,20 @@ class Sms
      */
     protected static function createDrivers(Task $task)
     {
-        foreach (self::$agentsName as $name => $options) {
+        foreach (self::$scheme as $name => $scheme) {
             //获取代理器配置
-            $configData = self::getAgentConfigData($name);
+            $configData = self::config($name);
+
             //解析代理器数组模式的调度配置
-            if (is_array($options)) {
-                $data = self::parseAgentArrayOptions($options);
+            if (is_array($scheme)) {
+                $data = self::parseScheme($scheme);
                 $configData = array_merge($configData, $data);
-                $options = $data['driverOpts'];
+                $scheme = $data['scheme'];
             }
+            $scheme = is_string($scheme) ? $scheme : '';
+
             //创建任务驱动器
-            $task->driver("$name $options")->data($configData)
+            $task->driver("$name $scheme")->data($configData)
                  ->work(function ($driver) {
                      $configData = $driver->getDriverData();
                      $agent = self::getSmsAgent($driver->name, $configData);
@@ -256,26 +263,26 @@ class Sms
      *
      * @return array
      */
-    protected static function parseAgentArrayOptions(array $options)
+    protected static function parseScheme(array $options)
     {
-        $agentClass = self::pullAgentOptionByName($options, 'agentClass');
-        $sendSms = self::pullAgentOptionByName($options, 'sendSms');
-        $voiceVerify = self::pullAgentOptionByName($options, 'voiceVerify');
-        $backup = self::pullAgentOptionByName($options, 'backup') ? 'backup' : '';
-        $driverOpts = implode(' ', array_values($options)) . " $backup";
+        $agentClass = self::pullOptionOutOfArrayByName($options, 'agentClass');
+        $sendSms = self::pullOptionOutOfArrayByName($options, 'sendSms');
+        $voiceVerify = self::pullOptionOutOfArrayByName($options, 'voiceVerify');
+        $backup = self::pullOptionOutOfArrayByName($options, 'backup') ? 'backup' : '';
+        $scheme = implode(' ', array_values($options)) . " $backup";
 
-        return compact('agentClass', 'sendSms', 'voiceVerify', 'driverOpts');
+        return compact('agentClass', 'sendSms', 'voiceVerify', 'scheme');
     }
 
     /**
-     * Pull the value of the specified option out of the scheduling configuration.
+     * Pull the value of the specified option out of the array.
      *
      * @param array  $options
-     * @param string $name
+     * @param int|string $name
      *
      * @return mixed
      */
-    protected static function pullAgentOptionByName(array &$options, $name)
+    protected static function pullOptionOutOfArrayByName(array &$options, $name)
     {
         if (!isset($options[$name])) {
             return;
@@ -284,18 +291,6 @@ class Sms
         unset($options[$name]);
 
         return $value;
-    }
-
-    /**
-     * Get agent configuration information by name.
-     *
-     * @param string $name
-     *
-     * @return array
-     */
-    protected static function getAgentConfigData($name)
-    {
-        return isset(self::$agentsConfig[$name]) ? self::$agentsConfig[$name] : [];
     }
 
     /**
@@ -324,7 +319,7 @@ class Sms
                 self::$agents[$name] = new $className($configData);
             } else {
                 //无代理器可用
-                throw new PhpSmsException("Do not support [$name] agent.");
+                throw new PhpSmsException("Dont support [$name] agent.");
             }
         }
 
@@ -332,76 +327,70 @@ class Sms
     }
 
     /**
-     * Set enable agents.
+     * Set or get agent use scheme by agent name.
      *
      * @param mixed $agentName
-     * @param mixed $options
+     * @param mixed $scheme
+     *
+     * @return mixed
      */
-    public static function enable($agentName, $options = null)
+    public static function scheme($agentName = null, $scheme = null)
     {
-        if (is_array($agentName)) {
-            foreach ($agentName as $name => $opt) {
-                self::enable($name, $opt);
-            }
-        } elseif ($agentName && is_string($agentName) && $options !== null) {
-            self::$agentsName["$agentName"] = is_array($options) ? $options : "$options";
-        } elseif (is_int($agentName) && !is_array($options) && "$options") {
-            self::$agentsName["$options"] = '1';
-        } elseif ($agentName && $options === null) {
-            self::$agentsName["$agentName"] = '1';
+        if (($agentName === null || is_string($agentName)) && $scheme === null) {
+            return $agentName === null ? self::$scheme :
+                (isset(self::$scheme[$agentName]) ? self::$scheme[$agentName] : null);
         }
+        if (is_array($agentName)) {
+            foreach ($agentName as $name => $value) {
+                self::scheme($name, $value);
+            }
+        } elseif ($agentName && is_string($agentName)) {
+            self::$scheme["$agentName"] = is_array($scheme) ? $scheme: "$scheme";
+        } elseif (is_int($agentName) && $scheme && is_string($scheme)) {
+            self::$scheme["$scheme"] = '';
+        }
+
+        return self::$scheme;
     }
 
     /**
-     * Set configuration information by agent name.
+     * Set or get configuration information by agent name.
      *
-     * @param array|string $agentName
-     * @param array        $config
+     * @param mixed $agentName
+     * @param mixed $config
      *
      * @throws PhpSmsException
+     *
+     * @return array
      */
-    public static function agents($agentName, array $config = [])
+    public static function config($agentName = null, $config = null)
     {
+        if (($agentName === null || is_string($agentName)) && $config === null) {
+            return $agentName === null ? self::$agentsConfig:
+                (isset(self::$agentsConfig[$agentName]) ? self::$agentsConfig[$agentName] : []);
+        }
         if (is_array($agentName)) {
-            foreach ($agentName as $name => $conf) {
-                self::agents($name, $conf);
+            foreach ($agentName as $name => $value) {
+                self::config($name, $value);
             }
         } elseif ($agentName && is_array($config)) {
             if (preg_match('/^[0-9]+$/', $agentName)) {
-                throw new PhpSmsException("Agent name [$agentName] must be string, could not be a pure digital");
+                throw new PhpSmsException("Agent name [$agentName] must be string, can not be a pure digital");
             }
             self::$agentsConfig["$agentName"] = $config;
         }
-    }
 
-    /**
-     * Get the enabled agents` name.
-     *
-     * @return array
-     */
-    public static function getEnableAgents()
-    {
-        return self::$agentsName;
-    }
-
-    /**
-     * Get the enabled agents` configuration information.
-     *
-     * @return array
-     */
-    public static function getAgentsConfig()
-    {
         return self::$agentsConfig;
     }
 
     /**
-     * Tear down enable agent and prepare to create and start a new balancing task,
+     * Tear down agent use scheme and prepare to create and start a new balancing task,
      * so before do it must destroy old task instance.
      */
-    public static function cleanEnableAgents()
+    public static function cleanScheme()
     {
         Balancer::destroy(self::TASK);
-        self::$agentsName = [];
+        self::$scheme = [];
     }
 
     /**
@@ -607,7 +596,7 @@ class Sms
                 throw $e;
             }
         } else {
-            throw new PhpSmsException('Please define how to use queue by method `queue($enable, $handler)`');
+            throw new PhpSmsException('Please define how to use queue by method `queue($available, $handler)`');
         }
     }
 
@@ -641,7 +630,7 @@ class Sms
         $name = $name === 'afterSend' ? 'afterRun' : $name;
         $name = $name === 'beforeAgentSend' ? 'beforeDriverRun' : $name;
         $name = $name === 'afterAgentSend' ? 'afterDriverRun' : $name;
-        if (in_array($name, self::$enableHooks)) {
+        if (in_array($name, self::$availableHooks)) {
             $handler = $args[0];
             $override = isset($args[1]) ? (bool) $args[1] : false;
             if (is_callable($handler)) {
@@ -681,8 +670,8 @@ class Sms
     public function __sleep()
     {
         try {
-            $this->_status_before_enqueue_['enableAgents'] = self::serializeEnableAgents();
-            $this->_status_before_enqueue_['agentsConfig'] = self::getAgentsConfig();
+            $this->_status_before_enqueue_['scheme'] = self::serializeOrDeserializeScheme(self::scheme());
+            $this->_status_before_enqueue_['agentsConfig'] = self::config();
             $this->_status_before_enqueue_['handlers'] = self::serializeHandlers();
         } catch (\Exception $e) {
             //swallow exception
@@ -700,7 +689,7 @@ class Sms
             return;
         }
         $status = $this->_status_before_enqueue_;
-        self::$agentsName = self::deserializeEnableAgents($status['enableAgents']);
+        self::$scheme = self::serializeOrDeserializeScheme($status['scheme']);
         self::$agentsConfig = $status['agentsConfig'];
         Balancer::destroy(self::TASK);
         self::bootstrap();
@@ -712,7 +701,7 @@ class Sms
      *
      * @return Serializer
      */
-    public static function getSerializer()
+    protected static function getSerializer()
     {
         if (!self::$serializer) {
             self::$serializer = new Serializer();
@@ -722,40 +711,22 @@ class Sms
     }
 
     /**
-     * Serialize the configuration information of enabled agents.
+     * Serialize or deserialize the agent use scheme.
+     *
+     * @param array $scheme
      *
      * @return array
      */
-    protected static function serializeEnableAgents()
+    protected static function serializeOrDeserializeScheme(array $scheme)
     {
-        $enableAgents = self::getEnableAgents();
-        foreach ($enableAgents as $name => &$options) {
+        foreach ($scheme as $name => &$options) {
             if (is_array($options)) {
                 self::serializeOrDeserializeClosureAndReplace($options, 'sendSms');
                 self::serializeOrDeserializeClosureAndReplace($options, 'voiceVerify');
             }
         }
 
-        return $enableAgents;
-    }
-
-    /**
-     * Deserialize the configuration information of enabled agents.
-     *
-     * @param array $serialized
-     *
-     * @return mixed
-     */
-    protected static function deserializeEnableAgents(array $serialized)
-    {
-        foreach ($serialized as $name => &$options) {
-            if (is_array($options)) {
-                self::serializeOrDeserializeClosureAndReplace($options, 'sendSms');
-                self::serializeOrDeserializeClosureAndReplace($options, 'voiceVerify');
-            }
-        }
-
-        return $serialized;
+        return $scheme;
     }
 
     /**

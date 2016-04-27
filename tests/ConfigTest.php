@@ -6,36 +6,45 @@ class ConfigTest extends PHPUnit_Framework_TestCase
 {
     public function testClean()
     {
-        Sms::cleanEnableAgents();
-        $this->assertCount(0, Sms::getEnableAgents());
+        Sms::cleanScheme();
+        $this->assertCount(0, Sms::scheme());
         Sms::cleanAgentsConfig();
-        $this->assertCount(0, Sms::getAgentsConfig());
+        $this->assertCount(0, Sms::config());
     }
 
     public function testAddEnableAgent()
     {
-        Sms::enable('Log');
-        $this->assertCount(1, Sms::getEnableAgents());
-        Sms::enable('Log', '80 backup');
-        $this->assertCount(1, Sms::getEnableAgents());
-        Sms::enable('Luosimao', 'backup');
-        $this->assertCount(2, Sms::getEnableAgents());
-        Sms::enable([
+        Sms::scheme(['Log']);
+        $this->assertCount(1, Sms::scheme());
+
+        Sms::scheme('Log', '80 backup');
+        $this->assertCount(1, Sms::scheme());
+        $this->assertEquals('80 backup', Sms::scheme('Log'));
+
+        Sms::scheme('Luosimao', 'backup');
+        $this->assertCount(2, Sms::scheme());
+
+        Sms::scheme([
                 'Luosimao' => '0 backup',
                 'YunPian'  => '0',
             ]);
-        $this->assertCount(3, Sms::getEnableAgents());
+        $this->assertCount(3, Sms::scheme());
+        $this->assertEquals('0', Sms::scheme('YunPian'));
     }
 
     public function testAddAgentConfig()
     {
-        Sms::agents('Log', []);
-        $this->assertCount(1, Sms::getAgentsConfig());
-        Sms::agents('Luosimao', [
+        Sms::config('Log', []);
+        $this->assertCount(1, Sms::config());
+        $this->assertCount(0, Sms::config('Log'));
+
+        Sms::config('Luosimao', [
                 'apikey' => '123',
             ]);
-        $this->assertCount(2, Sms::getAgentsConfig());
-        Sms::agents([
+        $this->assertCount(2, Sms::config());
+        $this->assertArrayHasKey('apikey', Sms::config('Luosimao'));
+
+        Sms::config([
                 'Luosimao' => [
                     'apikey' => '123',
                 ],
@@ -43,6 +52,6 @@ class ConfigTest extends PHPUnit_Framework_TestCase
                     'apikey' => '123',
                 ],
             ]);
-        $this->assertCount(3, Sms::getAgentsConfig());
+        $this->assertCount(3, Sms::config());
     }
 }
