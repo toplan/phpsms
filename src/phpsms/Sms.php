@@ -265,30 +265,30 @@ class Sms
      */
     protected static function parseScheme(array $options)
     {
-        $agentClass = self::pullOptionOutOfArrayByName($options, 'agentClass');
-        $sendSms = self::pullOptionOutOfArrayByName($options, 'sendSms');
-        $voiceVerify = self::pullOptionOutOfArrayByName($options, 'voiceVerify');
-        $backup = self::pullOptionOutOfArrayByName($options, 'backup') ? 'backup' : '';
+        $agentClass = self::pullOptionOutOfArrayByKey($options, 'agentClass');
+        $sendSms = self::pullOptionOutOfArrayByKey($options, 'sendSms');
+        $voiceVerify = self::pullOptionOutOfArrayByKey($options, 'voiceVerify');
+        $backup = self::pullOptionOutOfArrayByKey($options, 'backup') ? 'backup' : '';
         $scheme = implode(' ', array_values($options)) . " $backup";
 
         return compact('agentClass', 'sendSms', 'voiceVerify', 'scheme');
     }
 
     /**
-     * Pull the value of the specified option out of the array.
+     * Pull the value out of the specified array by key.
      *
-     * @param array  $options
-     * @param int|string $name
+     * @param array      $options
+     * @param int|string $key
      *
      * @return mixed
      */
-    protected static function pullOptionOutOfArrayByName(array &$options, $name)
+    protected static function pullOptionOutOfArrayByKey(array &$options, $key)
     {
-        if (!isset($options[$name])) {
+        if (!isset($options[$key])) {
             return;
         }
-        $value = $options[$name];
-        unset($options[$name]);
+        $value = $options[$key];
+        unset($options[$key]);
 
         return $value;
     }
@@ -345,7 +345,7 @@ class Sms
                 self::scheme($name, $value);
             }
         } elseif ($agentName && is_string($agentName)) {
-            self::$scheme["$agentName"] = is_array($scheme) ? $scheme: "$scheme";
+            self::$scheme["$agentName"] = is_array($scheme) ? $scheme : "$scheme";
         } elseif (is_int($agentName) && $scheme && is_string($scheme)) {
             self::$scheme["$scheme"] = '';
         }
@@ -366,7 +366,7 @@ class Sms
     public static function config($agentName = null, $config = null)
     {
         if (($agentName === null || is_string($agentName)) && $config === null) {
-            return $agentName === null ? self::$agentsConfig:
+            return $agentName === null ? self::$agentsConfig :
                 (isset(self::$agentsConfig[$agentName]) ? self::$agentsConfig[$agentName] : []);
         }
         if (is_array($agentName)) {
