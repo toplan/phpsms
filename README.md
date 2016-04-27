@@ -165,11 +165,11 @@ PhpSms::make()->to($to)->content($content)->send();
 
 # API
 
-### Sms::scheme(name [, scheme])
+### Sms::scheme([$name[, $scheme]])
 
 - 设置
 
-手动设置可用代理器及其调度方案(优先级高于配置文件),如：
+手动设置可用代理器及其调度方案(优先级高于配置文件)，如：
 ```php
 Sms::scheme([
     'Luosimao' => '80 backup'
@@ -181,7 +181,7 @@ Sms::scheme('YunPian', '100 backup');
 ```
 - 获取
 
-通过该方法还能获取所有或指定代理器的调度信息,如:
+通过该方法还能获取所有或指定代理器的调度信息，如:
 ```php
 //获取所有的调度信息:
 Sms::scheme();
@@ -192,7 +192,7 @@ Sms::scheme('Luosimao');
 
 > `scheme`静态方法的更多使用方法见[高级调度配置](#高级调度配置)
 
-### Sms::config(name [, config]);
+### Sms::config([$name[, $config]]);
 
 - 设置
 
@@ -221,13 +221,13 @@ Sms::config('Luosimao');
 
 ### Sms::cleanScheme()
 
-清空代理器调度信息.
+清空代理器调度信息。
 
 ### Sms::cleanAgentsConfig()
 
-清空所有代理器的配置.
+清空所有代理器的配置。
 
-### Sms::beforeSend($handler [, $override]);
+### Sms::beforeSend($handler[, $override]);
 
 发送前钩子，示例：
 ```php
@@ -370,7 +370,7 @@ $sms->template([
 ]);
 ```
 
-### $sms->data(array $tempData)
+### $sms->data($tempData)
 
 设置模板短信的模板数据，并返回实例对象，`$tempData`必须为数组。
 ```php
@@ -476,7 +476,7 @@ Sms::scheme([
 
 - step 1
 
-配置项加入到config/phpsms.php中键为`agents`的数组里
+配置项加入到config/phpsms.php中键为`agents`的数组里。
 ```php
 //example:
 'Foo' => [

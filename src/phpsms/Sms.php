@@ -128,13 +128,13 @@ class Sms
 
     /**
      * Boot balancing task for send SMS/voice verify.
+     *
+     * Note: 判断drivers是否为空不能用'empty',因为在TaskBalance库的<=v0.4.2版本中Task实例的drivers是受保护的属性(不可访问),
+     * 虽然通过魔术方法可以获取到其值,但其内部却并没有使用'__isset'魔术方法对'empty'或'isset'函数进行逻辑补救.
      */
     public static function bootstrap()
     {
         $task = self::getTask();
-
-        //注意这里不能用'empty',因为在TaskBalance库的<=v0.4.2版本中Task实例的drivers是受保护的属性(不可访问),
-        //虽然通过魔术方法可以获取到其值,但其内部却并没有使用'__isset'魔术方法对'empty'或'isset'函数进行逻辑补救.
         if (!count($task->drivers)) {
             self::configuration();
             self::createDrivers($task);
