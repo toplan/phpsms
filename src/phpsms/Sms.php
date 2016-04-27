@@ -648,10 +648,10 @@ class Sms
                 $task = self::getTask();
                 $task->hook($name, $handler, $override);
             } else {
-                throw new PhpSmsException("Please give method static $name() a callable parameter");
+                throw new PhpSmsException("Please give method $name() a callable parameter");
             }
         } else {
-            throw new PhpSmsException("Do not find static method $name()");
+            throw new PhpSmsException("Dont find method $name()");
         }
     }
 
@@ -674,8 +674,7 @@ class Sms
     }
 
     /**
-     * Serialize magic method,
-     * store current sms instance status.
+     * Serialize magic method.
      *
      * @return array
      */
@@ -693,8 +692,7 @@ class Sms
     }
 
     /**
-     * Unserialize magic method,
-     * note: the force bootstrap must before reinstall handlers!
+     * Deserialize magic method.
      */
     public function __wakeup()
     {
@@ -702,7 +700,7 @@ class Sms
             return;
         }
         $status = $this->_status_before_enqueue_;
-        self::$agentsName = self::unserializeEnableAgents($status['enableAgents']);
+        self::$agentsName = self::deserializeEnableAgents($status['enableAgents']);
         self::$agentsConfig = $status['agentsConfig'];
         Balancer::destroy(self::TASK);
         self::bootstrap();
@@ -724,7 +722,7 @@ class Sms
     }
 
     /**
-     * Serialize enabled agents.
+     * Serialize the configuration information of enabled agents.
      *
      * @return array
      */
@@ -742,18 +740,18 @@ class Sms
     }
 
     /**
-     * Unserialize enabled agents.
+     * Deserialize the configuration information of enabled agents.
      *
      * @param array $serialized
      *
      * @return mixed
      */
-    protected static function unserializeEnableAgents(array $serialized)
+    protected static function deserializeEnableAgents(array $serialized)
     {
         foreach ($serialized as $name => &$options) {
             if (is_array($options)) {
-                self::unserializeToClosureAndReplace($options, 'sendSms');
-                self::unserializeToClosureAndReplace($options, 'voiceVerify');
+                self::deserializeClosureAndReplace($options, 'sendSms');
+                self::deserializeClosureAndReplace($options, 'voiceVerify');
             }
         }
 
@@ -761,51 +759,17 @@ class Sms
     }
 
     /**
-     * Serialize character closure value of a array and replace origin value.
-     *
-     * @param array  $options
-     * @param string $key
-     */
-    protected static function serializeClosureAndReplace(array &$options, $key)
-    {
-        if (isset($options["$key"]) && is_callable($options["$key"])) {
-            $serializer = self::getSerializer();
-            $options["$key"] = (string) $serializer->serialize($options["$key"]);
-        }
-    }
-
-    /**
-     * Unserialize character string of a array to closure and replace origin value.
-     *
-     * @param array  $options
-     * @param string $key
-     */
-    protected static function unserializeToClosureAndReplace(array &$options, $key)
-    {
-        if (isset($options["$key"])) {
-            $serializer = self::getSerializer();
-            $options["$key"] = $serializer->unserialize($options["$key"]);
-        }
-    }
-
-    /**
-     * Serialize these hooks` handlers:
-     * 'beforeRun','beforeDriverRun','afterDriverRun','afterRun'.
+     * Serialize the hooks` handlers of balancing task
      *
      * @return array
      */
     protected static function serializeHandlers()
     {
-        $hooks = [];
-        $serializer = self::getSerializer();
         $task = self::getTask();
-        foreach ($task->handlers as $hookName => $handlers) {
-            foreach ($handlers as $handler) {
-                $serialized = $serializer->serialize($handler);
-                if (!isset($hooks[$hookName])) {
-                    $hooks[$hookName] = [];
-                }
-                array_push($hooks[$hookName], $serialized);
+        $hooks = $task->handlers;
+        foreach ($hooks as &$handlers) {
+            foreach (array_keys($handlers) as $key) {
+                self::serializeClosureAndReplace($handlers, $key);
             }
         }
 
@@ -813,7 +777,7 @@ class Sms
     }
 
     /**
-     * Reinstall balancing task hooks` handlers by serialized handlers.
+     * Reinstall hooks` handlers for balancing task.
      *
      * @param array $handlers
      */
@@ -827,6 +791,34 @@ class Sms
                 }
                 self::$hookName($handler, $index === 0);
             }
+        }
+    }
+
+    /**
+     * Serialize the specified closure and replace the origin value.
+     *
+     * @param array      $options
+     * @param int|string $key
+     */
+    protected static function serializeClosureAndReplace(array &$options, $key)
+    {
+        if (isset($options[$key]) && is_callable($options[$key])) {
+            $serializer = self::getSerializer();
+            $options[$key] = (string) $serializer->serialize($options[$key]);
+        }
+    }
+
+    /**
+     * Deserialize the specified closure and replace the origin value.
+     *
+     * @param array      $options
+     * @param int|string $key
+     */
+    protected static function deserializeClosureAndReplace(array &$options, $key)
+    {
+        if (isset($options[$key]) && is_string($options[$key])) {
+            $serializer = self::getSerializer();
+            $options[$key] = $serializer->unserialize($options[$key]);
         }
     }
 }
