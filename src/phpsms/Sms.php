@@ -129,8 +129,8 @@ class Sms
     {
         $task = self::getTask();
 
-        //注意这里不能用'empty',因为其不能检查语句,
-        //而恰巧Task实例获取drivers是通过魔术方法获取的.
+        //注意这里不能用'empty',因为在TaskBalance库的<=v0.4.2版本中Task实例的drivers是受保护的属性(不可访问),
+        //虽然通过魔术方法可以获取到其值,但其内部却并没有使用'__isset'魔术方法对'empty'或'isset'函数进行逻辑补救.
         if (!count($task->drivers)) {
             self::configuration();
             self::createDrivers($task);
@@ -731,8 +731,8 @@ class Sms
         $enableAgents = self::getEnableAgents();
         foreach ($enableAgents as $name => &$options) {
             if (is_array($options)) {
-                self::serializeClosureAndReplace($options, 'sendSms');
-                self::serializeClosureAndReplace($options, 'voiceVerify');
+                self::serializeOrDeserializeClosureAndReplace($options, 'sendSms');
+                self::serializeOrDeserializeClosureAndReplace($options, 'voiceVerify');
             }
         }
 
@@ -750,8 +750,8 @@ class Sms
     {
         foreach ($serialized as $name => &$options) {
             if (is_array($options)) {
-                self::deserializeClosureAndReplace($options, 'sendSms');
-                self::deserializeClosureAndReplace($options, 'voiceVerify');
+                self::serializeOrDeserializeClosureAndReplace($options, 'sendSms');
+                self::serializeOrDeserializeClosureAndReplace($options, 'voiceVerify');
             }
         }
 
@@ -769,7 +769,7 @@ class Sms
         $hooks = $task->handlers;
         foreach ($hooks as &$handlers) {
             foreach (array_keys($handlers) as $key) {
-                self::serializeClosureAndReplace($handlers, $key);
+                self::serializeOrDeserializeClosureAndReplace($handlers, $key);
             }
         }
 
@@ -795,29 +795,20 @@ class Sms
     }
 
     /**
-     * Serialize the specified closure and replace the origin value.
+     * Serialize/deserialize the specified closure and replace the origin value.
      *
      * @param array      $options
      * @param int|string $key
      */
-    protected static function serializeClosureAndReplace(array &$options, $key)
+    protected static function serializeOrDeserializeClosureAndReplace(array &$options, $key)
     {
-        if (isset($options[$key]) && is_callable($options[$key])) {
-            $serializer = self::getSerializer();
-            $options[$key] = (string) $serializer->serialize($options[$key]);
+        if (!isset($options[$key])) {
+            return;
         }
-    }
-
-    /**
-     * Deserialize the specified closure and replace the origin value.
-     *
-     * @param array      $options
-     * @param int|string $key
-     */
-    protected static function deserializeClosureAndReplace(array &$options, $key)
-    {
-        if (isset($options[$key]) && is_string($options[$key])) {
-            $serializer = self::getSerializer();
+        $serializer = self::getSerializer();
+        if (is_callable($options[$key])) {
+            $options[$key] = (string) $serializer->serialize($options[$key]);
+        } elseif (is_string($options[$key])) {
             $options[$key] = $serializer->unserialize($options[$key]);
         }
     }
