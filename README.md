@@ -431,9 +431,9 @@ $result = $sms->send(true);
 
 * 示例：
 ```php
-Sms::scheme('YourAgent', [
+Sms::scheme('agentName', [
     '10 backup',
-    'agentClass' => 'Your\Namespace\YourAgent'
+    'agentClass' => 'My\Namespace\MyAgentClass'
 ]);
 ```
 
@@ -449,7 +449,7 @@ Sms::scheme('YourAgent', [
 * 示例：
 ```php
 Sms::scheme([
-    'Agent1' => [
+    'agentName' => [
         '20 backup',
         'sendSms' => function($agent, $tempId, $to, $tempData, $content){
             //获取配置(如果设置了的话):
@@ -488,7 +488,6 @@ Sms::scheme([
 
 新建一个继承`Toplan\PhpSms\Agent`抽象类的代理器类，建议代理器类名为`FooAgent`，建议命名空间为`Toplan\PhpSms`。
 如果类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，在使用该代理器时则需要指定代理器类，详见[高级调度配置](#高级调度配置)。
-如果使用到其它api库，可以将api库放入lib文件夹中。
 
 # Change logs
 
