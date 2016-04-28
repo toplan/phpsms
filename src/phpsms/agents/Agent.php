@@ -171,7 +171,7 @@ abstract class Agent
     }
 
     /**
-     * Overload object attribute.
+     * Overload object properties.
      *
      * @param $name
      *
@@ -182,5 +182,18 @@ abstract class Agent
         if (array_key_exists($name, $this->config)) {
             return $this->config["$name"];
         }
+    }
+
+    /**
+     * When using isset() or empty() on inaccessible object properties,
+     * the __isset() overloading method will be called.
+     *
+     * @param $name
+     *
+     * @return bool
+     */
+    public function __isset($name)
+    {
+        return isset($this->config["$name"]);
     }
 }
