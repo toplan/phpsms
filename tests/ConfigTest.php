@@ -8,7 +8,7 @@ class ConfigTest extends PHPUnit_Framework_TestCase
     {
         Sms::cleanScheme();
         $this->assertCount(0, Sms::scheme());
-        Sms::cleanAgentsConfig();
+        Sms::cleanConfig();
         $this->assertCount(0, Sms::config());
     }
 

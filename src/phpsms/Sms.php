@@ -235,7 +235,7 @@ class Sms
             $task->driver("$name $scheme")->data($configData)
                  ->work(function ($driver) {
                      $configData = $driver->getDriverData();
-                     $agent = self::getSmsAgent($driver->name, $configData);
+                     $agent = self::getAgent($driver->name, $configData);
                      $smsData = $driver->getTaskData();
                      extract($smsData);
                      if (isset($smsData['voiceCode']) && $smsData['voiceCode']) {
@@ -304,7 +304,7 @@ class Sms
      *
      * @return mixed
      */
-    public static function getSmsAgent($name, array $configData)
+    public static function getAgent($name, array $configData)
     {
         if (!isset(self::$agents[$name])) {
             $configData['name'] = $name;
@@ -397,7 +397,7 @@ class Sms
      * Tear down agent config and prepare to create and start a new balancing task,
      * so before do it must destroy old task instance.
      */
-    public static function cleanAgentsConfig()
+    public static function cleanConfig()
     {
         Balancer::destroy(self::TASK);
         self::$agentsConfig = [];

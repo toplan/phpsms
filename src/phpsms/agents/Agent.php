@@ -9,14 +9,14 @@ abstract class Agent
     const CODE = 'code';
 
     /**
-     * agent config
+     * The configuration information of agent.
      *
      * @var array
      */
     protected $config;
 
     /**
-     * sent result info
+     * The result data.
      *
      * @var array
      */
@@ -27,7 +27,7 @@ abstract class Agent
     ];
 
     /**
-     * construct for create a instance
+     * Constructor.
      *
      * @param array $config
      */
@@ -37,7 +37,7 @@ abstract class Agent
     }
 
     /**
-     * sms send process
+     * SMS send process.
      *
      * @param       $tempId
      * @param       $to
@@ -47,7 +47,7 @@ abstract class Agent
     abstract public function sendSms($tempId, $to, array $tempData, $content);
 
     /**
-     * content sms send process
+     * Content SMS send process.
      *
      * @param $to
      * @param $content
@@ -55,7 +55,7 @@ abstract class Agent
     abstract public function sendContentSms($to, $content);
 
     /**
-     * template sms send process
+     * Template SMS send process.
      *
      * @param       $tempId
      * @param       $to
@@ -64,7 +64,7 @@ abstract class Agent
     abstract public function sendTemplateSms($tempId, $to, array $tempData);
 
     /**
-     * voice verify
+     * Voice verify send process.
      *
      * @param $to
      * @param $code
@@ -72,7 +72,7 @@ abstract class Agent
     abstract public function voiceVerify($to, $code);
 
     /**
-     * http post request
+     * Http post request.
      *
      * @codeCoverageIgnore
      *
@@ -150,7 +150,7 @@ abstract class Agent
     }
 
     /**
-     * set/get result data
+     * Set/get result data.
      *
      * @param $name
      * @param $value
@@ -171,7 +171,7 @@ abstract class Agent
     }
 
     /**
-     * overload object attribute
+     * Overload object attribute.
      *
      * @param $name
      *
