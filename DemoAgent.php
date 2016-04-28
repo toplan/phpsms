@@ -2,16 +2,16 @@
 
 namespace Toplan\PhpSms;
 
-class FooAgent extends Agent
+class DemoAgent extends Agent
 {
     //override
     //发送短信一级入口
     public function sendSms($tempId, $to, array $tempData, $content)
     {
-       //在这个方法中调用二级入口
+        //在这个方法中调用二级入口
        //根据你使用的服务商的接口选择调用哪个方式发送短信
        $this->sendContentSms($to, $content);
-       $this->sendTemplateSms($tempId, $to, $tempData);
+        $this->sendTemplateSms($tempId, $to, $tempData);
     }
 
     //override
@@ -26,9 +26,9 @@ class FooAgent extends Agent
         // Agent::curl();
 
         //切记更新发送结果
-        $this->result(Agent::SUCCESS, true);//是否发送成功
-        $this->result(Agent::INFO, 'info');//发送结果信息说明
-        $this->result(Agent::CODE, 'code');//发送结果代码
+        $this->result(Agent::SUCCESS, true); //是否发送成功
+        $this->result(Agent::INFO, 'info'); //发送结果信息说明
+        $this->result(Agent::CODE, 'code'); //发送结果代码
     }
 
     //override
