@@ -10,10 +10,10 @@ class SerializeTest extends PHPUnit_Framework_TestCase
     public static function setUpBeforeClass()
     {
         Sms::queue(false);
-        Sms::cleanEnableAgents();
-        Sms::enable('TestAgent', [
+        Sms::cleanScheme();
+        Sms::scheme('TestAgent', [
             '100 backup',
-            'sendSms'     => function ($agent) {
+            'sendSms' => function ($agent) {
                 $agent->result(Agent::SUCCESS, true);
                 $agent->result(Agent::INFO, 'some_info');
             },
@@ -36,12 +36,12 @@ class SerializeTest extends PHPUnit_Framework_TestCase
 
         $serialized = serialize(self::$sms);
 
-        Sms::cleanEnableAgents();
-        $this->assertEmpty(Sms::getEnableAgents());
+        Sms::cleanScheme();
+        $this->assertEmpty(Sms::scheme());
 
         $sms = unserialize($serialized);
 
-        $this->assertArrayHasKey('TestAgent', Sms::getEnableAgents());
+        $this->assertArrayHasKey('TestAgent', Sms::scheme());
         $this->expectOutputString('[_before_send_][_after_send_]');
         $sms->send();
     }

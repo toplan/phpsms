@@ -48,9 +48,12 @@ class AgentTest extends PHPUnit_Framework_TestCase
         $value2 = $this->agent->key2;
         $this->assertEquals('value', $value);
         $this->assertEquals('value2', $value2);
+
         //get not define
         $value = $this->agent->notdefine;
         $this->assertNull($value);
+        $this->assertFalse(isset($this->agent->notdefile));
+        $this->assertTrue(empty($this->agent->notdefile));
     }
 
     public function testSendTemplateSms()

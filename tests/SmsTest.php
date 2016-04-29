@@ -16,11 +16,11 @@ class SmsTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Toplan\PhpSms\Sms', self::$sms);
     }
 
-    public function testGetSmsAgent()
+    public function testGetAgent()
     {
-        $agent = Sms::getSmsAgent('Log', []);
+        $agent = Sms::getAgent('Log', []);
         $this->assertInstanceOf('Toplan\PhpSms\LogAgent', $agent);
-        $luosimao = Sms::getSmsAgent('Luosimao', []);
+        $luosimao = Sms::getAgent('Luosimao', []);
         $this->assertInstanceOf('Toplan\PhpSms\LuosimaoAgent', $luosimao);
     }
 

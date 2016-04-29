@@ -20,7 +20,7 @@ class ProtectedTest extends PHPUnit_Framework_TestCase
         $obj = new Sms(false);
         $method->invokeArgs($obj, []);
         $config = include __DIR__ . '/../src/config/phpsms.php';
-        $this->assertCount(count($config['enable']), Sms::getEnableAgents());
-        $this->assertCount(count($config['enable']), Sms::getAgentsConfig());
+        $this->assertCount(count($config['scheme']), Sms::scheme());
+        $this->assertCount(count($config['scheme']), Sms::config());
     }
 }
