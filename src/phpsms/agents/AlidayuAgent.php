@@ -50,7 +50,7 @@ class AlidayuAgent extends Agent
     {
         if ($result['response']) {
             $result = json_decode($result['response'], true);
-            if (isset($result[$callbackName]['result']) && $result[$callbackName]['result']['err_code'] == '0') {
+            if (isset($result[$callbackName]['result']) && $result[$callbackName]['result']['err_code'] === '0') {
                 $this->result['success'] = true;
                 return;
             } elseif (isset($result['error_response'])) {
