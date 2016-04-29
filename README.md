@@ -216,11 +216,11 @@ $config['Luosimao'] = Sms::config('Luosimao');
 
 ### Sms::cleanScheme()
 
-清空所有代理器的调度方案。
+清空所有代理器的调度方案，请谨慎使用该接口。
 
 ### Sms::cleanConfig()
 
-清空所有代理器的配置。
+清空所有代理器的配置数据，请谨慎使用该接口。
 
 ### Sms::beforeSend($handler[, $override]);
 

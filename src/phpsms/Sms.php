@@ -29,8 +29,9 @@ class Sms
     protected static $agents = [];
 
     /**
-     * Agents use scheme, these agents are available.
-     * example: [
+     * Agent use scheme, these agents are available.
+     * example:
+     * [
      *   'Agent1' => '10 backup',
      *   'Agent2' => '20 backup',
      * ]
@@ -394,12 +395,10 @@ class Sms
     }
 
     /**
-     * Tear down agent config and prepare to create and start a new balancing task,
-     * so before do it must destroy old task instance.
+     * Tear down all the configuration information of agent.
      */
     public static function cleanConfig()
     {
-        Balancer::destroy(self::TASK);
         self::$agentsConfig = [];
     }
 
