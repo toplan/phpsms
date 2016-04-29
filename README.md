@@ -28,6 +28,7 @@
 | [SUBMAIL](http://submail.cn)           | √ | × | × | ￥100(1千条) | ￥0.100/条 |
 | [云之讯](http://www.ucpaas.com/)        | √ | × | √ | -- | ￥0.050/条 |
 | [聚合数据](https://www.juhe.cn/)        | √ | × | √ | -- | ￥0.035/条 |
+| [阿里大鱼](https://www.alidayu.com/)        | √ | × | √ | -- | ￥0.045/条 |
 
 # 公告
 
