@@ -9,7 +9,6 @@ use Toplan\TaskBalance\Task;
 /**
  * Class Sms
  *
- *
  * @author toplan<toplan710@gmail.com>
  */
 class Sms
@@ -22,7 +21,7 @@ class Sms
     const TASK = 'PhpSms';
 
     /**
-     * The instances of class [Toplan\PhpSms\Agent].
+     * The instances of Agent.
      *
      * @var array
      */
@@ -130,8 +129,8 @@ class Sms
     /**
      * Boot balancing task for send SMS/voice verify.
      *
-     * Note: 判断drivers是否为空不能用'empty',因为在TaskBalance库的<=v0.4.2版本中Task实例的drivers是受保护的属性(不可访问),
-     * 虽然通过魔术方法可以获取到其值,但其内部却并没有使用'__isset'魔术方法对'empty'或'isset'函数进行逻辑补救.
+     * Note: 判断drivers是否为空不能用'empty',因为在TaskBalance库的中Task类的drivers属性是受保护的(不可访问),
+     * 虽然通过魔术方法可以获取到其值,但在其目前版本(v0.4.2)其内部却并没有使用'__isset'魔术方法对'empty'或'isset'函数进行逻辑补救.
      */
     public static function bootstrap()
     {

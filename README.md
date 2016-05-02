@@ -349,6 +349,9 @@ $sms = Sms::voice($code)
 $sms->to('1828*******');
 ```
 
+> **NOTE:**
+> 如果你使用`Luosimao`语音验证码，还需用在配置文件中`Luosimao`中设置'voiceApikey'。
+
 ### $sms->template($templates)
 
 指定代理器设置模版id或批量设置，并返回实例。
@@ -503,7 +506,7 @@ Sms::scheme([
 
 - 修改原`cleanAgentsConfig`静态方法为`cleanConfig`
 
-- 删除`getEnableAgents`和`getAgentsConfig`静态方法
+- 去掉`getEnableAgents`和`getAgentsConfig`静态方法
 
 # 公告
 
