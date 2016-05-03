@@ -55,7 +55,7 @@ Sms::config([
     'Luosimao' => [
         //短信API key
         'apikey' => 'your api key',
-        //语言验证API key
+        //语音验证API key
         'voiceApikey' => 'your voice api key',
     ],
     'YunPian'  => [
@@ -124,7 +124,7 @@ Sms::make()->to($to)
 // 语音验证码
 Sms::voice('02343')->to($to)->send();
 
-// 语音验证码兼容阿里大鱼
+// 语音验证码兼容模版语音(如阿里大鱼的文本转语音)
 Sms::voice('02343')->template('Alidayu', 'your_tts_code')->data(['code' => '02343'])->send();
 ```
 
@@ -351,9 +351,13 @@ $sms = Sms::make([
 ```php
 $sms = Sms::voice();
 
-//创建实例的同事设置验证码/语音文件id(针对阿里大鱼)
+//创建实例的同时设置验证码/语音文件ID
 $sms = Sms::voice($code);
 ```
+
+> - 如果你使用`Luosimao`语音验证码，还需用在配置文件中`Luosimao`选项中设置'voiceApikey'。
+> - **语音文件ID**既是在服务商配置的语音文件的唯一编号，比如阿里大鱼[语音通知](http://open.taobao.com/doc2/apiDetail.htm?spm=a219a.7395905.0.0.oORhh9&apiId=25445)的`voice_code`。
+> - 还有种语音请求方式为**模版语音**，既是通过模版ID和模版数据进行的语音请求，比如阿里大鱼的[文本转语音通知](http://open.taobao.com/doc2/apiDetail.htm?spm=a219a.7395905.0.0.f04PJ3&apiId=25444)。
 
 ### $sms->to($mobile)
 
@@ -361,9 +365,6 @@ $sms = Sms::voice($code);
 ```php
 $sms->to('1828*******');
 ```
-
-> **NOTE:**
-> 如果你使用`Luosimao`语音验证码，还需用在配置文件中`Luosimao`中设置'voiceApikey'。
 
 ### $sms->template($templates)
 
@@ -381,21 +382,23 @@ $sms->template([
 ]);
 ```
 
-### $sms->data($tempData)
+### $sms->data($data)
 
-设置模板短信的模板数据，并返回实例对象，`$tempData`必须为数组。
+设置模板短信的模板数据，并返回实例对象，`$data`必须为数组。
 ```php
 $sms->data([
     'code' => $code,
     'minutes' => $minutes
-  ]);
+]);
 ```
+
+> 通过`template`和`data`方法的组合除了可以实现模版短信的数据填充，还可以实现模版语音的数据填充。
 
 ### $sms->content($text)
 
 设置内容短信的内容，并返回实例对象。一些内置的代理器(如YunPian,Luosimao)使用的是内容短信(即直接发送短信内容)，那么就需要为它们设置短信内容。
 ```php
-$sms->content('【签名】您的订单号是xxxx，祝你购物愉快。');
+$sms->content('【签名】这是短信内容...');
 ```
 
 ### $sms->getData()
