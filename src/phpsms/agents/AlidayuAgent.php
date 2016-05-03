@@ -39,12 +39,12 @@ class AlidayuAgent extends Agent
         ];
         if ($tempId) {
             //文本转语音通知
-            $params['method']    = 'alibaba.aliqin.fc.tts.num.singlecall';
-            $params['tts_code']  = $tempId;
+            $params['method'] = 'alibaba.aliqin.fc.tts.num.singlecall';
+            $params['tts_code'] = $tempId;
             $params['tts_param'] = json_encode($data);
         } elseif ($code) {
             //语音通知
-            $params['method']     = 'alibaba.aliqin.fc.voice.num.singlecall';
+            $params['method'] = 'alibaba.aliqin.fc.voice.num.singlecall';
             $params['voice_code'] = $code;
         }
         $this->request($params);
@@ -68,6 +68,7 @@ class AlidayuAgent extends Agent
             'timestamp'          => date('Y-m-d H:i:s'),
         ], $params);
         $params['sign'] = $this->genSign($params);
+
         return $params;
     }
 
@@ -107,7 +108,7 @@ class AlidayuAgent extends Agent
 
     protected function genResponseName($method)
     {
-       return str_replace('.', '_', $method) . '_response';
+        return str_replace('.', '_', $method) . '_response';
     }
 
     public function sendContentSms($to, $content)
