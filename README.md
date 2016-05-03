@@ -355,9 +355,9 @@ $sms = Sms::voice();
 $sms = Sms::voice($code);
 ```
 
-> - 如果你使用`Luosimao`语音验证码，还需用在配置文件中`Luosimao`选项中设置'voiceApikey'。
+> - 如果你使用`Luosimao`语音验证码，还需用在配置文件中`Luosimao`选项中设置`voiceApikey`。
 > - **语音文件ID**既是在服务商配置的语音文件的唯一编号，比如阿里大鱼[语音通知](http://open.taobao.com/doc2/apiDetail.htm?spm=a219a.7395905.0.0.oORhh9&apiId=25445)的`voice_code`。
-> - 还有种语音请求方式为**模版语音**，既是通过模版ID和模版数据进行的语音请求，比如阿里大鱼的[文本转语音通知](http://open.taobao.com/doc2/apiDetail.htm?spm=a219a.7395905.0.0.f04PJ3&apiId=25444)。
+> - **模版语音**是另一种语音请求方式，它是通过模版ID和模版数据进行的语音请求，比如阿里大鱼的[文本转语音通知](http://open.taobao.com/doc2/apiDetail.htm?spm=a219a.7395905.0.0.f04PJ3&apiId=25444)。
 
 ### $sms->to($mobile)
 
@@ -458,8 +458,7 @@ Sms::scheme('agentName', [
 
 ### 寄生代理器
 
-> 如果你既不想使用内置的代理器，也不想创建文件写自定义代理器，那么寄生代理器或许是个好的选择，无需定义代理器类，
-> 只需在调度配置时定义好发送短信和语音验证码的方式即可。
+> 如果你既不想使用内置的代理器，也不想创建文件写自定义代理器，那么寄生代理器或许是个好的选择，无需定义代理器类，只需在调度配置时定义好发送短信和语音验证码的方式即可。
 
 * 配置方式：
 

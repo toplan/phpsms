@@ -25,7 +25,7 @@ class Sms
     protected static $agents = [];
 
     /**
-     * Agent use scheme, these agents are available.
+     * Agent use scheme, and these agents are available.
      * example:
      * [
      *   'Agent1' => '10 backup',
@@ -37,7 +37,7 @@ class Sms
     protected static $scheme = [];
 
     /**
-     * The agents` configuration information.
+     * The configuration information of agents.
      *
      * @var array
      */
@@ -236,7 +236,6 @@ class Sms
                      $agent = self::getAgent($driver->name, $configData);
                      $smsData = $driver->getTaskData();
                      extract($smsData);
-                     $type = $type ?: self::TYPE_SMS;
                      $template = isset($templates[$driver->name]) ? $templates[$driver->name] : 0;
                      if ($type === self::TYPE_VOICE) {
                          $agent->voiceVerify($to, $voiceCode, $template, $templateData);
