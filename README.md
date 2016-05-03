@@ -28,7 +28,7 @@
 | [SUBMAIL](http://submail.cn)           | √ | × | × | ￥100(1千条) | ￥0.100/条 |
 | [云之讯](http://www.ucpaas.com/)        | √ | × | √ | -- | ￥0.050/条 |
 | [聚合数据](https://www.juhe.cn/)        | √ | × | √ | -- | ￥0.035/条 |
-| [阿里大鱼](https://www.alidayu.com/)        | √ | × | √ | -- | ￥0.045/条 |
+| [阿里大鱼](https://www.alidayu.com/)    | √ | × | √ | -- | ￥0.045/条 |
 
 # 安装
 
@@ -452,7 +452,7 @@ Sms::scheme('agentName', [
 Sms::scheme([
     'agentName' => [
         '20 backup',
-        'sendSms' => function($agent, $tempId, $to, $tempData, $content){
+        'sendSms' => function($agent, $to, $content, $tempId, $tempData){
             //获取配置(如果设置了的话):
             $key = $agent->key;
             ...
@@ -465,7 +465,7 @@ Sms::scheme([
             $agent->result(Agent::INFO, 'some info');
             $agent->result(Agent::CODE, 'your code');
         },
-        'voiceVerify' => function($agent, $to, $code){
+        'voiceVerify' => function($agent, $to, $code, $tempId, $tempData){
             //发送语音验证码，同上
         }
     ]

@@ -39,12 +39,12 @@ abstract class Agent
     /**
      * SMS send process.
      *
-     * @param       $tempId
      * @param       $to
-     * @param array $tempData
      * @param       $content
+     * @param       $tempId
+     * @param array $tempData
      */
-    abstract public function sendSms($tempId, $to, array $tempData, $content);
+    abstract public function sendSms($to, $content, $tempId, array $tempData);
 
     /**
      * Content SMS send process.
@@ -57,19 +57,21 @@ abstract class Agent
     /**
      * Template SMS send process.
      *
-     * @param       $tempId
      * @param       $to
+     * @param       $tempId
      * @param array $tempData
      */
-    abstract public function sendTemplateSms($tempId, $to, array $tempData);
+    abstract public function sendTemplateSms($to, $tempId, array $tempData);
 
     /**
      * Voice verify send process.
      *
-     * @param $to
-     * @param $code
+     * @param       $to
+     * @param       $code
+     * @param       $tempId
+     * @param array $tempData
      */
-    abstract public function voiceVerify($to, $code);
+    abstract public function voiceVerify($to, $code, $tempId, array $tempData);
 
     /**
      * Http post request.

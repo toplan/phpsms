@@ -7,12 +7,12 @@ namespace Toplan\PhpSms;
  */
 class LogAgent extends Agent
 {
-    public function sendSms($tempId, $to, array $tempData, $content)
+    public function sendSms($to, $content, $tempId, array $data)
     {
         if ($content) {
             $this->sendContentSms($to, $content);
         } else {
-            $this->sendTemplateSms($tempId, $to, $tempData);
+            $this->sendTemplateSms($to, $tempId, $data);
         }
     }
 
@@ -22,13 +22,13 @@ class LogAgent extends Agent
         $this->result['info'] = 'send content sms success';
     }
 
-    public function sendTemplateSms($tempId, $to, array $tempData)
+    public function sendTemplateSms($to, $tempId, array $data)
     {
         $this->result['success'] = true;
         $this->result['info'] = 'send template sms success';
     }
 
-    public function voiceVerify($to, $code)
+    public function voiceVerify($to, $code, $tempId, array $data)
     {
         $this->result['success'] = true;
         $this->result['info'] = 'send voice verify success';

@@ -10,7 +10,7 @@ namespace Toplan\PhpSms;
  */
 class LuosimaoAgent extends Agent
 {
-    public function sendSms($tempId, $to, array $data, $content)
+    public function sendSms($to, $content, $tempId, array $data)
     {
         // check content signature,
         // Luosimao signature must be in the content finally
@@ -26,12 +26,11 @@ class LuosimaoAgent extends Agent
     public function sendContentSms($to, $content)
     {
         $url = 'https://sms-api.luosimao.com/v1/send.json';
-        $apikey = $this->apikey;
         $optData = [
             'mobile'  => $to,
             'message' => $content,
         ];
-        $data = $this->LuosimaoCurl($url, $optData, $apikey);
+        $data = $this->LuosimaoCurl($url, $optData, $this->apikey);
         if ($data['error'] === 0) {
             $this->result['success'] = true;
         }
@@ -39,19 +38,18 @@ class LuosimaoAgent extends Agent
         $this->result['code'] = $data['error'];
     }
 
-    public function sendTemplateSms($tempId, $to, array $data)
+    public function sendTemplateSms($to, $tempId, array $data)
     {
     }
 
-    public function voiceVerify($to, $code)
+    public function voiceVerify($to, $code, $tempId, array $data)
     {
         $url = 'https://voice-api.luosimao.com/v1/verify.json';
-        $apikey = $this->voiceApikey;
         $optData = [
             'mobile' => $to,
             'code'   => $code,
         ];
-        $data = $this->LuosimaoCurl($url, $optData, $apikey);
+        $data = $this->LuosimaoCurl($url, $optData, $this->voiceApikey);
         if ($data['error'] === 0) {
             $this->result['success'] = true;
         }

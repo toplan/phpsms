@@ -21,6 +21,10 @@ class Sms
      */
     const TASK = 'PhpSms';
 
+    const TYPE_SMS = 'sms';
+
+    const TYPE_VOICE = 'voice';
+
     /**
      * The instances of class [Toplan\PhpSms\Agent].
      *
@@ -80,15 +84,16 @@ class Sms
     protected static $serializer = null;
 
     /**
-     * SMS/voice verify data container.
+     * The data container of SMS/voice verify.
      *
      * @var array
      */
     protected $smsData = [
+        'type'         => self::TYPE_SMS,
         'to'           => null,
         'templates'    => [],
-        'content'      => null,
         'templateData' => [],
+        'content'      => null,
         'voiceCode'    => null,
     ];
 
@@ -238,11 +243,12 @@ class Sms
                      $agent = self::getAgent($driver->name, $configData);
                      $smsData = $driver->getTaskData();
                      extract($smsData);
-                     if (isset($smsData['voiceCode']) && $smsData['voiceCode']) {
-                         $agent->voiceVerify($to, $voiceCode);
-                     } else {
-                         $template = isset($templates[$driver->name]) ? $templates[$driver->name] : 0;
-                         $agent->sendSms($template, $to, $templateData, $content);
+                     $type = $type ?: self::TYPE_SMS;
+                     $template = isset($templates[$driver->name]) ? $templates[$driver->name] : 0;
+                     if ($type === self::TYPE_VOICE) {
+                         $agent->voiceVerify($to, $voiceCode, $template, $templateData);
+                     } elseif ($type === self::TYPE_SMS) {
+                         $agent->sendSms($to, $content, $template, $templateData);
                      }
                      $result = $agent->result();
                      if ($result['success']) {
@@ -415,6 +421,7 @@ class Sms
     public static function make($agentName = null, $tempId = null)
     {
         $sms = new self();
+        $sms->smsData['type'] = self::TYPE_SMS;
         if (is_array($agentName)) {
             $sms->template($agentName);
         } elseif ($agentName && is_string($agentName)) {
@@ -439,6 +446,7 @@ class Sms
     public static function voice($code)
     {
         $sms = new self();
+        $sms->smsData['type'] = self::TYPE_VOICE;
         $sms->smsData['voiceCode'] = $code;
 
         return $sms;
@@ -677,7 +685,7 @@ class Sms
             //swallow exception
         }
 
-        return ['pushedToQueue', 'smsData', 'firstAgent', '_status_before_enqueue_'];
+        return ['smsData', 'firstAgent', 'pushedToQueue', '_status_before_enqueue_'];
     }
 
     /**

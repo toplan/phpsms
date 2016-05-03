@@ -19,12 +19,12 @@ use REST;
  */
 class YunTongXunAgent extends Agent
 {
-    public function sendSms($tempId, $to, array $data, $content)
+    public function sendSms($to, $content, $tempId, array $data)
     {
-        $this->sendTemplateSms($tempId, $to, $data);
+        $this->sendTemplateSms($to, $tempId, $data);
     }
 
-    public function sendTemplateSms($tempId, $to, array $data)
+    public function sendTemplateSms($to, $tempId, array $data)
     {
         // 初始化REST SDK
         $rest = new REST(
@@ -45,7 +45,7 @@ class YunTongXunAgent extends Agent
     {
     }
 
-    public function voiceVerify($to, $code)
+    public function voiceVerify($to, $code, $tempId, array $data)
     {
         // 初始化REST SDK
         $rest = new REST(

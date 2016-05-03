@@ -11,16 +11,16 @@ namespace Toplan\PhpSms;
  */
 class AlidayuAgent extends Agent
 {
-    public function sendSms($tempId, $to, array $data, $content)
+    public function sendSms($to, $content, $tempId, array $data)
     {
-        $this->sendTemplateSms($tempId, $to, $data);
+        $this->sendTemplateSms($to, $tempId, $data);
     }
 
     public function sendContentSms($to, $content)
     {
     }
 
-    public function sendTemplateSms($tempId, $to, array $data)
+    public function sendTemplateSms($to, $tempId, array $data)
     {
         $sendUrl = 'https://eco.taobao.com/router/rest';
         $params = [
@@ -41,14 +41,14 @@ class AlidayuAgent extends Agent
         $this->genResult($result, 'alibaba_aliqin_fc_sms_num_send_response');
     }
 
-    public function voiceVerify($to, $code)
+    public function voiceVerify($to, $code, $tempId, array $data)
     {
         // remain discussion
     }
 
     public function genResult($result, $callbackName)
     {
-        if ($result['response']) {
+        if ($result['request']) {
             $result = json_decode($result['response'], true);
             if (isset($result[$callbackName]['result']) && $result[$callbackName]['result']['err_code'] === '0') {
                 $this->result['success'] = true;
