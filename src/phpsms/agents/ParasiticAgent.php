@@ -16,7 +16,7 @@ class ParasiticAgent extends Agent
 
     protected $voiceVerifyRunning = false;
 
-    public function sendSms($tempId, $to, array $tempData, $content)
+    public function sendSms($to, $content, $tempId, array $data)
     {
         if (!is_callable($this->sendSms)) {
             throw new PhpSmsException("Please give parasitic agent [$this->name] a callable param named `sendSms` by enable config.");
@@ -24,7 +24,7 @@ class ParasiticAgent extends Agent
         if (!$this->sendSmsRunning) {
             $this->sendSmsRunning = true;
             try {
-                call_user_func_array($this->sendSms, [$this, $tempId, $to, $tempData, $content]);
+                call_user_func_array($this->sendSms, [$this, $to, $content, $tempId, $data]);
                 $this->sendSmsRunning = false;
             } catch (\Exception $e) {
                 $this->sendSmsRunning = false;
@@ -32,21 +32,21 @@ class ParasiticAgent extends Agent
                 throw $e;
             }
         } else {
-            throw new PhpSmsException('Please do not use `$agent->sendSms()` in closure.');
+            throw new PhpSmsException('Please do not use [$agent->sendSms()] in closure.');
         }
     }
 
     public function sendContentSms($to, $content)
     {
-        throw new PhpSmsException('Parasitic agent does not support `sendContentSms` method.');
+        throw new PhpSmsException('Parasitic agent does not support [sendContentSms] method.');
     }
 
-    public function sendTemplateSms($tempId, $to, array $tempData)
+    public function sendTemplateSms($to, $tempId, array $data)
     {
-        throw new PhpSmsException('Parasitic agent does not support `sendTemplateSms` method.');
+        throw new PhpSmsException('Parasitic agent does not support [sendTemplateSms] method.');
     }
 
-    public function voiceVerify($to, $code)
+    public function voiceVerify($to, $code, $tempId, array $data)
     {
         if (!is_callable($this->voiceVerify)) {
             throw new PhpSmsException("Please give parasitic agent [$this->name] a callable param named `voiceVerify` by enable config.");
@@ -54,7 +54,7 @@ class ParasiticAgent extends Agent
         if (!$this->voiceVerifyRunning) {
             $this->voiceVerifyRunning = true;
             try {
-                call_user_func_array($this->voiceVerify, [$this, $to, $code]);
+                call_user_func_array($this->voiceVerify, [$this, $to, $code, $tempId, $data]);
                 $this->voiceVerifyRunning = false;
             } catch (\Exception $e) {
                 $this->voiceVerifyRunning = false;
@@ -62,7 +62,7 @@ class ParasiticAgent extends Agent
                 throw $e;
             }
         } else {
-            throw new PhpSmsException('Please do not use `$agent->voiceVerify()` in closure.');
+            throw new PhpSmsException('Please do not use [$agent->voiceVerify()] in closure.');
         }
     }
 }

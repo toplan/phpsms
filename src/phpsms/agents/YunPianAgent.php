@@ -9,7 +9,7 @@ namespace Toplan\PhpSms;
  */
 class YunPianAgent extends Agent
 {
-    public function sendSms($tempId, $to, array $data, $content)
+    public function sendSms($to, $content, $tempId, array $data)
     {
         $this->sendContentSms($to, $content);
     }
@@ -31,11 +31,11 @@ class YunPianAgent extends Agent
         $this->result['code'] = $data['code'];
     }
 
-    public function sendTemplateSms($tempId, $to, array $data)
+    public function sendTemplateSms($to, $tempId, array $data)
     {
     }
 
-    public function voiceVerify($to, $code)
+    public function voiceVerify($to, $code, $tempId, array $data)
     {
         $url = 'http://voice.yunpian.com/v1/voice/send.json';
         $apikey = $this->apikey;

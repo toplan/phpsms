@@ -10,16 +10,16 @@ namespace Toplan\PhpSms;
  */
 class SubMailAgent extends Agent
 {
-    public function sendSms($tempId, $to, array $data, $content)
+    public function sendSms($to, $content, $tempId, array $data)
     {
-        $this->sendTemplateSms($tempId, $to, $data);
+        $this->sendTemplateSms($to, $tempId, $data);
     }
 
     public function sendContentSms($to, $content)
     {
     }
 
-    public function sendTemplateSms($tempId, $to, array $data)
+    public function sendTemplateSms($to, $tempId, array $data)
     {
         $url = 'https://api.submail.cn/message/xsend.json';
         $appid = $this->appid;
@@ -40,7 +40,7 @@ class SubMailAgent extends Agent
         }
     }
 
-    public function voiceVerify($to, $code)
+    public function voiceVerify($to, $code, $tempId, array $data)
     {
         $this->result['success'] = false;
         $this->result['info'] = 'SubMail agent does not support voice verify';

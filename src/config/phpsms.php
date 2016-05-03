@@ -31,6 +31,23 @@ return [
 
         /*
          * -----------------------------------
+         * Alidayu
+         * 阿里大鱼代理器
+         * -----------------------------------
+         * website:http://www.alidayu.com
+         * support template sms.
+         */
+        'Alidayu' => [
+            //淘宝开放平台中，对应阿里大鱼短信应用的App Key。
+            'appKey' => 'Your App Key',
+            //淘宝开放平台中，对应阿里大鱼短信应用的App Secret。
+            'secretKey' => 'Your Secret Key',
+            //短信签名，传入的短信签名必须是在阿里大鱼“管理中心-短信签名管理”中的可用签名。
+            'smsFreeSignName' => 'Your Sms Free Sign Name',
+        ],
+
+        /*
+         * -----------------------------------
          * YunPian
          * 云片代理器
          * -----------------------------------
