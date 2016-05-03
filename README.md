@@ -125,7 +125,7 @@ Sms::make()->to($to)
 Sms::voice('02343')->to($to)->send();
 
 // 语音验证码兼容阿里大鱼
-Sms::voice('02343')->template('Alidayu', 'temp_id')->data(['code' => '02343'])->send();
+Sms::voice('02343')->template('Alidayu', 'your_tts_code')->data(['code' => '02343'])->send();
 ```
 
 ###3. 在laravel中使用
