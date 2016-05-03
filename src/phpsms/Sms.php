@@ -13,16 +13,9 @@ use Toplan\TaskBalance\Task;
  */
 class Sms
 {
-    /**
-     * The default name of balancing task.
-     *
-     * @var string
-     */
-    const TASK = 'PhpSms';
-
-    const TYPE_SMS = 'sms';
-
-    const TYPE_VOICE = 'voice';
+    const TASK_NAME = 'PhpSms';
+    const TYPE_SMS = 'Sms';
+    const TYPE_VOICE = 'Voice';
 
     /**
      * The instances of Agent.
@@ -153,11 +146,11 @@ class Sms
      */
     public static function getTask()
     {
-        if (!Balancer::hasTask(self::TASK)) {
-            Balancer::task(self::TASK);
+        if (!Balancer::hasTask(self::TASK_NAME)) {
+            Balancer::task(self::TASK_NAME);
         }
 
-        return Balancer::getTask(self::TASK);
+        return Balancer::getTask(self::TASK_NAME);
     }
 
     /**
@@ -395,7 +388,7 @@ class Sms
      */
     public static function cleanScheme()
     {
-        Balancer::destroy(self::TASK);
+        Balancer::destroy(self::TASK_NAME);
         self::$scheme = [];
     }
 
@@ -437,11 +430,11 @@ class Sms
      * Create a sms instance send voice verify,
      * your can also set verify code at the same time.
      *
-     * @param string|int $code
+     * @param int|string|null $code
      *
      * @return Sms
      */
-    public static function voice($code)
+    public static function voice($code = null)
     {
         $sms = new self();
         $sms->smsData['type'] = self::TYPE_VOICE;
@@ -572,7 +565,7 @@ class Sms
             $immediately = true;
         }
         if ($immediately) {
-            $result = Balancer::run(self::TASK, [
+            $result = Balancer::run(self::TASK_NAME, [
                 'data'   => $this->getData(),
                 'driver' => $this->firstAgent,
             ]);
@@ -697,7 +690,7 @@ class Sms
         $status = $this->_status_before_enqueue_;
         self::$scheme = self::serializeOrDeserializeScheme($status['scheme']);
         self::$agentsConfig = $status['agentsConfig'];
-        Balancer::destroy(self::TASK);
+        Balancer::destroy(self::TASK_NAME);
         self::bootstrap();
         self::reinstallHandlers($status['handlers']);
     }

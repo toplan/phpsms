@@ -36,6 +36,11 @@
 composer require 'toplan/phpsms:~1.4'
 ```
 
+安装开发中版本:
+```php
+composer require 'toplan/phpsms:dev-master'
+```
+
 # 快速上手
 
 ###1. 配置
@@ -116,8 +121,11 @@ Sms::make()->to($to)
      ->content($content)
      ->send();
 
-// 语言验证码
-Sms::voice('89093')->to($to)->send();
+// 语音验证码
+Sms::voice('02343')->to($to)->send();
+
+// 语音验证码兼容阿里大鱼
+Sms::voice('02343')->template('Alidayu', 'temp_id')->data(['code' => '02343'])->send();
 ```
 
 ###3. 在laravel中使用
@@ -337,12 +345,16 @@ $sms = Sms::make([
 ]);
 ```
 
-### Sms::voice($code)
+### Sms::voice()
 
 生成发送语音验证码的sms实例，并返回实例。
 ```php
-$sms = Sms::voice($code)
+$sms = Sms::voice();
+
+//创建实例的同事设置验证码/语音文件id(针对阿里大鱼)
+$sms = Sms::voice($code);
 ```
+
 ### $sms->to($mobile)
 
 设置发送给谁，并返回实例。

@@ -15,7 +15,7 @@ return [
      * 2. 'backup' (ignore upper/lower case)
      *
      * supported agents:
-     * 'Luosimao', 'YunTongXun', 'YunPian', 'SubMail', 'Ucpaas', 'JuHe', 'Log'
+     * 'Luosimao', 'YunTongXun', 'YunPian', 'SubMail', 'Ucpaas', 'JuHe', 'Alidayu', 'Log'
      */
     'scheme' => [
         'Log',
@@ -28,23 +28,6 @@ return [
      *
      */
     'agents' => [
-
-        /*
-         * -----------------------------------
-         * Alidayu
-         * 阿里大鱼代理器
-         * -----------------------------------
-         * website:http://www.alidayu.com
-         * support template sms.
-         */
-        'Alidayu' => [
-            //淘宝开放平台中，对应阿里大鱼短信应用的App Key。
-            'appKey' => 'Your App Key',
-            //淘宝开放平台中，对应阿里大鱼短信应用的App Secret。
-            'secretKey' => 'Your Secret Key',
-            //短信签名，传入的短信签名必须是在阿里大鱼“管理中心-短信签名管理”中的可用签名。
-            'smsFreeSignName' => 'Your Sms Free Sign Name',
-        ],
 
         /*
          * -----------------------------------
@@ -163,6 +146,31 @@ return [
 
             //语音验证码播放次数
             'times' => 3,
+        ],
+
+        /*
+         * -----------------------------------
+         * Alidayu
+         * 阿里大鱼代理器
+         * -----------------------------------
+         * website:http://www.alidayu.com
+         * support template sms.
+         */
+        'Alidayu' => [
+            //请求地址
+            'sendUrl' => 'https://eco.taobao.com/router/rest',
+
+            //淘宝开放平台中，对应阿里大鱼短信应用的App Key
+            'appKey' => 'your app key',
+
+            //淘宝开放平台中，对应阿里大鱼短信应用的App Secret
+            'secretKey' => 'your secret key',
+
+            //短信签名，传入的短信签名必须是在阿里大鱼“管理中心-短信签名管理”中的可用签名
+            'smsFreeSignName' => 'your sms free sign name',
+
+            //被叫号显(用于语音通知)，传入的显示号码必须是阿里大鱼“管理中心-号码管理”中申请或购买的号码
+            'calledShowNum' => 'your called show num'
         ],
     ],
 ];
