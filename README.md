@@ -507,7 +507,7 @@ Sms::scheme([
 
 # Change logs
 
-### v1.4.0+
+### v1.4.0
 
 该系列版本相较与之前版本在api的设计上有些变动，具体如下：
 
@@ -520,6 +520,11 @@ Sms::scheme([
 - 修改原`cleanAgentsConfig`静态方法为`cleanConfig`
 
 - 去掉`getEnableAgents`和`getAgentsConfig`静态方法
+
+### v1.5.0
+
+- 改进语音信息的发送接口以适应阿里大鱼的通过文本转语音和语音文件id两个接口的需求
+- 新加阿里大鱼(Alidayu)代理器
 
 # 公告
 
