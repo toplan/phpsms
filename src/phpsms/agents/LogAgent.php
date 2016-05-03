@@ -18,19 +18,19 @@ class LogAgent extends Agent
 
     public function sendContentSms($to, $content)
     {
-        $this->result['success'] = true;
-        $this->result['info'] = 'send content sms success';
+        $this->result(Agent::SUCCESS, true);
+        $this->result(Agent::INFO, 'send content sms success');
     }
 
     public function sendTemplateSms($to, $tempId, array $data)
     {
-        $this->result['success'] = true;
-        $this->result['info'] = 'send template sms success';
+        $this->result(Agent::SUCCESS, true);
+        $this->result(Agent::INFO, 'send template sms success');
     }
 
     public function voiceVerify($to, $code, $tempId, array $data)
     {
-        $this->result['success'] = true;
-        $this->result['info'] = 'send voice verify success';
+        $this->result(Agent::SUCCESS, true);
+        $this->result(Agent::INFO, 'send voice verify success');
     }
 }

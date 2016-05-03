@@ -15,10 +15,6 @@ class SubMailAgent extends Agent
         $this->sendTemplateSms($to, $tempId, $data);
     }
 
-    public function sendContentSms($to, $content)
-    {
-    }
-
     public function sendTemplateSms($to, $tempId, array $data)
     {
         $url = 'https://api.submail.cn/message/xsend.json';
@@ -31,19 +27,21 @@ class SubMailAgent extends Agent
 
         $data = json_decode($response, true);
         if ($data['status'] === 'success') {
-            $this->result['success'] = true;
-            $this->result['info'] = 'send_id:' . $data['send_id'] .
-                                    ',sms_credits:' . $data['sms_credits'];
+            $this->result(Agent::SUCCESS, true);
+            $this->result(Agent::INFO, json_encode($data));
         } else {
-            $this->result['info'] = $data['msg'];
-            $this->result['code'] = $data['code'];
+            $this->result(Agent::INFO, $data['msg']);
+            $this->result(Agent::CODE, $data['code']);
         }
     }
 
     public function voiceVerify($to, $code, $tempId, array $data)
     {
-        $this->result['success'] = false;
-        $this->result['info'] = 'SubMail agent does not support voice verify';
-        $this->result['code'] = '0';
+        $this->result(Agent::SUCCESS, false);
+        $this->result(Agent::INFO, 'SubMail agent does not support voice verify');
+    }
+
+    public function sendContentSms($to, $content)
+    {
     }
 }

@@ -55,7 +55,7 @@ class AlidayuAgent extends Agent
         $sendUrl = $this->sendUrl ?: 'https://eco.taobao.com/router/rest';
         $params = $this->createParams($params);
         $result = $this->curl($sendUrl, $params, true);
-        $this->genResult($result, $this->genResponseName($params['method']));
+        $this->setResult($result, $this->genResponseName($params['method']));
     }
 
     protected function createParams(array $params)
@@ -87,7 +87,7 @@ class AlidayuAgent extends Agent
         return strtoupper(md5($stringToBeSigned));
     }
 
-    public function genResult($result, $callbackName)
+    protected function setResult($result, $callbackName)
     {
         if ($result['request']) {
             $result = json_decode($result['response'], true);
@@ -102,7 +102,7 @@ class AlidayuAgent extends Agent
                 $this->result(Agent::CODE, 'code:' . $error['code'] . '|sub_code:' . $error['sub_code']);
             }
         } else {
-            $this->result['info'] = '请求失败';
+            $this->result(Agent::INFO, '请求失败');
         }
     }
 

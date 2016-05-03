@@ -14,8 +14,8 @@ use Toplan\TaskBalance\Task;
 class Sms
 {
     const TASK_NAME = 'PhpSms';
-    const TYPE_SMS = 'Sms';
-    const TYPE_VOICE = 'Voice';
+    const TYPE_SMS = 1;
+    const TYPE_VOICE = 2;
 
     /**
      * The instances of Agent.

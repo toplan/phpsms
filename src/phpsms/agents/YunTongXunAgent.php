@@ -41,10 +41,6 @@ class YunTongXunAgent extends Agent
         $this->setResult($result);
     }
 
-    public function sendContentSms($to, $content)
-    {
-    }
-
     public function voiceVerify($to, $code, $tempId, array $data)
     {
         // 初始化REST SDK
@@ -70,9 +66,8 @@ class YunTongXunAgent extends Agent
         if (!$result) {
             return;
         }
-        $code = (string) $result->statusCode;
+        $code = $info = (string) $result->statusCode;
         $success = $code === '000000';
-        $info = $code;
         if (!$success) {
             $info = (string) $result->statusMsg;
         } else {
@@ -85,5 +80,9 @@ class YunTongXunAgent extends Agent
         $this->result(Agent::SUCCESS, $success);
         $this->result(Agent::CODE, $code);
         $this->result(Agent::INFO, $info);
+    }
+
+    public function sendContentSms($to, $content)
+    {
     }
 }

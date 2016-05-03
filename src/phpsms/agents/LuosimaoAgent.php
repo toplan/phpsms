@@ -31,15 +31,7 @@ class LuosimaoAgent extends Agent
             'message' => $content,
         ];
         $data = $this->LuosimaoCurl($url, $optData, $this->apikey);
-        if ($data['error'] === 0) {
-            $this->result['success'] = true;
-        }
-        $this->result['info'] = $data['msg'];
-        $this->result['code'] = $data['error'];
-    }
-
-    public function sendTemplateSms($to, $tempId, array $data)
-    {
+        $this->setResult($data);
     }
 
     public function voiceVerify($to, $code, $tempId, array $data)
@@ -50,11 +42,7 @@ class LuosimaoAgent extends Agent
             'code'   => $code,
         ];
         $data = $this->LuosimaoCurl($url, $optData, $this->voiceApikey);
-        if ($data['error'] === 0) {
-            $this->result['success'] = true;
-        }
-        $this->result['info'] = $data['msg'];
-        $this->result['code'] = $data['error'];
+        $this->setResult($data);
     }
 
     protected function LuosimaoCurl($url, $optData, $apikey)
@@ -76,5 +64,16 @@ class LuosimaoAgent extends Agent
         curl_close($ch);
 
         return json_decode($res, true);
+    }
+
+    protected function setResult($result)
+    {
+        $this->result(Agent::SUCCESS, $result['error'] === 0);
+        $this->result(Agent::INFO, $result['msg']);
+        $this->result(Agent::CODE, $result['error']);
+    }
+
+    public function sendTemplateSms($to, $tempId, array $data)
+    {
     }
 }

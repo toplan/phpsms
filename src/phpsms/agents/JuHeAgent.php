@@ -15,10 +15,6 @@ class JuHeAgent extends Agent
         $this->sendTemplateSms($to, $tempId, $data);
     }
 
-    public function sendContentSms($to, $content)
-    {
-    }
-
     public function sendTemplateSms($to, $tempId, array $data)
     {
         $sendUrl = 'http://v.juhe.cn/sms/send';
@@ -38,7 +34,7 @@ class JuHeAgent extends Agent
             'tpl_value' => $tplValue,
         ];
         $result = $this->curl($sendUrl, $smsConf, true);
-        $this->genResult($result);
+        $this->setResult($result);
     }
 
     public function voiceVerify($to, $code, $tempId, array $data)
@@ -51,21 +47,24 @@ class JuHeAgent extends Agent
             'key'       => $this->key,
         ];
         $result = $this->curl($url, $params);
-        $this->genResult($result);
+        $this->setResult($result);
     }
 
-    public function genResult($result)
+    protected function setResult($result)
     {
         if ($result['request']) {
             $result = json_decode($result['response'], true);
             if ($result['error_code'] === 0) {
-                $this->result['success'] = true;
-            } else {
-                $this->result['info'] = $result['reason'] . '|result:' . json_encode($result['result'] ?: '');
-                $this->result['code'] = $result['error_code'];
+                $this->result(Agent::SUCCESS, true);
             }
+            $this->result(Agent::INFO, json_encode($result));
+            $this->result(Agent::CODE, $result['error_code']);
         } else {
-            $this->result['info'] = '请求失败';
+            $this->result(Agent::INFO, '请求失败');
         }
+    }
+
+    public function sendContentSms($to, $content)
+    {
     }
 }

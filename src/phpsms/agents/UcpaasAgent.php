@@ -16,10 +16,6 @@ class UcpaasAgent extends Agent
         $this->sendTemplateSms($to, $tempId, $data);
     }
 
-    public function sendContentSms($to, $content)
-    {
-    }
-
     public function sendTemplateSms($to, $tempId, array $data)
     {
         $config = [
@@ -29,11 +25,7 @@ class UcpaasAgent extends Agent
         $ucpaas = new \Ucpaas($config);
         $response = $ucpaas->templateSMS($this->appId, $to, $tempId, implode(',', $data));
         $result = json_decode($response);
-        if ($result !== null && $result->resp->respCode === '000000') {
-            $this->result['success'] = true;
-        }
-        $this->result['info'] = $result->resp->respCode;
-        $this->result['code'] = $result->resp->respCode;
+        $this->setResult($result);
     }
 
     public function voiceVerify($to, $code, $tempId, array $data)
@@ -45,15 +37,22 @@ class UcpaasAgent extends Agent
         $ucpass = new \Ucpaas($config);
         $response = $ucpass->voiceCode($this->appId, $code, $to, $type = 'json');
         $result = json_decode($response);
-        if ($result === null) {
-            return $this->result;
-        }
-        if ($result->resp->respCode === '000000') {
-            $this->result['success'] = true;
-        }
-        $this->result['info'] = $result->resp->respCode;
-        $this->result['code'] = $result->resp->respCode;
+        $this->result($result);
+    }
 
-        return $this->result;
+    protected function setResult($result)
+    {
+        if (empty($result) || !is_object($result)) {
+            $this->result(Agent::INFO, '请求失败');
+
+            return;
+        }
+        $this->result(Agent::SUCCESS, $result->resp->respCode === '000000');
+        $this->result(Agent::CODE, $result->resp->respCode);
+        $this->result(Agent::INFO, $result->resp->respCode);
+    }
+
+    public function sendContentSms($to, $content)
+    {
     }
 }
