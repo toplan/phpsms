@@ -170,7 +170,7 @@ return [
             'smsFreeSignName' => 'your sms free sign name',
 
             //被叫号显(用于语音通知)，传入的显示号码必须是阿里大鱼“管理中心-号码管理”中申请或购买的号码
-            'calledShowNum' => 'your called show num'
+            'calledShowNum' => 'your called show num',
         ],
     ],
 ];
