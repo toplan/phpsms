@@ -63,13 +63,14 @@ class LuosimaoAgent extends Agent
         $res = curl_exec($ch);
         curl_close($ch);
 
-        return json_decode($res, true);
+        return $res;
     }
 
     protected function setResult($result)
     {
+        $this->result(Agent::INFO, $result);
+        $result = json_decode($result, true);
         $this->result(Agent::SUCCESS, $result['error'] === 0);
-        $this->result(Agent::INFO, $result['msg']);
         $this->result(Agent::CODE, $result['error']);
     }
 

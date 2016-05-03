@@ -172,7 +172,7 @@ class REST
      *
      * @return mixed
      */
-    public function voiceVerify($verifyCode, $playTimes, $to, $displayNum, $respUrl, $lang, $userData, $welcomePrompt, $playVerifyCode)
+    public function voiceVerify($verifyCode, $playTimes, $to, $displayNum = null, $respUrl = null, $lang = 'zh', $userData = null, $welcomePrompt = null, $playVerifyCode = null)
     {
         //主帐号鉴权信息验证，对必选参数进行判空。
         $auth = $this->accAuth();

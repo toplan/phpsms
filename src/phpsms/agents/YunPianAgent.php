@@ -21,8 +21,7 @@ class YunPianAgent extends Agent
         $content = urlencode("$content");
         $postString = "apikey=$apikey&text=$content&mobile=$to";
         $response = $this->sockPost($url, $postString);
-        $data = json_decode($response, true);
-        $this->setResult($data);
+        $this->setResult($response);
     }
 
     public function voiceVerify($to, $code, $tempId, array $data)
@@ -31,14 +30,14 @@ class YunPianAgent extends Agent
         $apikey = $this->apikey;
         $postString = "apikey=$apikey&code=$code&mobile=$to";
         $response = $this->sockPost($url, $postString);
-        $data = json_decode($response, true);
-        $this->setResult($data);
+        $this->setResult($response);
     }
 
     protected function setResult($result)
     {
+        $this->result(Agent::INFO, $result);
+        $result = json_decode($result, true);
         $this->result(Agent::SUCCESS, $result['code'] === 0);
-        $this->result(Agent::INFO, $result['msg']);
         $this->result(Agent::CODE, $result['code']);
     }
 
