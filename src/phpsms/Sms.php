@@ -9,28 +9,25 @@ use Toplan\TaskBalance\Task;
 /**
  * Class Sms
  *
- *
  * @author toplan<toplan710@gmail.com>
  */
 class Sms
 {
-    /**
-     * The default name of balancing task.
-     *
-     * @var string
-     */
-    const TASK = 'PhpSms';
+    const TASK_NAME = 'PhpSms';
+    const TYPE_SMS = 1;
+    const TYPE_VOICE = 2;
 
     /**
-     * The instances of class [Toplan\PhpSms\Agent].
+     * The instances of Agent.
      *
      * @var array
      */
     protected static $agents = [];
 
     /**
-     * Agents use scheme, these agents are available.
-     * example: [
+     * Agent use scheme, and these agents are available.
+     * example:
+     * [
      *   'Agent1' => '10 backup',
      *   'Agent2' => '20 backup',
      * ]
@@ -40,7 +37,7 @@ class Sms
     protected static $scheme = [];
 
     /**
-     * The agents` configuration information.
+     * The configuration information of agents.
      *
      * @var array
      */
@@ -80,15 +77,16 @@ class Sms
     protected static $serializer = null;
 
     /**
-     * SMS/voice verify data container.
+     * The data container of SMS/voice verify.
      *
      * @var array
      */
     protected $smsData = [
+        'type'         => self::TYPE_SMS,
         'to'           => null,
         'templates'    => [],
-        'content'      => null,
         'templateData' => [],
+        'content'      => null,
         'voiceCode'    => null,
     ];
 
@@ -129,8 +127,8 @@ class Sms
     /**
      * Boot balancing task for send SMS/voice verify.
      *
-     * Note: 判断drivers是否为空不能用'empty',因为在TaskBalance库的<=v0.4.2版本中Task实例的drivers是受保护的属性(不可访问),
-     * 虽然通过魔术方法可以获取到其值,但其内部却并没有使用'__isset'魔术方法对'empty'或'isset'函数进行逻辑补救.
+     * Note: 判断drivers是否为空不能用'empty',因为在TaskBalance库的中Task类的drivers属性是受保护的(不可访问),
+     * 虽然通过魔术方法可以获取到其值,但在其目前版本(v0.4.2)其内部却并没有使用'__isset'魔术方法对'empty'或'isset'函数进行逻辑补救.
      */
     public static function bootstrap()
     {
@@ -148,11 +146,11 @@ class Sms
      */
     public static function getTask()
     {
-        if (!Balancer::hasTask(self::TASK)) {
-            Balancer::task(self::TASK);
+        if (!Balancer::hasTask(self::TASK_NAME)) {
+            Balancer::task(self::TASK_NAME);
         }
 
-        return Balancer::getTask(self::TASK);
+        return Balancer::getTask(self::TASK_NAME);
     }
 
     /**
@@ -238,11 +236,11 @@ class Sms
                      $agent = self::getAgent($driver->name, $configData);
                      $smsData = $driver->getTaskData();
                      extract($smsData);
-                     if (isset($smsData['voiceCode']) && $smsData['voiceCode']) {
-                         $agent->voiceVerify($to, $voiceCode);
-                     } else {
-                         $template = isset($templates[$driver->name]) ? $templates[$driver->name] : 0;
-                         $agent->sendSms($template, $to, $templateData, $content);
+                     $template = isset($templates[$driver->name]) ? $templates[$driver->name] : 0;
+                     if ($type === self::TYPE_VOICE) {
+                         $agent->voiceVerify($to, $voiceCode, $template, $templateData);
+                     } elseif ($type === self::TYPE_SMS) {
+                         $agent->sendSms($to, $content, $template, $templateData);
                      }
                      $result = $agent->result();
                      if ($result['success']) {
@@ -389,17 +387,15 @@ class Sms
      */
     public static function cleanScheme()
     {
-        Balancer::destroy(self::TASK);
+        Balancer::destroy(self::TASK_NAME);
         self::$scheme = [];
     }
 
     /**
-     * Tear down agent config and prepare to create and start a new balancing task,
-     * so before do it must destroy old task instance.
+     * Tear down all the configuration information of agent.
      */
     public static function cleanConfig()
     {
-        Balancer::destroy(self::TASK);
         self::$agentsConfig = [];
     }
 
@@ -415,6 +411,7 @@ class Sms
     public static function make($agentName = null, $tempId = null)
     {
         $sms = new self();
+        $sms->smsData['type'] = self::TYPE_SMS;
         if (is_array($agentName)) {
             $sms->template($agentName);
         } elseif ($agentName && is_string($agentName)) {
@@ -432,13 +429,14 @@ class Sms
      * Create a sms instance send voice verify,
      * your can also set verify code at the same time.
      *
-     * @param string|int $code
+     * @param int|string|null $code
      *
      * @return Sms
      */
-    public static function voice($code)
+    public static function voice($code = null)
     {
         $sms = new self();
+        $sms->smsData['type'] = self::TYPE_VOICE;
         $sms->smsData['voiceCode'] = $code;
 
         return $sms;
@@ -566,7 +564,7 @@ class Sms
             $immediately = true;
         }
         if ($immediately) {
-            $result = Balancer::run(self::TASK, [
+            $result = Balancer::run(self::TASK_NAME, [
                 'data'   => $this->getData(),
                 'driver' => $this->firstAgent,
             ]);
@@ -677,7 +675,7 @@ class Sms
             //swallow exception
         }
 
-        return ['pushedToQueue', 'smsData', 'firstAgent', '_status_before_enqueue_'];
+        return ['smsData', 'firstAgent', 'pushedToQueue', '_status_before_enqueue_'];
     }
 
     /**
@@ -691,7 +689,7 @@ class Sms
         $status = $this->_status_before_enqueue_;
         self::$scheme = self::serializeOrDeserializeScheme($status['scheme']);
         self::$agentsConfig = $status['agentsConfig'];
-        Balancer::destroy(self::TASK);
+        Balancer::destroy(self::TASK_NAME);
         self::bootstrap();
         self::reinstallHandlers($status['handlers']);
     }

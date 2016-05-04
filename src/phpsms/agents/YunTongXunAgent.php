@@ -10,59 +10,43 @@ use REST;
  * @property string $serverIP
  * @property string $serverPort
  * @property string $softVersion
- * @property string $bodyType
  * @property string $accountSid
  * @property string $accountToken
  * @property string $appId
- * @property int $playTimes
+ * @property int    $playTimes
  * @property string $voiceLang
+ * @property string $displayNum
  */
 class YunTongXunAgent extends Agent
 {
-    public function sendSms($tempId, $to, array $data, $content)
+    public function sendSms($to, $content, $tempId, array $data)
     {
-        $this->sendTemplateSms($tempId, $to, $data);
+        $this->sendTemplateSms($to, $tempId, $data);
     }
 
-    public function sendTemplateSms($tempId, $to, array $data)
+    public function sendTemplateSms($to, $tempId, array $data)
     {
-        // 初始化REST SDK
-        $rest = new REST(
-            $this->serverIP,
-            $this->serverPort,
-            $this->softVersion,
-            $this->bodyType
-        );
-        $rest->setAccount($this->accountSid, $this->accountToken);
-        $rest->setAppId($this->appId);
-        // 发送模板短信
         $data = array_values($data);
-        $result = $rest->sendTemplateSMS($to, $data, $tempId);
+        $result = $this->rest()->sendTemplateSMS($to, $data, $tempId);
         $this->setResult($result);
     }
 
-    public function sendContentSms($to, $content)
+    public function voiceVerify($to, $code, $tempId, array $data)
     {
+        $playTimes = intval($this->playTimes ?: 3);
+        $displayNum = $this->displayNum ?: null;
+        $lang = $this->voiceLang ?: 'zh';
+        $result = $this->rest()->voiceVerify($code, $playTimes, $to, $displayNum, null, $lang);
+        $this->setResult($result);
     }
 
-    public function voiceVerify($to, $code)
+    protected function rest()
     {
-        // 初始化REST SDK
-        $rest = new REST(
-            $this->serverIP,
-            $this->serverPort,
-            $this->softVersion,
-            $this->bodyType
-        );
+        $rest = new REST($this->serverIP, $this->serverPort, $this->softVersion, 'json');
         $rest->setAccount($this->accountSid, $this->accountToken);
         $rest->setAppId($this->appId);
 
-        // 调用语音验证码接口
-        $playTimes = intval($this->playTimes ?: 3);
-        $lang = $this->voiceLang ?: 'zh';
-        $userData = $respUrl = null;
-        $result = $rest->voiceVerify($code, $playTimes, $to, null, $respUrl, $lang, $userData, null, null);
-        $this->setResult($result);
+        return $rest;
     }
 
     protected function setResult($result)
@@ -70,9 +54,8 @@ class YunTongXunAgent extends Agent
         if (!$result) {
             return;
         }
-        $code = (string) $result->statusCode;
+        $code = $info = (string) $result->statusCode;
         $success = $code === '000000';
-        $info = $code;
         if (!$success) {
             $info = (string) $result->statusMsg;
         } else {
@@ -85,5 +68,9 @@ class YunTongXunAgent extends Agent
         $this->result(Agent::SUCCESS, $success);
         $this->result(Agent::CODE, $code);
         $this->result(Agent::INFO, $info);
+    }
+
+    public function sendContentSms($to, $content)
+    {
     }
 }

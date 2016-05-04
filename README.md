@@ -28,11 +28,17 @@
 | [SUBMAIL](http://submail.cn)           | √ | × | × | ￥100(1千条) | ￥0.100/条 |
 | [云之讯](http://www.ucpaas.com/)        | √ | × | √ | -- | ￥0.050/条 |
 | [聚合数据](https://www.juhe.cn/)        | √ | × | √ | -- | ￥0.035/条 |
+| [阿里大鱼](https://www.alidayu.com/)    | √ | × | √ | -- | ￥0.045/条 |
 
 # 安装
 
 ```php
 composer require 'toplan/phpsms:~1.4'
+```
+
+安装开发中版本:
+```php
+composer require 'toplan/phpsms:dev-master'
 ```
 
 # 快速上手
@@ -49,7 +55,7 @@ Sms::config([
     'Luosimao' => [
         //短信API key
         'apikey' => 'your api key',
-        //语言验证API key
+        //语音验证API key
         'voiceApikey' => 'your voice api key',
     ],
     'YunPian'  => [
@@ -115,8 +121,11 @@ Sms::make()->to($to)
      ->content($content)
      ->send();
 
-// 语言验证码
-Sms::voice('89093')->to($to)->send();
+// 语音验证码
+Sms::voice('02343')->to($to)->send();
+
+// 语音验证码兼容模版语音(如阿里大鱼的文本转语音)
+Sms::voice('02343')->template('Alidayu', 'your_tts_code')->data(['code' => '02343'])->send();
 ```
 
 ###3. 在laravel中使用
@@ -216,11 +225,11 @@ $config['Luosimao'] = Sms::config('Luosimao');
 
 ### Sms::cleanScheme()
 
-清空所有代理器的调度方案。
+清空所有代理器的调度方案，请谨慎使用该接口。
 
 ### Sms::cleanConfig()
 
-清空所有代理器的配置。
+清空所有代理器的配置数据，请谨慎使用该接口。
 
 ### Sms::beforeSend($handler[, $override]);
 
@@ -336,12 +345,20 @@ $sms = Sms::make([
 ]);
 ```
 
-### Sms::voice($code)
+### Sms::voice()
 
 生成发送语音验证码的sms实例，并返回实例。
 ```php
-$sms = Sms::voice($code)
+$sms = Sms::voice();
+
+//创建实例的同时设置验证码/语音文件ID
+$sms = Sms::voice($code);
 ```
+
+> - 如果你使用`Luosimao`语音验证码，还需用在配置文件中`Luosimao`选项中设置`voiceApikey`。
+> - **语音文件ID**既是在服务商配置的语音文件的唯一编号，比如阿里大鱼[语音通知](http://open.taobao.com/doc2/apiDetail.htm?spm=a219a.7395905.0.0.oORhh9&apiId=25445)的`voice_code`。
+> - **模版语音**是另一种语音请求方式，它是通过模版ID和模版数据进行的语音请求，比如阿里大鱼的[文本转语音通知](http://open.taobao.com/doc2/apiDetail.htm?spm=a219a.7395905.0.0.f04PJ3&apiId=25444)。
+
 ### $sms->to($mobile)
 
 设置发送给谁，并返回实例。
@@ -365,21 +382,23 @@ $sms->template([
 ]);
 ```
 
-### $sms->data($tempData)
+### $sms->data($data)
 
-设置模板短信的模板数据，并返回实例对象，`$tempData`必须为数组。
+设置模板短信的模板数据，并返回实例对象，`$data`必须为数组。
 ```php
 $sms->data([
     'code' => $code,
     'minutes' => $minutes
-  ]);
+]);
 ```
+
+> 通过`template`和`data`方法的组合除了可以实现模版短信的数据填充，还可以实现模版语音的数据填充。
 
 ### $sms->content($text)
 
 设置内容短信的内容，并返回实例对象。一些内置的代理器(如YunPian,Luosimao)使用的是内容短信(即直接发送短信内容)，那么就需要为它们设置短信内容。
 ```php
-$sms->content('【签名】您的订单号是xxxx，祝你购物愉快。');
+$sms->content('【签名】这是短信内容...');
 ```
 
 ### $sms->getData()
@@ -439,8 +458,7 @@ Sms::scheme('agentName', [
 
 ### 寄生代理器
 
-> 如果你既不想使用内置的代理器，也不想创建文件写自定义代理器，那么寄生代理器或许是个好的选择，无需定义代理器类，
-> 只需在调度配置时定义好发送短信和语音验证码的方式即可。
+> 如果你既不想使用内置的代理器，也不想创建文件写自定义代理器，那么寄生代理器或许是个好的选择，无需定义代理器类，只需在调度配置时定义好发送短信和语音验证码的方式即可。
 
 * 配置方式：
 
@@ -451,7 +469,7 @@ Sms::scheme('agentName', [
 Sms::scheme([
     'agentName' => [
         '20 backup',
-        'sendSms' => function($agent, $tempId, $to, $tempData, $content){
+        'sendSms' => function($agent, $to, $content, $tempId, $tempData){
             //获取配置(如果设置了的话):
             $key = $agent->key;
             ...
@@ -464,7 +482,7 @@ Sms::scheme([
             $agent->result(Agent::INFO, 'some info');
             $agent->result(Agent::CODE, 'your code');
         },
-        'voiceVerify' => function($agent, $to, $code){
+        'voiceVerify' => function($agent, $to, $code, $tempId, $tempData){
             //发送语音验证码，同上
         }
     ]
@@ -491,7 +509,7 @@ Sms::scheme([
 
 # Change logs
 
-### v1.4.0+
+### v1.4.0
 
 该系列版本相较与之前版本在api的设计上有些变动，具体如下：
 
@@ -503,7 +521,12 @@ Sms::scheme([
 
 - 修改原`cleanAgentsConfig`静态方法为`cleanConfig`
 
-- 删除`getEnableAgents`和`getAgentsConfig`静态方法
+- 去掉`getEnableAgents`和`getAgentsConfig`静态方法
+
+### v1.5.0
+
+- 改进语音信息的发送接口以适应阿里大鱼的通过文本转语音和语音文件id两个接口的需求
+- 新加阿里大鱼(Alidayu)代理器
 
 # 公告
 

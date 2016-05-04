@@ -11,49 +11,47 @@ namespace Toplan\PhpSms;
  */
 class UcpaasAgent extends Agent
 {
-    public function sendSms($tempId, $to, array $data, $content)
+    public function sendSms($to, $content, $tempId, array $data)
     {
-        $this->sendTemplateSms($tempId, $to, $data);
+        $this->sendTemplateSms($to, $tempId, $data);
+    }
+
+    public function sendTemplateSms($to, $tempId, array $data)
+    {
+        $response = $this->ucpass()->templateSMS($this->appId, $to, $tempId, implode(',', $data));
+        $this->setResult($response);
+    }
+
+    public function voiceVerify($to, $code, $tempId, array $data)
+    {
+        $response = $this->ucpass()->voiceCode($this->appId, $code, $to);
+        $this->result($response);
+    }
+
+    protected function ucpass()
+    {
+        $config = [
+            'accountsid' => $this->accountSid,
+            'token'      => $this->accountToken,
+        ];
+
+        return new \Ucpaas($config);
+    }
+
+    protected function setResult($result)
+    {
+        $result = json_decode($result);
+        if (!$result) {
+            $this->result(Agent::INFO, '请求失败');
+
+            return;
+        }
+        $this->result(Agent::SUCCESS, $result->resp->respCode === '000000');
+        $this->result(Agent::CODE, $result->resp->respCode);
+        $this->result(Agent::INFO, json_encode($result->resp));
     }
 
     public function sendContentSms($to, $content)
     {
-    }
-
-    public function sendTemplateSms($tempId, $to, array $data)
-    {
-        $config = [
-            'accountsid' => $this->accountSid,
-            'token'      => $this->accountToken,
-        ];
-        $ucpaas = new \Ucpaas($config);
-        $response = $ucpaas->templateSMS($this->appId, $to, $tempId, implode(',', $data));
-        $result = json_decode($response);
-        if ($result !== null && $result->resp->respCode === '000000') {
-            $this->result['success'] = true;
-        }
-        $this->result['info'] = $result->resp->respCode;
-        $this->result['code'] = $result->resp->respCode;
-    }
-
-    public function voiceVerify($to, $code)
-    {
-        $config = [
-            'accountsid' => $this->accountSid,
-            'token'      => $this->accountToken,
-        ];
-        $ucpass = new \Ucpaas($config);
-        $response = $ucpass->voiceCode($this->appId, $code, $to, $type = 'json');
-        $result = json_decode($response);
-        if ($result === null) {
-            return $this->result;
-        }
-        if ($result->resp->respCode === '000000') {
-            $this->result['success'] = true;
-        }
-        $this->result['info'] = $result->resp->respCode;
-        $this->result['code'] = $result->resp->respCode;
-
-        return $this->result;
     }
 }

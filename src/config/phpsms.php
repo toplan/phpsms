@@ -15,7 +15,7 @@ return [
      * 2. 'backup' (ignore upper/lower case)
      *
      * supported agents:
-     * 'Luosimao', 'YunTongXun', 'YunPian', 'SubMail', 'Ucpaas', 'JuHe', 'Log'
+     * 'Luosimao', 'YunTongXun', 'YunPian', 'SubMail', 'Ucpaas', 'JuHe', 'Alidayu', 'Log'
      */
     'scheme' => [
         'Log',
@@ -72,8 +72,8 @@ return [
             //REST版本号，在官网文档REST介绍中获得。
             'softVersion' => '2013-12-26',
 
-            //包体格式，可填值：json 、xml
-            'bodyType' => 'json',
+            //被叫号显
+            'displayNum' => null,
 
             //语音验证码使用的语言类型
             'voiceLang' => 'zh',
@@ -146,6 +146,31 @@ return [
 
             //语音验证码播放次数
             'times' => 3,
+        ],
+
+        /*
+         * -----------------------------------
+         * Alidayu
+         * 阿里大鱼代理器
+         * -----------------------------------
+         * website:http://www.alidayu.com
+         * support template sms.
+         */
+        'Alidayu' => [
+            //请求地址
+            'sendUrl' => 'https://eco.taobao.com/router/rest',
+
+            //淘宝开放平台中，对应阿里大鱼短信应用的App Key
+            'appKey' => 'your app key',
+
+            //淘宝开放平台中，对应阿里大鱼短信应用的App Secret
+            'secretKey' => 'your secret key',
+
+            //短信签名，传入的短信签名必须是在阿里大鱼“管理中心-短信签名管理”中的可用签名
+            'smsFreeSignName' => 'your sms free sign name',
+
+            //被叫号显(用于语音通知)，传入的显示号码必须是阿里大鱼“管理中心-号码管理”中申请或购买的号码
+            'calledShowNum' => 'your called show num',
         ],
     ],
 ];

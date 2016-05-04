@@ -9,7 +9,7 @@ namespace Toplan\PhpSms;
  */
 class YunPianAgent extends Agent
 {
-    public function sendSms($tempId, $to, array $data, $content)
+    public function sendSms($to, $content, $tempId, array $data)
     {
         $this->sendContentSms($to, $content);
     }
@@ -19,35 +19,29 @@ class YunPianAgent extends Agent
         $url = 'http://yunpian.com/v1/sms/send.json';
         $apikey = $this->apikey;
         $content = urlencode("$content");
-
         $postString = "apikey=$apikey&text=$content&mobile=$to";
         $response = $this->sockPost($url, $postString);
-
-        $data = json_decode($response, true);
-        if ($data['code'] === 0) {
-            $this->result['success'] = true;
-        }
-        $this->result['info'] = $data['msg'];
-        $this->result['code'] = $data['code'];
+        $this->setResult($response);
     }
 
-    public function sendTemplateSms($tempId, $to, array $data)
-    {
-    }
-
-    public function voiceVerify($to, $code)
+    public function voiceVerify($to, $code, $tempId, array $data)
     {
         $url = 'http://voice.yunpian.com/v1/voice/send.json';
         $apikey = $this->apikey;
-
         $postString = "apikey=$apikey&code=$code&mobile=$to";
         $response = $this->sockPost($url, $postString);
+        $this->setResult($response);
+    }
 
-        $data = json_decode($response, true);
-        if ($data['code'] === 0) {
-            $this->result['success'] = true;
-        }
-        $this->result['info'] = $data['msg'];
-        $this->result['code'] = $data['code'];
+    protected function setResult($result)
+    {
+        $this->result(Agent::INFO, $result);
+        $result = json_decode($result, true);
+        $this->result(Agent::SUCCESS, $result['code'] === 0);
+        $this->result(Agent::CODE, $result['code']);
+    }
+
+    public function sendTemplateSms($to, $tempId, array $data)
+    {
     }
 }
