@@ -13,8 +13,8 @@ use Toplan\TaskBalance\Task;
  */
 class Sms
 {
-    const TASK_NAME = 'PhpSms';
-    const TYPE_SMS = 1;
+    const TASK_NAME  = 'PhpSms';
+    const TYPE_SMS   = 1;
     const TYPE_VOICE = 2;
 
     /**
@@ -159,10 +159,10 @@ class Sms
     protected static function configuration()
     {
         $config = [];
-        if (empty(self::$scheme)) {
+        if (!count(self::scheme())) {
             self::initScheme($config);
         }
-        $diff = array_diff_key(self::$scheme, self::$agentsConfig);
+        $diff = array_diff_key(self::scheme(), self::$agentsConfig);
         self::initAgentsConfig(array_keys($diff), $config);
         self::validateConfig();
     }
@@ -205,7 +205,7 @@ class Sms
      */
     protected static function validateConfig()
     {
-        if (empty(self::$scheme)) {
+        if (!count(self::scheme())) {
             throw new PhpSmsException('Please configure at least one agent');
         }
     }
@@ -217,23 +217,16 @@ class Sms
      */
     protected static function createDrivers(Task $task)
     {
-        foreach (self::$scheme as $name => $scheme) {
-            //获取代理器配置
-            $configData = self::config($name);
-
+        foreach (self::scheme() as $name => $scheme) {
             //解析代理器数组模式的调度配置
             if (is_array($scheme)) {
                 $data = self::parseScheme($scheme);
-                $configData = array_merge($configData, $data);
                 $scheme = $data['scheme'];
             }
-            $scheme = is_string($scheme) ? $scheme : '';
-
             //创建任务驱动器
-            $task->driver("$name $scheme")->data($configData)
+            $task->driver("$name $scheme")
                  ->work(function ($driver) {
-                     $configData = $driver->getDriverData();
-                     $agent = self::getAgent($driver->name, $configData);
+                     $agent = self::getAgent($driver->name);
                      $smsData = $driver->getTaskData();
                      extract($smsData);
                      $template = isset($templates[$driver->name]) ? $templates[$driver->name] : 0;
@@ -296,25 +289,24 @@ class Sms
      * if null, will try to create a new agent instance.
      *
      * @param string $name
-     * @param array  $configData
      *
      * @throws PhpSmsException
      *
      * @return mixed
      */
-    public static function getAgent($name, array $configData)
+    public static function getAgent($name)
     {
         if (!isset(self::$agents[$name])) {
-            $configData['name'] = $name;
-            $className = isset($configData['agentClass']) ? $configData['agentClass'] : ('Toplan\\PhpSms\\' . $name . 'Agent');
-            if ((isset($configData['sendSms']) && is_callable($configData['sendSms'])) ||
-                (isset($configData['voiceVerify']) && is_callable($configData['voiceVerify']))) {
+            $scheme = self::scheme($name);
+            $data = self::parseScheme(is_array($scheme) ? $scheme : [$scheme]);
+            $data = array_merge(self::config($name), $data);
+            $className = $data['agentClass'] ?: ('Toplan\\PhpSms\\' . $name . 'Agent');
+            if (is_callable($data['sendSms']) || is_callable($data['voiceVerify'])) {
                 //创建寄生代理器
-                $configData['agentClass'] = '';
-                self::$agents[$name] = new ParasiticAgent($configData);
+                self::$agents[$name] = new ParasiticAgent($data);
             } elseif (class_exists($className)) {
                 //创建新代理器
-                self::$agents[$name] = new $className($configData);
+                self::$agents[$name] = new $className($data);
             } else {
                 //无代理器可用
                 throw new PhpSmsException("Dont support [$name] agent.");
