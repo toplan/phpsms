@@ -169,6 +169,8 @@ PhpSms::make()->to($to)->content($content)->send();
 
 设置/获取代理器的调度方案。
 
+> 调度配置在调度系统启动后(创建`Sms`实例时会自动启动)就不能修改。
+
 - 设置
 
 手动设置代理器调度方案(优先级高于配置文件)，如：
@@ -197,6 +199,8 @@ $scheme['Luosimao'] = Sms::scheme('Luosimao');
 ### Sms::config([$name[, $config]]);
 
 设置/获取代理器的配置数据。
+
+> 代理器参数配置在应用系统的整个运行过程中都是能进行修改，而这点是和调度配置不同的。
 
 - 设置
 
@@ -356,7 +360,7 @@ $sms = Sms::voice($code);
 ```
 
 > - 如果你使用`Luosimao`语音验证码，还需用在配置文件中`Luosimao`选项中设置`voiceApikey`。
-> - **语音文件ID**既是在服务商配置的语音文件的唯一编号，比如阿里大鱼[语音通知](http://open.taobao.com/doc2/apiDetail.htm?spm=a219a.7395905.0.0.oORhh9&apiId=25445)的`voice_code`。
+> - **语音文件ID**即是在服务商配置的语音文件的唯一编号，比如阿里大鱼[语音通知](http://open.taobao.com/doc2/apiDetail.htm?spm=a219a.7395905.0.0.oORhh9&apiId=25445)的`voice_code`。
 > - **模版语音**是另一种语音请求方式，它是通过模版ID和模版数据进行的语音请求，比如阿里大鱼的[文本转语音通知](http://open.taobao.com/doc2/apiDetail.htm?spm=a219a.7395905.0.0.f04PJ3&apiId=25444)。
 
 ### $sms->to($mobile)
@@ -406,6 +410,7 @@ $sms->content('【签名】这是短信内容...');
 获取Sms实例中的短信数据，返回数组，其结构如下：
 ```php
 [
+    'type'         => ...,
     'to'           => ...,
     'templates'    => [...],
     'content'      => ...,

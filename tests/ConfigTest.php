@@ -54,4 +54,22 @@ class ConfigTest extends PHPUnit_Framework_TestCase
             ]);
         $this->assertCount(3, Sms::config());
     }
+
+    public function testUpdateAgentConfig()
+    {
+        $agent = Sms::getAgent('Luosimao');
+        $this->assertEquals('123', $agent->apikey);
+
+        Sms::config('Luosimao', [
+            'apikey' => '12345',
+            'data'   => 'hello world',
+        ]);
+
+        $this->assertEquals('12345', $agent->apikey);
+        $this->assertEquals('hello world', $agent->data);
+
+        Sms::cleanConfig();
+        $this->assertEquals(null, $agent->apikey);
+        $this->assertEquals(null, $agent->data);
+    }
 }
