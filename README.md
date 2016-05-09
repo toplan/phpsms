@@ -165,6 +165,8 @@ PhpSms::make()->to($to)->content($content)->send();
 
 # API
 
+## API - 全局配置
+
 ### Sms::scheme([$name[, $scheme]])
 
 设置/获取代理器的调度方案。
@@ -196,11 +198,11 @@ $scheme['Luosimao'] = Sms::scheme('Luosimao');
 
 > `scheme`静态方法的更多使用方法见[高级调度配置](#高级调度配置)
 
-### Sms::config([$name[, $config]]);
+### Sms::config([$name[, $config][, $override]]);
 
 设置/获取代理器的配置数据。
 
-> 代理器参数配置在应用系统的整个运行过程中都是能进行修改，而这点是和调度配置不同的。
+> 代理器参数配置在应用系统的整个运行过程中都是能进行修改，这点是和调度配置不同的。
 
 - 设置
 
@@ -329,6 +331,8 @@ $enable = Sms::queue();
 //为true,表示当前启用了队列。
 //为false,表示当前关闭了队列。
 ```
+
+## API - 发送相关
 
 ### Sms::make()
 
