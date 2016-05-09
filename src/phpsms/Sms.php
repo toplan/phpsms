@@ -13,8 +13,8 @@ use Toplan\TaskBalance\Task;
  */
 class Sms
 {
-    const TASK_NAME  = 'PhpSms';
-    const TYPE_SMS   = 1;
+    const TASK_NAME = 'PhpSms';
+    const TYPE_SMS = 1;
     const TYPE_VOICE = 2;
 
     /**
@@ -318,7 +318,7 @@ class Sms
     {
         return Util::operateArray(self::$scheme, $name, $scheme, null, function ($key, $value) {
             if (is_string($key)) {
-                self::modifyScheme($key, is_array($value) ? $value: "$value");
+                self::modifyScheme($key, is_array($value) ? $value : "$value");
             } elseif (is_int($key)) {
                 self::modifyScheme($value, '');
             }

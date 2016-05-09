@@ -10,8 +10,8 @@ class SmsTest extends PHPUnit_Framework_TestCase
     {
         Sms::cleanScheme();
         Sms::scheme([
-            'Log' => '10',
-            'Luosimao' => '0'
+            'Log'      => '10',
+            'Luosimao' => '0',
         ]);
         self::$sms = Sms::make();
     }

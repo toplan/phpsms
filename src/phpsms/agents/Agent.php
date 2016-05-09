@@ -5,8 +5,8 @@ namespace Toplan\PhpSms;
 abstract class Agent
 {
     const SUCCESS = 'success';
-    const INFO    = 'info';
-    const CODE    = 'code';
+    const INFO = 'info';
+    const CODE = 'code';
 
     /**
      * The configuration information of agent.
@@ -50,6 +50,7 @@ abstract class Agent
         if (is_array($key) && is_bool($value)) {
             $override = $value;
         }
+
         return Util::operateArray($this->config, $key, $value, null, null, $override);
     }
 
