@@ -355,6 +355,7 @@ class Sms
         if (is_array($name) && is_bool($config)) {
             $override = $config;
         }
+
         return Util::operateArray(self::$agentsConfig, $name, $config, [], function ($key, $value) {
             if (is_array($value)) {
                 self::modifyConfig($key, $value);
