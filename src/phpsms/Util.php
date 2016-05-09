@@ -13,33 +13,29 @@ class Util
      * @param mixed         $getDefault
      * @param \Closure|null $setAction
      * @param bool          $override
+     * @param \Closure|null $whenOverride
      * @param bool          $isSet
      *
      * @return mixed
      */
-    public static function operateArray(array &$arr, $key, $value = null, $getDefault = null, \Closure $setAction = null, $override = false, $isSet = false)
+    public static function operateArray(array &$arr, $key, $value = null, $getDefault = null, \Closure $setAction = null, $override = false, $whenOverride = null, $isSet = false)
     {
-        if (($key === null || is_string($key) || is_int($key)) && $value === null && !$isSet) {
+        if (!$isSet && ($key === null || is_string($key) || is_int($key)) && $value === null) {
             return $key === null ? $arr :
                 (isset($arr[$key]) ? $arr[$key] : $getDefault);
         }
-        if (is_array($key) || is_object($key)) {
-            $index = 0;
-            if (empty($key) && $override) {
-                $arr = [];
-            }
-            foreach ($key as $k => $v) {
-                self::operateArray($arr, $k, $v, $getDefault, $setAction, ($override && !($index)), true);
-                $index++;
-            }
-
-            return $arr;
-        }
         if ($override) {
+            if (is_callable($whenOverride)) {
+                call_user_func_array($whenOverride, [$arr]);
+            }
             $arr = [];
         }
-        if (is_callable($setAction)) {
-            call_user_func_array($setAction, [$key, $value, $override]);
+        if (is_array($key) || is_object($key)) {
+            foreach ($key as $k => $v) {
+                self::operateArray($arr, $k, $v, $getDefault, $setAction, false, null, true);
+            }
+        } elseif (is_callable($setAction)) {
+            call_user_func_array($setAction, [$key, $value]);
         } else {
             $arr[$key] = $value;
         }

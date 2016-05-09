@@ -344,16 +344,27 @@ class Sms
      *
      * @param mixed $name
      * @param mixed $config
+     * @param bool  $override
      *
      * @throws PhpSmsException
      *
      * @return array
      */
-    public static function config($name = null, $config = null)
+    public static function config($name = null, $config = null, $override = false)
     {
+        if (is_array($name) && is_bool($config)) {
+            $override = $config;
+        }
         return Util::operateArray(self::$agentsConfig, $name, $config, [], function ($key, $value) {
             if (is_array($value)) {
                 self::modifyConfig($key, $value);
+            }
+        }, $override, function (array $origin) {
+            $nameList = array_keys($origin);
+            foreach ($nameList as $name) {
+                if (self::hasAgent("$name")) {
+                    self::getAgent("$name")->config([], true);
+                }
             }
         });
     }
@@ -405,12 +416,7 @@ class Sms
      */
     public static function cleanConfig()
     {
-        foreach (array_keys(self::config()) as $name) {
-            if (self::hasAgent($name)) {
-                self::getAgent($name)->config([], true);
-            }
-        }
-        self::$agentsConfig = [];
+        self::config([], true);
     }
 
     /**
