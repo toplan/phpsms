@@ -13,7 +13,7 @@ abstract class Agent
      *
      * @var array
      */
-    protected $config;
+    protected $config = [];
 
     /**
      * The result data.
@@ -22,7 +22,7 @@ abstract class Agent
      */
     protected $result = [
         self::SUCCESS => false,
-        self::INFO    => '',
+        self::INFO    => null,
         self::CODE    => 0,
     ];
 
@@ -33,7 +33,25 @@ abstract class Agent
      */
     public function __construct(array $config = [])
     {
-        $this->config = $config;
+        $this->config($config);
+    }
+
+    /**
+     * Get or set the configuration information of agent.
+     *
+     * @param mixed $key
+     * @param mixed $value
+     * @param bool  $override
+     *
+     * @return mixed
+     */
+    public function config($key = null, $value = null, $override = false)
+    {
+        if (is_array($key) && is_bool($value)) {
+            $override = $value;
+        }
+
+        return Util::operateArray($this->config, $key, $value, null, null, $override);
     }
 
     /**
@@ -181,9 +199,7 @@ abstract class Agent
      */
     public function __get($name)
     {
-        if (array_key_exists($name, $this->config)) {
-            return $this->config["$name"];
-        }
+        return $this->config($name);
     }
 
     /**

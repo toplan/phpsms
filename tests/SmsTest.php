@@ -8,6 +8,11 @@ class SmsTest extends PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
+        Sms::cleanScheme();
+        Sms::scheme([
+            'Log'      => '10',
+            'Luosimao' => '0',
+        ]);
         self::$sms = Sms::make();
     }
 
@@ -16,11 +21,20 @@ class SmsTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Toplan\PhpSms\Sms', self::$sms);
     }
 
+    public function testHasAgent()
+    {
+        $this->assertFalse(Sms::hasAgent('Log'));
+        $this->assertFalse(Sms::hasAgent('SomeAgent'));
+
+        Sms::getAgent('Log');
+        $this->assertTrue(Sms::hasAgent('Log'));
+    }
+
     public function testGetAgent()
     {
-        $agent = Sms::getAgent('Log', []);
+        $agent = Sms::getAgent('Log');
         $this->assertInstanceOf('Toplan\PhpSms\LogAgent', $agent);
-        $luosimao = Sms::getAgent('Luosimao', []);
+        $luosimao = Sms::getAgent('Luosimao');
         $this->assertInstanceOf('Toplan\PhpSms\LuosimaoAgent', $luosimao);
     }
 

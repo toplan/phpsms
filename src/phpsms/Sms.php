@@ -25,7 +25,8 @@ class Sms
     protected static $agents = [];
 
     /**
-     * Agent use scheme, and these agents are available.
+     * The dispatch scheme of agent,
+     * and these agents are available.
      * example:
      * [
      *   'Agent1' => '10 backup',
@@ -159,16 +160,16 @@ class Sms
     protected static function configuration()
     {
         $config = [];
-        if (empty(self::$scheme)) {
+        if (!count(self::scheme())) {
             self::initScheme($config);
         }
-        $diff = array_diff_key(self::$scheme, self::$agentsConfig);
+        $diff = array_diff_key(self::scheme(), self::$agentsConfig);
         self::initAgentsConfig(array_keys($diff), $config);
         self::validateConfig();
     }
 
     /**
-     * Try to read agent use scheme from config file.
+     * Try to read the dispatch scheme of agent from config file.
      *
      * @param array $config
      */
@@ -205,7 +206,7 @@ class Sms
      */
     protected static function validateConfig()
     {
-        if (empty(self::$scheme)) {
+        if (!count(self::scheme())) {
             throw new PhpSmsException('Please configure at least one agent');
         }
     }
@@ -217,44 +218,36 @@ class Sms
      */
     protected static function createDrivers(Task $task)
     {
-        foreach (self::$scheme as $name => $scheme) {
-            //获取代理器配置
-            $configData = self::config($name);
-
+        foreach (self::scheme() as $name => $scheme) {
             //解析代理器数组模式的调度配置
             if (is_array($scheme)) {
                 $data = self::parseScheme($scheme);
-                $configData = array_merge($configData, $data);
                 $scheme = $data['scheme'];
             }
-            $scheme = is_string($scheme) ? $scheme : '';
-
             //创建任务驱动器
-            $task->driver("$name $scheme")->data($configData)
-                 ->work(function ($driver) {
-                     $configData = $driver->getDriverData();
-                     $agent = self::getAgent($driver->name, $configData);
-                     $smsData = $driver->getTaskData();
-                     extract($smsData);
-                     $template = isset($templates[$driver->name]) ? $templates[$driver->name] : 0;
-                     if ($type === self::TYPE_VOICE) {
-                         $agent->voiceVerify($to, $voiceCode, $template, $templateData);
-                     } elseif ($type === self::TYPE_SMS) {
-                         $agent->sendSms($to, $content, $template, $templateData);
-                     }
-                     $result = $agent->result();
-                     if ($result['success']) {
-                         $driver->success();
-                     }
-                     unset($result['success']);
+            $task->driver("$name $scheme")->work(function ($driver) {
+                $agent = self::getAgent($driver->name);
+                $smsData = $driver->getTaskData();
+                extract($smsData);
+                $template = isset($templates[$driver->name]) ? $templates[$driver->name] : 0;
+                if ($type === self::TYPE_VOICE) {
+                    $agent->voiceVerify($to, $voiceCode, $template, $templateData);
+                } elseif ($type === self::TYPE_SMS) {
+                    $agent->sendSms($to, $content, $template, $templateData);
+                }
+                $result = $agent->result();
+                if ($result['success']) {
+                    $driver->success();
+                }
+                unset($result['success']);
 
-                     return $result;
-                 });
+                return $result;
+            });
         }
     }
 
     /**
-     * Parsing scheduling configuration.
+     * Parsing the dispatch scheme.
      * 解析代理器的数组模式的调度配置
      *
      * @param array $options
@@ -263,32 +256,13 @@ class Sms
      */
     protected static function parseScheme(array $options)
     {
-        $agentClass = self::pullOptionOutOfArrayByKey($options, 'agentClass');
-        $sendSms = self::pullOptionOutOfArrayByKey($options, 'sendSms');
-        $voiceVerify = self::pullOptionOutOfArrayByKey($options, 'voiceVerify');
-        $backup = self::pullOptionOutOfArrayByKey($options, 'backup') ? 'backup' : '';
+        $agentClass = Util::pullFromArrayByKey($options, 'agentClass');
+        $sendSms = Util::pullFromArrayByKey($options, 'sendSms');
+        $voiceVerify = Util::pullFromArrayByKey($options, 'voiceVerify');
+        $backup = Util::pullFromArrayByKey($options, 'backup') ? 'backup' : '';
         $scheme = implode(' ', array_values($options)) . " $backup";
 
         return compact('agentClass', 'sendSms', 'voiceVerify', 'scheme');
-    }
-
-    /**
-     * Pull the value out of the specified array by key.
-     *
-     * @param array      $options
-     * @param int|string $key
-     *
-     * @return mixed
-     */
-    protected static function pullOptionOutOfArrayByKey(array &$options, $key)
-    {
-        if (!isset($options[$key])) {
-            return;
-        }
-        $value = $options[$key];
-        unset($options[$key]);
-
-        return $value;
     }
 
     /**
@@ -296,27 +270,23 @@ class Sms
      * if null, will try to create a new agent instance.
      *
      * @param string $name
-     * @param array  $configData
      *
      * @throws PhpSmsException
      *
      * @return mixed
      */
-    public static function getAgent($name, array $configData)
+    public static function getAgent($name)
     {
-        if (!isset(self::$agents[$name])) {
-            $configData['name'] = $name;
-            $className = isset($configData['agentClass']) ? $configData['agentClass'] : ('Toplan\\PhpSms\\' . $name . 'Agent');
-            if ((isset($configData['sendSms']) && is_callable($configData['sendSms'])) ||
-                (isset($configData['voiceVerify']) && is_callable($configData['voiceVerify']))) {
-                //创建寄生代理器
-                $configData['agentClass'] = '';
-                self::$agents[$name] = new ParasiticAgent($configData);
+        if (!self::hasAgent($name)) {
+            $scheme = self::scheme($name);
+            $data = self::parseScheme(is_array($scheme) ? $scheme : [$scheme]);
+            $data = array_merge(self::config($name), $data);
+            $className = $data['agentClass'] ?: ('Toplan\\PhpSms\\' . $name . 'Agent');
+            if (is_callable($data['sendSms']) || is_callable($data['voiceVerify'])) {
+                self::$agents[$name] = new ParasiticAgent($data);
             } elseif (class_exists($className)) {
-                //创建新代理器
-                self::$agents[$name] = new $className($configData);
+                self::$agents[$name] = new $className($data);
             } else {
-                //无代理器可用
                 throw new PhpSmsException("Dont support [$name] agent.");
             }
         }
@@ -325,60 +295,111 @@ class Sms
     }
 
     /**
-     * Set or get agent use scheme by agent name.
+     * Whether to has specified agent.
      *
-     * @param mixed $agentName
+     * @param string $name
+     *
+     * @return bool
+     */
+    public static function hasAgent($name)
+    {
+        return isset(self::$agents[$name]);
+    }
+
+    /**
+     * Set or get the dispatch scheme of agent by name.
+     *
+     * @param mixed $name
      * @param mixed $scheme
      *
      * @return mixed
      */
-    public static function scheme($agentName = null, $scheme = null)
+    public static function scheme($name = null, $scheme = null)
     {
-        if (($agentName === null || is_string($agentName)) && $scheme === null) {
-            return $agentName === null ? self::$scheme :
-                (isset(self::$scheme[$agentName]) ? self::$scheme[$agentName] : null);
-        }
-        if (is_array($agentName)) {
-            foreach ($agentName as $name => $value) {
-                self::scheme($name, $value);
+        return Util::operateArray(self::$scheme, $name, $scheme, null, function ($key, $value) {
+            if (is_string($key)) {
+                self::modifyScheme($key, is_array($value) ? $value : "$value");
+            } elseif (is_int($key)) {
+                self::modifyScheme($value, '');
             }
-        } elseif ($agentName && is_string($agentName)) {
-            self::$scheme["$agentName"] = is_array($scheme) ? $scheme : "$scheme";
-        } elseif (is_int($agentName) && $scheme && is_string($scheme)) {
-            self::$scheme["$scheme"] = '';
-        }
+        });
+    }
 
-        return self::$scheme;
+    /**
+     * Modify the dispatch scheme of agent by name.
+     *
+     * @param $key
+     * @param $value
+     *
+     * @throws PhpSmsException
+     */
+    protected static function modifyScheme($key, $value)
+    {
+        self::validateAgentName($key);
+        self::$scheme[$key] = $value;
     }
 
     /**
      * Set or get configuration information by agent name.
      *
-     * @param mixed $agentName
+     * @param mixed $name
      * @param mixed $config
+     * @param bool  $override
      *
      * @throws PhpSmsException
      *
      * @return array
      */
-    public static function config($agentName = null, $config = null)
+    public static function config($name = null, $config = null, $override = false)
     {
-        if (($agentName === null || is_string($agentName)) && $config === null) {
-            return $agentName === null ? self::$agentsConfig :
-                (isset(self::$agentsConfig[$agentName]) ? self::$agentsConfig[$agentName] : []);
-        }
-        if (is_array($agentName)) {
-            foreach ($agentName as $name => $value) {
-                self::config($name, $value);
-            }
-        } elseif ($agentName && is_array($config)) {
-            if (preg_match('/^[0-9]+$/', $agentName)) {
-                throw new PhpSmsException("Agent name [$agentName] must be string, can not be a pure digital");
-            }
-            self::$agentsConfig["$agentName"] = $config;
+        if (is_array($name) && is_bool($config)) {
+            $override = $config;
         }
 
-        return self::$agentsConfig;
+        return Util::operateArray(self::$agentsConfig, $name, $config, [], function ($key, $value) {
+            if (is_array($value)) {
+                self::modifyConfig($key, $value);
+            }
+        }, $override, function (array $origin) {
+            $nameList = array_keys($origin);
+            foreach ($nameList as $name) {
+                if (self::hasAgent("$name")) {
+                    self::getAgent("$name")->config([], true);
+                }
+            }
+        });
+    }
+
+    /**
+     * Modify the configuration information of agent by name.
+     *
+     * @param string $key
+     * @param array  $value
+     *
+     * @throws PhpSmsException
+     */
+    protected static function modifyConfig($key, array $value)
+    {
+        self::validateAgentName($key);
+        self::$agentsConfig[$key] = $value;
+        if (self::hasAgent($key)) {
+            self::getAgent($key)->config($value);
+        }
+    }
+
+    /**
+     * Validate the agent name.
+     * Agent name must be a string, but not be a number string
+     *
+     * @param string $name
+     *
+     * @throws PhpSmsException
+     */
+    protected static function validateAgentName($name)
+    {
+        if (!$name || !is_string($name) || preg_match('/^[0-9]+$/', $name)) {
+            throw new PhpSmsException("The agent name [$name] is illegal. Agent name must be a string, but not be a number string.");
+        }
     }
 
     /**
@@ -396,7 +417,7 @@ class Sms
      */
     public static function cleanConfig()
     {
-        self::$agentsConfig = [];
+        self::config([], true);
     }
 
     /**
@@ -417,8 +438,8 @@ class Sms
         } elseif ($agentName && is_string($agentName)) {
             if ($tempId === null) {
                 $sms->content($agentName);
-            } elseif (is_string("$tempId")) {
-                $sms->template($agentName, $tempId);
+            } elseif (is_string($tempId) || is_int($tempId)) {
+                $sms->template($agentName, "$tempId");
             }
         }
 
@@ -505,16 +526,7 @@ class Sms
      */
     public function template($agentName, $tempId = null)
     {
-        if (is_array($agentName)) {
-            foreach ($agentName as $k => $v) {
-                $this->template($k, $v);
-            }
-        } elseif ($agentName && $tempId) {
-            if (!isset($this->smsData['templates']) || !is_array($this->smsData['templates'])) {
-                $this->smsData['templates'] = [];
-            }
-            $this->smsData['templates']["$agentName"] = $tempId;
-        }
+        Util::operateArray($this->smsData['templates'], $agentName, $tempId);
 
         return $this;
     }
@@ -588,7 +600,7 @@ class Sms
             try {
                 $this->pushedToQueue = true;
 
-                return call_user_func_array(self::$howToUseQueue, [$this, $this->smsData]);
+                return call_user_func_array(self::$howToUseQueue, [$this, $this->getData()]);
             } catch (\Exception $e) {
                 $this->pushedToQueue = false;
                 throw $e;
