@@ -116,16 +116,19 @@ Sms::make()->to($to)->content($content)->send();
 
 // 同时确保能通过模板和内容方式发送,这样做的好处是,可以兼顾到各种类型服务商
 Sms::make()->to($to)
-     ->template($templates)
-     ->data($tempData)
-     ->content($content)
-     ->send();
+    ->template($templates)
+    ->data($tempData)
+    ->content($content)
+    ->send();
 
 // 语音验证码
 Sms::voice('02343')->to($to)->send();
 
 // 语音验证码兼容模版语音(如阿里大鱼的文本转语音)
-Sms::voice('02343')->template('Alidayu', 'your_tts_code')->data(['code' => '02343'])->send();
+Sms::voice('02343')
+    ->template('Alidayu', 'your_tts_code')
+    ->data(['code' => '02343'])
+    ->to($to)->send();
 ```
 
 ###3. 在laravel中使用
@@ -202,7 +205,7 @@ $scheme['Luosimao'] = Sms::scheme('Luosimao');
 
 设置/获取代理器的配置数据。
 
-> 代理器参数配置在应用系统的整个运行过程中都是能进行修改，这点是和调度配置不同的。
+> 代理器参数配置在应用系统的整个运行过程中都是能修改的，这点和调度配置有所不同。
 
 - 设置
 
@@ -409,9 +412,9 @@ $sms->data([
 $sms->content('【签名】这是短信内容...');
 ```
 
-### $sms->getData()
+### $sms->getData([$key])
 
-获取Sms实例中的短信数据，返回数组，其结构如下：
+获取Sms实例中的短信数据，不带参数时返回所有数据，其结构如下：
 ```php
 [
     'type'         => ...,
