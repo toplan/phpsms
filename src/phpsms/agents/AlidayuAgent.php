@@ -24,7 +24,7 @@ class AlidayuAgent extends Agent
             'method'             => 'alibaba.aliqin.fc.sms.num.send',
             'sms_type'           => 'normal',
             'sms_free_sign_name' => $this->smsFreeSignName,
-            'sms_param'          => json_encode($data),
+            'sms_param'          => $this->getTempDataString($data),
             'rec_num'            => $to,
             'sms_template_code'  => $tempId,
         ];
@@ -41,7 +41,7 @@ class AlidayuAgent extends Agent
             //文本转语音通知
             $params['method'] = 'alibaba.aliqin.fc.tts.num.singlecall';
             $params['tts_code'] = $tempId;
-            $params['tts_param'] = json_encode($data);
+            $params['tts_param'] = $this->getTempDataString($data);
         } elseif ($code) {
             //语音通知
             $params['method'] = 'alibaba.aliqin.fc.voice.num.singlecall';
@@ -94,12 +94,12 @@ class AlidayuAgent extends Agent
             if (isset($result[$callbackName]['result'])) {
                 $result = $result[$callbackName]['result'];
                 $this->result(Agent::SUCCESS, (bool) $result['success']);
-                $this->result(Agent::INFO, $result['msg']);
+                $this->result(Agent::INFO, json_encode($result));
                 $this->result(Agent::CODE, $result['err_code']);
             } elseif (isset($result['error_response'])) {
                 $error = $result['error_response'];
                 $this->result(Agent::INFO, json_encode($error));
-                $this->result(Agent::CODE, 'code:' . $error['code'] . '|sub_code:' . $error['sub_code']);
+                $this->result(Agent::CODE, $error['code']);
             }
         } else {
             $this->result(Agent::INFO, '请求失败');
@@ -109,6 +109,15 @@ class AlidayuAgent extends Agent
     protected function genResponseName($method)
     {
         return str_replace('.', '_', $method) . '_response';
+    }
+
+    protected function getTempDataString(array $data)
+    {
+        $data = array_map(function ($value) {
+            return (string) $value;
+        }, $data);
+
+        return json_encode($data);
     }
 
     public function sendContentSms($to, $content)
