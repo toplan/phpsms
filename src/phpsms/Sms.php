@@ -71,7 +71,7 @@ class Sms
     ];
 
     /**
-     * An instance of class [SuperClosure\Serializer] use for serialization closures.
+     * An instance of class [SuperClosure\Serializer] for serialize closure objects.
      *
      * @var Serializer
      */
@@ -127,17 +127,28 @@ class Sms
 
     /**
      * Boot balancing task for send SMS/voice verify.
-     *
-     * Note: 判断drivers是否为空不能用'empty',因为在TaskBalance库的中Task类的drivers属性是受保护的(不可访问),
-     * 虽然通过魔术方法可以获取到其值,但在其目前版本(v0.4.2)其内部却并没有使用'__isset'魔术方法对'empty'或'isset'函数进行逻辑补救.
      */
     public static function bootstrap()
     {
-        $task = self::getTask();
-        if (!count($task->drivers)) {
+        if (!self::taskInitialized()) {
             self::configuration();
-            self::createDrivers($task);
+            self::initTask();
         }
+    }
+
+    /**
+     * Whether task initialized.
+     *
+     * Note: 判断drivers是否为空不能用'empty',因为在TaskBalance库的中Task类的drivers属性是受保护的(不可访问),
+     * 虽然通过魔术方法可以获取到其值,但在其目前版本(v0.4.2)其内部却并没有使用'__isset'魔术方法对'empty'或'isset'函数进行逻辑补救.
+     *
+     * @return bool
+     */
+    protected static function taskInitialized()
+    {
+        $task = self::getTask();
+
+        return (bool) count($task->drivers);
     }
 
     /**
@@ -212,11 +223,9 @@ class Sms
     }
 
     /**
-     * Create drivers for the balancing task.
-     *
-     * @param Task $task
+     * Initialize the task.
      */
-    protected static function createDrivers(Task $task)
+    protected static function initTask()
     {
         foreach (self::scheme() as $name => $scheme) {
             //解析代理器数组模式的调度配置
@@ -225,7 +234,7 @@ class Sms
                 $scheme = $data['scheme'];
             }
             //创建任务驱动器
-            $task->driver("$name $scheme")->work(function ($driver) {
+            self::getTask()->driver("$name $scheme")->work(function ($driver) {
                 $agent = self::getAgent($driver->name);
                 $smsData = $driver->getTaskData();
                 extract($smsData);
@@ -335,6 +344,9 @@ class Sms
      */
     protected static function modifyScheme($key, $value)
     {
+        if (self::taskInitialized()) {
+            throw new PhpSmsException("Modify the dispatch scheme failed for [$key] agent, because the task system has already started.");
+        }
         self::validateAgentName($key);
         self::$scheme[$key] = $value;
     }
@@ -497,7 +509,7 @@ class Sms
      */
     public function to($mobile)
     {
-        $this->smsData['to'] = $mobile;
+        $this->smsData['to'] = trim((string) $mobile);
 
         return $this;
     }
@@ -519,14 +531,14 @@ class Sms
     /**
      * Set the template id for template SMS.
      *
-     * @param mixed $agentName
+     * @param mixed $name
      * @param mixed $tempId
      *
      * @return $this
      */
-    public function template($agentName, $tempId = null)
+    public function template($name, $tempId = null)
     {
-        Util::operateArray($this->smsData['templates'], $agentName, $tempId);
+        Util::operateArray($this->smsData['templates'], $name, $tempId);
 
         return $this;
     }
@@ -606,7 +618,7 @@ class Sms
                 throw $e;
             }
         } else {
-            throw new PhpSmsException('Please define how to use queue by method `queue($available, $handler)`');
+            throw new PhpSmsException('Please define how to use queue by this static method: queue(...)');
         }
     }
 
@@ -747,7 +759,7 @@ class Sms
     protected static function serializeHandlers()
     {
         $task = self::getTask();
-        $hooks = $task->handlers;
+        $hooks = (array) $task->handlers;
         foreach ($hooks as &$handlers) {
             foreach (array_keys($handlers) as $key) {
                 self::serializeOrDeserializeClosureAndReplace($handlers, $key);

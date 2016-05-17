@@ -13,20 +13,20 @@ class Util
      * @param mixed         $getDefault
      * @param \Closure|null $setAction
      * @param bool          $override
-     * @param \Closure|null $whenOverride
+     * @param \Closure|null $beforeOverride
      * @param bool          $isSet
      *
      * @return mixed
      */
-    public static function operateArray(array &$arr, $key, $value = null, $getDefault = null, \Closure $setAction = null, $override = false, $whenOverride = null, $isSet = false)
+    public static function operateArray(array &$arr, $key, $value = null, $getDefault = null, \Closure $setAction = null, $override = false, $beforeOverride = null, $isSet = false)
     {
         if (!$isSet && ($key === null || is_string($key) || is_int($key)) && $value === null) {
             return $key === null ? $arr :
                 (isset($arr[$key]) ? $arr[$key] : $getDefault);
         }
         if ($override) {
-            if (is_callable($whenOverride)) {
-                call_user_func_array($whenOverride, [$arr]);
+            if (is_callable($beforeOverride)) {
+                call_user_func_array($beforeOverride, [$arr]);
             }
             $arr = [];
         }
