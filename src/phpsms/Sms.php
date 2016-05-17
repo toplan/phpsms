@@ -417,7 +417,6 @@ class Sms
     /**
      * Tear down agent use scheme and prepare to create and start a new balancing task,
      * so before do it must destroy old task instance.
-     *
      */
     public static function cleanScheme()
     {
