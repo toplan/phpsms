@@ -212,6 +212,6 @@ abstract class Agent
      */
     public function __isset($name)
     {
-        return isset($this->config["$name"]);
+        return array_key_exists($name, $this->config);
     }
 }
