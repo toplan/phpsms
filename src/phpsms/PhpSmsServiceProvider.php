@@ -27,7 +27,7 @@ class PhpSmsServiceProvider extends ServiceProvider
             __DIR__ . '/../config/phpsms.php', 'phpsms'
         );
 
-        Sms::scheme(config('phpsms.scheme', []);
+        Sms::scheme(config('phpsms.scheme', []));
         Sms::config(config('phpsms.agents', []));
 
         $this->app->singleton('PhpSms', function () {
