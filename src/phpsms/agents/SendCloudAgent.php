@@ -10,7 +10,6 @@ namespace Toplan\PhpSms;
  */
 class SendCloudAgent extends Agent
 {
-
     public function sendSms($to, $content, $tempId, array $data)
     {
         $this->sendTemplateSms($to, $tempId, $data);
