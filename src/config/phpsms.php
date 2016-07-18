@@ -172,5 +172,20 @@ return [
             //被叫号显(用于语音通知)，传入的显示号码必须是阿里大鱼“管理中心-号码管理”中申请或购买的号码
             'calledShowNum' => 'your called show num',
         ],
+
+        /*
+         * -----------------------------------
+         * SendCloud
+         * -----------------------------------
+         * website: http://sendcloud.sohu.com/sms/
+         * support template sms.
+         */
+        'SendCloud' => [
+            //SMS_USER
+            'smsUser' => 'your SMS_USER',
+
+            //SMS_KEY
+            'smsKey'  => 'your SMS_KEY',
+        ],
     ],
 ];
