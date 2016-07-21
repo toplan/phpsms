@@ -29,11 +29,13 @@
 | [云之讯](http://www.ucpaas.com/)        | √ | × | √ | -- | ￥0.050/条 |
 | [聚合数据](https://www.juhe.cn/)        | √ | × | √ | -- | ￥0.035/条 |
 | [阿里大鱼](https://www.alidayu.com/)    | √ | × | √ | -- | ￥0.045/条 |
+| [SendCloud](https://sendcloud.sohu.com/)    | √ | × | √ | -- | ￥0.055/条 |
+
 
 # 安装
 
 ```php
-composer require 'toplan/phpsms:~1.5.3'
+composer require 'toplan/phpsms:~1.6.0'
 ```
 
 安装开发中版本:

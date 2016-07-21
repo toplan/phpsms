@@ -2,7 +2,7 @@
   "name": "toplan/phpsms",
   "description": "sms send library for php, support the main SMS service provider.",
   "license": "MIT",
-  "version": "1.5.3",
+  "version": "1.6.0",
   "keywords": ["sms", "php sms", "phpsms", "sms library for php"],
   "authors": [
     {
