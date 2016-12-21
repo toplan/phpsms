@@ -161,13 +161,13 @@ return [
             'sendUrl' => 'https://eco.taobao.com/router/rest',
 
             //淘宝开放平台中，对应阿里大鱼短信应用的App Key
-            'appKey' => 'your app key',
+            'appKey' => env('SMS_ALIDAYU_APP_KEY', null),
 
             //淘宝开放平台中，对应阿里大鱼短信应用的App Secret
-            'secretKey' => 'your secret key',
+            'secretKey' => env('SMS_ALIDAYU_SECRET_KEY', null),
 
             //短信签名，传入的短信签名必须是在阿里大鱼“管理中心-短信签名管理”中的可用签名
-            'smsFreeSignName' => 'your sms free sign name',
+            'smsFreeSignName' => env('SMS_ALIDAYU_FREE_SIGN_NAME', '签名'),
 
             //被叫号显(用于语音通知)，传入的显示号码必须是阿里大鱼“管理中心-号码管理”中申请或购买的号码
             'calledShowNum' => 'your called show num',
