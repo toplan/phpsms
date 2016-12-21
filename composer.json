@@ -1,5 +1,5 @@
 {
-  "name": "toplan/phpsms",
+  "name": "medz/phpsms",
   "description": "sms send library for php, support the main SMS service provider.",
   "license": "MIT",
   "version": "1.6.0",
