@@ -25,7 +25,7 @@ class LuosimaoAgent extends Agent
 
     public function sendContentSms($to, $content)
     {
-        $url = 'https://sms-api.luosimao.com/v1/send.json';
+        $url = 'http://sms-api.luosimao.com/v1/send.json';
         $optData = [
             'mobile'  => $to,
             'message' => $content,
@@ -36,7 +36,7 @@ class LuosimaoAgent extends Agent
 
     public function voiceVerify($to, $code, $tempId, array $data)
     {
-        $url = 'https://voice-api.luosimao.com/v1/verify.json';
+        $url = 'http://voice-api.luosimao.com/v1/verify.json';
         $optData = [
             'mobile' => $to,
             'code'   => $code,
