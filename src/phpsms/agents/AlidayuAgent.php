@@ -52,9 +52,8 @@ class AlidayuAgent extends Agent
 
     protected function request(array $params)
     {
-        $sendUrl = $this->sendUrl ?: 'https://eco.taobao.com/router/rest';
         $params = $this->createParams($params);
-        $result = $this->curl($sendUrl, $params, true);
+        $result = $this->curl($this->sendUrl, $params, true);
         $this->setResult($result, $this->genResponseName($params['method']));
     }
 

@@ -67,7 +67,7 @@ class SendCloudAgent extends Agent
 
     protected function setResult($result)
     {
-        if ($result) {
+        if ($result['request']) {
             $response = json_decode($result['response'], true);
             if (isset($response['result'])) {
                 $this->result(Agent::SUCCESS, (bool) $response['result']);

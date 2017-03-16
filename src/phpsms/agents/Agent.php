@@ -9,7 +9,7 @@ abstract class Agent
     const CODE = 'code';
 
     /**
-     * The configuration information of agent.
+     * The configuration information.
      *
      * @var array
      */
@@ -110,14 +110,14 @@ abstract class Agent
         if (!$fp) {
             return $data;
         }
-        $head = 'POST ' . $info['path'] . " HTTP/1.0\r\n";
+        $head = 'POST ' . $info['path'] . " HTTP/1.1\r\n";
         $head .= 'Host: ' . $info['host'] . "\r\n";
         $head .= 'Referer: http://' . $info['host'] . $info['path'] . "\r\n";
         $head .= "Content-type: application/x-www-form-urlencoded\r\n";
         $head .= 'Content-Length: ' . strlen(trim($query)) . "\r\n";
         $head .= "\r\n";
         $head .= trim($query);
-        $write = fwrite($fp, $head);
+        fwrite($fp, $head);
         $header = '';
         while ($str = trim(fgets($fp, 4096))) {
             $header .= $str;
@@ -134,30 +134,39 @@ abstract class Agent
      *
      * @codeCoverageIgnore
      *
-     * @param string   $url    [请求的URL地址]
-     * @param array    $params [请求的参数]
-     * @param int|bool $isPost [是否采用POST形式]
+     * @param string $url    [请求的URL地址]
+     * @param array  $params [请求的参数]
+     * @param bool   $post   [是否采用POST形式]
+     * @param array  $opts   [curl设置项]
      *
      * @return array ['request', 'response']
      *               request:是否请求成功
      *               response:响应数据
      */
-    public static function curl($url, array $params = [], $isPost = false)
+    public static function curl($url, array $params = [], $post = false, array $opts = [])
     {
         $request = true;
+        if (is_array($post)) {
+            $opts = $post;
+        }
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.22 (KHTML, like Gecko) Chrome/25.0.1364.172 Safari/537.22');
+        curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        if ($isPost) {
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        if ($post) {
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
             curl_setopt($ch, CURLOPT_URL, $url);
         } else {
             $params = http_build_query($params);
             curl_setopt($ch, CURLOPT_URL, $params ? "$url?$params" : $url);
+        }
+        foreach ($opts as $key => $value) {
+            curl_setopt($ch, $key, $value);
         }
         $response = curl_exec($ch);
         if ($response === false) {
@@ -170,7 +179,7 @@ abstract class Agent
     }
 
     /**
-     * Set/get result data.
+     * Get or set the result data.
      *
      * @param $name
      * @param $value

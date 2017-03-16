@@ -44,7 +44,7 @@ class Util
     }
 
     /**
-     * Pull the value from the specified array by key.
+     * 从数组中根据指定键名拉取数据
      *
      * @param array      $options
      * @param int|string $key

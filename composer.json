@@ -1,8 +1,8 @@
 {
   "name": "toplan/phpsms",
-  "description": "May be the most intelligent, elegant library for send SMS by php.",
+  "description": "May be the most intelligent, elegant sms send library in php",
   "license": "MIT",
-  "keywords": ["sms", "php sms", "phpsms", "sms library for php"],
+  "keywords": ["sms", "php", "phpsms", "sms library"],
   "authors": [
     {
       "name": "toplan",

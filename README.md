@@ -35,12 +35,12 @@
 # 安装
 
 ```php
-composer require 'toplan/phpsms:~1.6.0'
+composer require toplan/phpsms:~1.6.0
 ```
 
 安装开发中版本:
 ```php
-composer require 'toplan/phpsms:dev-master'
+composer require toplan/phpsms:dev-master
 ```
 
 # 快速上手
@@ -234,14 +234,6 @@ $config = Sms::config();
 $config['Luosimao'] = Sms::config('Luosimao');
 ```
 
-### Sms::cleanScheme()
-
-清空所有代理器的调度方案，请谨慎使用该接口。
-
-### Sms::cleanConfig()
-
-清空所有代理器的配置数据，请谨慎使用该接口。
-
 ### Sms::beforeSend($handler[, $override]);
 
 发送前钩子，示例：
@@ -256,7 +248,7 @@ Sms::beforeSend(function($task, $prev, $index, $handlers){
 ```
 > 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“beforeRun”钩子
 
-### Sms::beforeAgentSend($handler [, $override]);
+### Sms::beforeAgentSend($handler[, $override]);
 
 代理器发送前钩子，示例：
 ```php
@@ -271,7 +263,7 @@ Sms::beforeAgentSend(function($task, $driver, $prev, $index, $handlers){
 ```
 > 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“beforeDriverRun”钩子
 
-### Sms::afterAgentSend($handler [, $override]);
+### Sms::afterAgentSend($handler[, $override]);
 
 代理器发送后钩子，示例：
 ```php

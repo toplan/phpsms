@@ -15,7 +15,7 @@ return [
      * 2. 'backup' (ignore upper/lower case)
      *
      * supported agents:
-     * 'Luosimao', 'YunTongXun', 'YunPian', 'SubMail', 'Ucpaas', 'JuHe', 'Alidayu', 'Log'
+     * 'Log', 'Luosimao', 'YunTongXun', 'YunPian', 'SubMail', 'Ucpaas', 'JuHe', 'Alidayu', 'SendCloud'
      */
     'scheme' => [
         'Log',
@@ -104,12 +104,12 @@ return [
          * support content sms.
          */
         'Luosimao' => [
-            // 短信 API key
-            // 在管理中心->短信->触发发送下查看
+            //短信 API key
+            //在管理中心->短信->触发发送下查看
             'apikey' => 'your api key',
 
-            // 语言验证 API key
-            // 在管理中心->语音->语音验证下查看
+            //语言验证 API key
+            //在管理中心->语音->语音验证下查看
             'voiceApikey' => 'your voice api key',
         ],
 
@@ -158,7 +158,7 @@ return [
          */
         'Alidayu' => [
             //请求地址
-            'sendUrl' => 'https://eco.taobao.com/router/rest',
+            'sendUrl' => 'http://gw.api.taobao.com/router/rest',
 
             //淘宝开放平台中，对应阿里大鱼短信应用的App Key
             'appKey' => 'your app key',
