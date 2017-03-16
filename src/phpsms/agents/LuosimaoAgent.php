@@ -31,7 +31,7 @@ class LuosimaoAgent extends Agent
         ];
         $result = $this->curl($url, $optData, true, [
             CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
-            CURLOPT_USERPWD => "api:key-$this->apikey"
+            CURLOPT_USERPWD  => "api:key-$this->apikey",
         ]);
         $this->setResult($result);
     }
@@ -45,7 +45,7 @@ class LuosimaoAgent extends Agent
         ];
         $result = $this->curl($url, $optData, true, [
             CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
-            CURLOPT_USERPWD => "api:key-$this->voiceApikey"
+            CURLOPT_USERPWD  => "api:key-$this->voiceApikey",
         ]);
         $this->setResult($result);
     }
