@@ -187,5 +187,27 @@ return [
             //SMS_KEY
             'smsKey'  => 'your SMS_KEY',
         ],
+
+        /*
+         * -----------------------------------
+         * Smsbao
+         * -----------------------------------
+         * website: http://www.smsbao.com
+         * not support template sms.
+         * 不支持模板变量短信
+         * support content sms.
+         * 支持内容短信
+         * support voice sms.
+         * 支持语音验证码
+         * 支持自定义短信签名
+         * 最低消费5元(50条) 最低消费单价0.04元（100万条）
+         */
+        'Smsbao' => [
+            //SMS_USER
+            'smsUser' => 'your SMS_USER',
+
+            //SMS_PASSWORD
+            'smsPassword'  => 'your SMS_PASSWORD'
+        ],
     ],
 ];
