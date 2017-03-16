@@ -30,6 +30,7 @@
 | [聚合数据](https://www.juhe.cn/)        | √ | × | √ | -- | ￥0.035/条 |
 | [阿里大鱼](https://www.alidayu.com/)    | √ | × | √ | -- | ￥0.045/条 |
 | [SendCloud](https://sendcloud.sohu.com/)    | √ | × | √ | -- | ￥0.048/条 |
+| [短信宝](http://www.smsbao.com/)    | × | √ | √ | ￥5(50条) | ￥0.040/条(100万条) |
 
 
 # 安装
@@ -63,6 +64,13 @@ Sms::config([
     'YunPian'  => [
         //用户唯一标识，必须
         'apikey' => 'your api key',
+    ],
+    'Smsbao' => [
+        //在短信宝注册的用户名，必须
+        'smsUser' => 'your SMS_USER',
+
+        //在短信宝网站注册的密码（明文），必须
+        'smsPassword'  => 'your SMS_PASSWORD'
     ]
 ]);
 ```
