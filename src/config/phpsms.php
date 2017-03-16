@@ -15,7 +15,7 @@ return [
      * 2. 'backup' (ignore upper/lower case)
      *
      * supported agents:
-     * 'Luosimao', 'YunTongXun', 'YunPian', 'SubMail', 'Ucpaas', 'JuHe', 'Alidayu', 'Log'
+     * 'Luosimao', 'YunTongXun', 'YunPian', 'SubMail', 'Ucpaas', 'JuHe', 'Alidayu', 'Smsbao', 'Log'
      */
     'scheme' => [
         'Log',
