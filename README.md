@@ -43,7 +43,7 @@
 # 安装
 
 ```php
-composer require toplan/phpsms:~1.6.0
+composer require toplan/phpsms:~1.7.0
 ```
 
 安装开发中版本:
@@ -549,6 +549,11 @@ Sms::scheme([
 
 - 改进语音信息的发送接口以适应阿里大鱼的通过文本转语音和语音文件id两个接口的需求
 - 新加阿里大鱼(Alidayu)代理器
+
+### v1.7.0
+
+- 修复安装失败的问题(`SuperClosure`版本不兼容)
+- 新加短信宝(SmsBao)代理器
 
 # 公告
 

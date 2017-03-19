@@ -11,7 +11,7 @@ namespace Toplan\PhpSms;
 class SmsBaoAgent extends Agent
 {
     protected $resultArr = [
-        '0' => '短信发送成功',
+        '0' => '发送成功',
         '-1' => '参数不全',
         '-2' => '服务器空间不支持,请确认支持curl或者fsocket，联系您的空间商解决或者更换空间！',
         '30' => '密码错误',
@@ -71,7 +71,6 @@ class SmsBaoAgent extends Agent
         $password = md5($this->smsPassword);
         $postString = "u=$username&p=$password&m=$to&c=$code";
         $response = $this->sockPost($url, $postString);
-        $response = is_array($response) ? $response['response'] : $response;
         $this->setResult($response);
     }
 
