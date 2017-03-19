@@ -1,7 +1,6 @@
 # PhpSms
 [![StyleCI](https://styleci.io/repos/44543599/shield)](https://styleci.io/repos/44543599)
 [![Build Status](https://travis-ci.org/toplan/phpsms.svg?branch=master)](https://travis-ci.org/toplan/phpsms)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/toplan/phpsms/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/toplan/phpsms/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/toplan/phpsms/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/toplan/phpsms/?branch=master)
 [![Latest Stable Version](https://img.shields.io/packagist/v/toplan/phpsms.svg)](https://packagist.org/packages/toplan/phpsms)
 [![Total Downloads](https://img.shields.io/packagist/dt/toplan/phpsms.svg)](https://packagist.org/packages/toplan/phpsms)
@@ -553,6 +552,7 @@ Sms::scheme([
 ### v1.7.0
 
 - 修复安装失败的问题(`SuperClosure`版本不兼容)
+- 兼容`Lumen`框架
 - 新加短信宝(SmsBao)代理器
 
 # 公告
