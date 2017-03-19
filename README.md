@@ -1,6 +1,7 @@
 # PhpSms
 [![StyleCI](https://styleci.io/repos/44543599/shield)](https://styleci.io/repos/44543599)
 [![Build Status](https://travis-ci.org/toplan/phpsms.svg?branch=master)](https://travis-ci.org/toplan/phpsms)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/toplan/phpsms/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/toplan/phpsms/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/toplan/phpsms/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/toplan/phpsms/?branch=master)
 [![Latest Stable Version](https://img.shields.io/packagist/v/toplan/phpsms.svg)](https://packagist.org/packages/toplan/phpsms)
 [![Total Downloads](https://img.shields.io/packagist/dt/toplan/phpsms.svg)](https://packagist.org/packages/toplan/phpsms)
@@ -8,6 +9,12 @@
 可能是目前最聪明、优雅的php短信发送库了。从此不再为各种原因造成的个别短信发送失败而烦忧！
 
 > phpsms的任务均衡调度功能由[toplan/task-balancer](https://github.com/toplan/task-balancer)提供。
+
+# Sponsorship
+
+特别感谢以下赞助者:
+
+![短信宝](http://toplan.github.io/img/smsbao-logo.png)
 
 # 特点
 - 支持发送均衡调度，可按代理器权重值均衡选择服务商发送。
@@ -29,7 +36,8 @@
 | [云之讯](http://www.ucpaas.com/)        | √ | × | √ | -- | ￥0.050/条 |
 | [聚合数据](https://www.juhe.cn/)        | √ | × | √ | -- | ￥0.035/条 |
 | [阿里大鱼](https://www.alidayu.com/)    | √ | × | √ | -- | ￥0.045/条 |
-| [SendCloud](https://sendcloud.sohu.com/)    | √ | × | √ | -- | ￥0.048/条 |
+| [SendCloud](https://sendcloud.sohu.com/) | √ | × | √ | -- | ￥0.048/条 |
+| [**短信宝**](http://www.smsbao.com/)    | × | √ | √ | ￥5(50条) | ￥0.040/条(100万条) |
 
 
 # 安装
@@ -63,6 +71,12 @@ Sms::config([
     'YunPian'  => [
         //用户唯一标识，必须
         'apikey' => 'your api key',
+    ],
+    'SmsBao' => [
+        //在短信宝注册的用户名，必须
+        'smsUser' => 'your SMS_USER',
+        //在短信宝网站注册的密码（明文），必须
+        'smsPassword'  => 'your SMS_PASSWORD'
     ]
 ]);
 ```
@@ -81,13 +95,13 @@ Sms::scheme([
     'YunPian' => '10 backup',
 
     //仅为备用代理器
-    'YunTongXun' => '0 backup',
+    'SmsBao' => '0 backup',
 ]);
 ```
 > **调度方案解析：**
 > 如果按照以上配置，那么系统首次会尝试使用`Luosimao`或`YunPian`发送短信，且它们被使用的概率分别为`2/3`和`1/3`。
-> 如果使用其中一个代理器发送失败，那么会启用备用代理器，按照配置可知备用代理器有`YunPian`和`YunTongXun`，那么会依次调用直到发送成功或无备用代理器可用。
-> 值得注意的是，如果首次尝试的是`YunPian`，那么备用代理器将会只使用`YunTongXun`，也就是会排除使用过的代理器。
+> 如果使用其中一个代理器发送失败，那么会启用备用代理器，按照配置可知备用代理器有`YunPian`和`SmsBao`，那么会依次调用直到发送成功或无备用代理器可用。
+> 值得注意的是，如果首次尝试的是`YunPian`，那么备用代理器将会只使用`SmsBao`，也就是会排除使用过的代理器。
 
 ### 2. Enjoy it!
 
@@ -113,7 +127,7 @@ $content = '【签名】这是短信内容...';
 // 只希望使用模板方式发送短信,可以不设置content(如:云通讯、Submail、Ucpaas)
 Sms::make()->to($to)->template($templates)->data($tempData)->send();
 
-// 只希望使用内容方式放送,可以不设置模板id和模板data(如:云片、luosimao)
+// 只希望使用内容方式放送,可以不设置模板id和模板data(如:短信宝、云片、luosimao)
 Sms::make()->to($to)->content($content)->send();
 
 // 同时确保能通过模板和内容方式发送,这样做的好处是,可以兼顾到各种类型服务商
@@ -183,11 +197,11 @@ PhpSms::make()->to($to)->content($content)->send();
 手动设置代理器调度方案(优先级高于配置文件)，如：
 ```php
 Sms::scheme([
-    'Luosimao' => '80 backup'
+    'SmsBao' => '80 backup'
     'YunPian' => '100 backup'
 ]);
 //或
-Sms::scheme('Luosimao', '80 backup');
+Sms::scheme('SmsBao', '80 backup');
 Sms::scheme('YunPian', '100 backup');
 ```
 - 获取
@@ -198,7 +212,7 @@ Sms::scheme('YunPian', '100 backup');
 $scheme = Sms::scheme();
 
 //获取指定代理器的调度方案:
-$scheme['Luosimao'] = Sms::scheme('Luosimao');
+$scheme['SmsBao'] = Sms::scheme('SmsBao');
 ```
 
 > `scheme`静态方法的更多使用方法见[高级调度配置](#高级调度配置)
@@ -214,13 +228,15 @@ $scheme['Luosimao'] = Sms::scheme('Luosimao');
 手动设置代理器的配置数据(优先级高于配置文件)，如：
 ```php
 Sms::config([
-   'YunPian' => [
-       'apikey' => ...,
+   'SmsBao' => [
+       'smsUser' => ...,
+       'smsPassword' => ...,
    ]
 ]);
 //或
-Sms::config('YunPian', [
-   'apikey' => ...,
+Sms::config('SmsBao', [
+   'smsUser' => ...,
+   'smsPassword' => ...,
 ]);
 ```
 - 获取
@@ -231,7 +247,7 @@ Sms::config('YunPian', [
 $config = Sms::config();
 
 //获取指定代理器的配置:
-$config['Luosimao'] = Sms::config('Luosimao');
+$config['SmsBao'] = Sms::config('SmsBao');
 ```
 
 ### Sms::beforeSend($handler[, $override]);
@@ -401,7 +417,7 @@ $sms->data([
 
 ### $sms->content($text)
 
-设置内容短信的内容，并返回实例对象。一些内置的代理器(如YunPian,Luosimao)使用的是内容短信(即直接发送短信内容)，那么就需要为它们设置短信内容。
+设置内容短信的内容，并返回实例对象。一些内置的代理器(如SmsBao、YunPian、Luosimao)使用的是内容短信(即直接发送短信内容)，那么就需要为它们设置短信内容。
 ```php
 $sms->content('【签名】这是短信内容...');
 ```
@@ -424,7 +440,7 @@ $sms->content('【签名】这是短信内容...');
 
 临时设置发送时使用的代理器(不会影响备用代理器的正常使用)，并返回实例，`$name`为代理器名称。
 ```php
-$sms->agent('YunPian');
+$sms->agent('SmsBao');
 ```
 > 通过该方法设置的代理器将获得绝对优先权，但只对当前短信实例有效。
 
@@ -479,7 +495,7 @@ Sms::scheme([
             //获取配置(如果设置了的话):
             $key = $agent->key;
             ...
-            //内置方法:
+            //可使用的内置方法:
             Agent::sockPost(...);
             Agent::curl(...);
             ...
