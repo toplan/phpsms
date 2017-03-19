@@ -45,7 +45,7 @@ composer require toplan/phpsms:dev-master
 
 # 快速上手
 
-###1. 配置
+### 1. 配置
 
 - 配置代理器所需参数
 
@@ -89,7 +89,7 @@ Sms::scheme([
 > 如果使用其中一个代理器发送失败，那么会启用备用代理器，按照配置可知备用代理器有`YunPian`和`YunTongXun`，那么会依次调用直到发送成功或无备用代理器可用。
 > 值得注意的是，如果首次尝试的是`YunPian`，那么备用代理器将会只使用`YunTongXun`，也就是会排除使用过的代理器。
 
-###2. Enjoy it!
+### 2. Enjoy it!
 
 ```php
 require('path/to/vendor/autoload.php');
@@ -133,7 +133,7 @@ Sms::voice('02343')
     ->to($to)->send();
 ```
 
-###3. 在laravel中使用
+### 3. 在laravel中使用
 
 如果你只想单纯的在laravel中使用phpsms的功能可以按如下步骤操作，
 当然也为你准备了基于phpsms开发的[laravel-sms](https://github.com/toplan/laravel-sms)
