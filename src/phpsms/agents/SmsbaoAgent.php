@@ -11,7 +11,7 @@ namespace Toplan\PhpSms;
 class SmsBaoAgent extends Agent
 {
     protected $resultArr = [
-        '0' => '发送成功',
+        '0'  => '发送成功',
         '-1' => '参数不全',
         '-2' => '服务器空间不支持,请确认支持curl或者fsocket，联系您的空间商解决或者更换空间！',
         '30' => '密码错误',
@@ -76,7 +76,7 @@ class SmsBaoAgent extends Agent
 
     protected function setResult($result)
     {
-        $msg = key_exists($result, $this->resultArr) ? $this->resultArr[$result] : '未知错误';
+        $msg = array_key_exists($result, $this->resultArr) ? $this->resultArr[$result] : '未知错误';
         $this->result(Agent::INFO, json_encode(['code' => $result, 'msg' => $msg]));
         $this->result(Agent::SUCCESS, $result === '0');
         $this->result(Agent::CODE, $result);
