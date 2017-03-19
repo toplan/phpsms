@@ -8,7 +8,7 @@ namespace Toplan\PhpSms;
  * @property string $smsUser
  * @property string $smsPassword
  */
-class SmsbaoAgent extends Agent
+class SmsBaoAgent extends Agent
 {
     protected $resultArr = [
         '0'  => '发送成功',
