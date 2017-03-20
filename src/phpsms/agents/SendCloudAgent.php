@@ -75,7 +75,7 @@ class SendCloudAgent extends Agent
                 $this->result(Agent::CODE, $response['statusCode']);
             }
         } else {
-            $this->result(Agent::INFO, '请求失败');
+            $this->result(Agent::INFO, 'request failed');
         }
     }
 

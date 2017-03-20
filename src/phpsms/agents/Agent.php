@@ -92,44 +92,6 @@ abstract class Agent
     abstract public function voiceVerify($to, $code, $tempId, array $tempData);
 
     /**
-     * Http post request.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param       $url
-     * @param array $query
-     * @param       $port
-     *
-     * @return mixed
-     */
-    public static function sockPost($url, $query, $port = 80)
-    {
-        $data = '';
-        $info = parse_url($url);
-        $fp = fsockopen($info['host'], $port, $errno, $errstr, 30);
-        if (!$fp) {
-            return $data;
-        }
-        $head = 'POST ' . $info['path'] . " HTTP/1.1\r\n";
-        $head .= 'Host: ' . $info['host'] . "\r\n";
-        $head .= 'Referer: http://' . $info['host'] . $info['path'] . "\r\n";
-        $head .= "Content-type: application/x-www-form-urlencoded\r\n";
-        $head .= 'Content-Length: ' . strlen(trim($query)) . "\r\n";
-        $head .= "\r\n";
-        $head .= trim($query);
-        fwrite($fp, $head);
-        $header = '';
-        while ($str = trim(fgets($fp, 4096))) {
-            $header .= $str;
-        }
-        while (!feof($fp)) {
-            $data .= fgets($fp, 4096);
-        }
-
-        return $data;
-    }
-
-    /**
      * cURl
      *
      * @codeCoverageIgnore

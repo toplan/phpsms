@@ -101,7 +101,7 @@ class AlidayuAgent extends Agent
                 $this->result(Agent::CODE, $error['code']);
             }
         } else {
-            $this->result(Agent::INFO, '请求失败');
+            $this->result(Agent::INFO, 'request failed');
         }
     }
 

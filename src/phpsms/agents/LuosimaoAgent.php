@@ -58,7 +58,7 @@ class LuosimaoAgent extends Agent
             $this->result(Agent::SUCCESS, $result['error'] === 0);
             $this->result(Agent::CODE, $result['error']);
         } else {
-            $this->result(Agent::INFO, '请求失败');
+            $this->result(Agent::INFO, 'request failed');
         }
     }
 

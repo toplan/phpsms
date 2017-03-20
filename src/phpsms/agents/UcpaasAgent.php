@@ -42,7 +42,7 @@ class UcpaasAgent extends Agent
     {
         $result = json_decode($result);
         if (!$result) {
-            $this->result(Agent::INFO, '请求失败');
+            $this->result(Agent::INFO, 'request failed');
 
             return;
         }

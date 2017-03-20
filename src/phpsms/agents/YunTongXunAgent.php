@@ -9,7 +9,6 @@ use REST;
  *
  * @property string $serverIP
  * @property string $serverPort
- * @property string $softVersion
  * @property string $accountSid
  * @property string $accountToken
  * @property string $appId
@@ -42,7 +41,7 @@ class YunTongXunAgent extends Agent
 
     protected function rest()
     {
-        $rest = new REST($this->serverIP, $this->serverPort, $this->softVersion, 'json');
+        $rest = new REST($this->serverIP, $this->serverPort, '2013-12-26', 'json');
         $rest->setAccount($this->accountSid, $this->accountToken);
         $rest->setAppId($this->appId);
 

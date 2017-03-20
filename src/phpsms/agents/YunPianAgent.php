@@ -9,6 +9,11 @@ namespace Toplan\PhpSms;
  */
 class YunPianAgent extends Agent
 {
+    protected $headers = [
+        'Accept:application/json;charset=utf-8',
+        'Content-Type:application/x-www-form-urlencoded;charset=utf-8',
+    ];
+
     public function sendSms($to, $content, $tempId, array $data)
     {
         $this->sendContentSms($to, $content);
@@ -16,32 +21,47 @@ class YunPianAgent extends Agent
 
     public function sendContentSms($to, $content)
     {
-        $url = 'http://yunpian.com/v1/sms/send.json';
-        $apikey = $this->apikey;
-        $content = urlencode("$content");
-        $postString = "apikey=$apikey&text=$content&mobile=$to";
-        $response = $this->sockPost($url, $postString);
-        $this->setResult($response);
+        $url = 'https://sms.yunpian.com/v1/sms/send.json';
+        $params = [
+            'apikey' => $this->apikey,
+            'mobile' => $to,
+            'text'   => $content,
+        ];
+        $result = $this->curl($url, $params, true, [
+            CURLOPT_HTTPHEADER => $this->headers,
+            CURLOPT_POSTFIELDS => http_build_query($params),
+        ]);
+        $this->setResult($result);
     }
 
     public function voiceVerify($to, $code, $tempId, array $data)
     {
-        $url = 'http://voice.yunpian.com/v1/voice/send.json';
-        $apikey = $this->apikey;
-        $postString = "apikey=$apikey&code=$code&mobile=$to";
-        $response = $this->sockPost($url, $postString);
-        $this->setResult($response);
-    }
-
-    protected function setResult($result)
-    {
-        $this->result(Agent::INFO, $result);
-        $result = json_decode($result, true);
-        $this->result(Agent::SUCCESS, $result['code'] === 0);
-        $this->result(Agent::CODE, $result['code']);
+        $url = 'https://voice.yunpian.com/v1/voice/send.json';
+        $params = [
+            'apikey' => $this->apikey,
+            'mobile' => $to,
+            'code'   => $code,
+        ];
+        $result = $this->curl($url, $params, true, [
+            CURLOPT_HTTPHEADER => $this->headers,
+            CURLOPT_POSTFIELDS => http_build_query($params),
+        ]);
+        $this->setResult($result);
     }
 
     public function sendTemplateSms($to, $tempId, array $data)
     {
+    }
+
+    protected function setResult($result)
+    {
+        if ($result['request']) {
+            $this->result(Agent::INFO, $result['response']);
+            $result = json_decode($result['response'], true);
+            $this->result(Agent::SUCCESS, $result['code'] === 0);
+            $this->result(Agent::CODE, $result['code']);
+        } else {
+            $this->result(Agent::INFO, 'request failed');
+        }
     }
 }

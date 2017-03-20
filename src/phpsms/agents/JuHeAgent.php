@@ -60,7 +60,7 @@ class JuHeAgent extends Agent
             $this->result(Agent::INFO, json_encode($result));
             $this->result(Agent::CODE, $result['error_code']);
         } else {
-            $this->result(Agent::INFO, '请求失败');
+            $this->result(Agent::INFO, 'request failed');
         }
     }
 
