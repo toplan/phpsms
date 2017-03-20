@@ -32,8 +32,9 @@ class JuHeAgent extends Agent
             'mobile'    => $to,
             'tpl_id'    => $tempId,
             'tpl_value' => $tplValue,
+            'dtype'     => 'json',
         ];
-        $result = $this->curl($sendUrl, $smsConf, true);
+        $result = $this->curl($sendUrl, $smsConf);
         $this->setResult($result);
     }
 
@@ -45,6 +46,7 @@ class JuHeAgent extends Agent
             'to'        => $to,
             'playtimes' => $this->times ?: 3,
             'key'       => $this->key,
+            'dtype'     => 'json',
         ];
         $result = $this->curl($url, $params);
         $this->setResult($result);
@@ -53,14 +55,12 @@ class JuHeAgent extends Agent
     protected function setResult($result)
     {
         if ($result['request']) {
+            $this->result(Agent::INFO, $result['response']);
             $result = json_decode($result['response'], true);
-            if ($result['error_code'] === 0) {
-                $this->result(Agent::SUCCESS, true);
-            }
-            $this->result(Agent::INFO, json_encode($result));
+            $this->result(Agent::SUCCESS, $result['error_code'] === 0);
             $this->result(Agent::CODE, $result['error_code']);
         } else {
-            $this->result(Agent::INFO, '请求失败');
+            $this->result(Agent::INFO, 'request failed');
         }
     }
 

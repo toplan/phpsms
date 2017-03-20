@@ -5,15 +5,14 @@ namespace Toplan\PhpSms;
 /**
  * Class SmsBaoAgent
  *
- * @property string $smsUser
- * @property string $smsPassword
+ * @property string $username
+ * @property string $password
  */
 class SmsBaoAgent extends Agent
 {
     protected $resultArr = [
         '0'  => '发送成功',
         '-1' => '参数不全',
-        '-2' => '服务器空间不支持,请确认支持curl或者fsocket，联系您的空间商解决或者更换空间！',
         '30' => '密码错误',
         '40' => '账号不存在',
         '41' => '余额不足',
@@ -37,12 +36,14 @@ class SmsBaoAgent extends Agent
     public function sendContentSms($to, $content)
     {
         $url = 'http://api.smsbao.com/sms';
-        $username = $this->smsUser;
-        $password = md5($this->smsPassword);
-        $content = urlencode($content);
-        $postString = "u=$username&p=$password&m=$to&c=$content";
-        $response = $this->sockPost($url, $postString);
-        $this->setResult($response);
+        $params = [
+            'u' => $this->username,
+            'p' => md5($this->password),
+            'm' => $to,
+            'c' => $content,
+        ];
+        $result = $this->curl($url, $params);
+        $this->setResult($result);
     }
 
     /**
@@ -67,18 +68,26 @@ class SmsBaoAgent extends Agent
     public function voiceVerify($to, $code, $tempId, array $tempData)
     {
         $url = 'http://api.smsbao.com/voice';
-        $username = $this->smsUser;
-        $password = md5($this->smsPassword);
-        $postString = "u=$username&p=$password&m=$to&c=$code";
-        $response = $this->sockPost($url, $postString);
-        $this->setResult($response);
+        $params = [
+            'u' => $this->username,
+            'p' => md5($this->password),
+            'm' => $to,
+            'c' => $code,
+        ];
+        $result = $this->curl($url, $params);
+        $this->setResult($result);
     }
 
     protected function setResult($result)
     {
-        $msg = array_key_exists($result, $this->resultArr) ? $this->resultArr[$result] : '未知错误';
-        $this->result(Agent::INFO, json_encode(['code' => $result, 'msg' => $msg]));
-        $this->result(Agent::SUCCESS, $result === '0');
-        $this->result(Agent::CODE, $result);
+        if ($result['request']) {
+            $result = $result['response'];
+            $msg = array_key_exists($result, $this->resultArr) ? $this->resultArr[$result] : 'unknown error';
+            $this->result(Agent::INFO, json_encode(['code' => $result, 'msg' => $msg]));
+            $this->result(Agent::SUCCESS, $result === '0');
+            $this->result(Agent::CODE, $result);
+        } else {
+            $this->result(Agent::INFO, 'request failed');
+        }
     }
 }

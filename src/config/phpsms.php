@@ -69,9 +69,6 @@ return [
             //请求端口，生产环境和沙盒环境一致
             'serverPort' => '8883',
 
-            //REST版本号，在官网文档REST介绍中获得。
-            'softVersion' => '2013-12-26',
-
             //被叫号显
             'displayNum' => null,
 
@@ -170,7 +167,7 @@ return [
             'smsFreeSignName' => 'your sms free sign name',
 
             //被叫号显(用于语音通知)，传入的显示号码必须是阿里大鱼“管理中心-号码管理”中申请或购买的号码
-            'calledShowNum' => 'your called show num',
+            'calledShowNum' => null,
         ],
 
         /*
@@ -204,10 +201,10 @@ return [
          */
         'SmsBao' => [
             //username
-            'smsUser' => 'your username',
+            'username' => 'your username',
 
             //password
-            'smsPassword' => 'your password',
+            'password' => 'your password',
         ],
     ],
 ];
