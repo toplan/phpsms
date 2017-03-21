@@ -31,7 +31,7 @@
 | [Luosimao](http://luosimao.com)        | × | √ | √ | ￥850(1万条) | ￥0.085/条 |
 | [云片网络](http://www.yunpian.com)      | × | √ | √ | ￥55(1千条) | ￥0.055/条 |
 | [容联·云通讯](http://www.yuntongxun.com) | √ | × | √ | 充值￥500   | ￥0.055/条 |
-| [SUBMAIL](http://submail.cn)           | √ | × | × | ￥100(1千条) | ￥0.100/条 |
+| [SUBMAIL](http://submail.cn)           | √ | × | √ | ￥100(1千条) | ￥0.100/条 |
 | [云之讯](http://www.ucpaas.com/)        | √ | × | √ | -- | ￥0.050/条 |
 | [聚合数据](https://www.juhe.cn/)        | √ | × | √ | -- | ￥0.035/条 |
 | [阿里大鱼](https://www.alidayu.com/)    | √ | × | √ | -- | ￥0.045/条 |
@@ -552,7 +552,9 @@ Sms::scheme([
 
 - 修复安装失败的问题(`SuperClosure`版本不兼容)
 - 兼容`Lumen`框架
-- 新加短信宝(SmsBao)代理器
+- 去掉代理器内置的`sockPost`方法，统一使用`curl`
+- `SubMail`支持语音
+- 新加短信宝(`SmsBao`)代理器
 
 # 公告
 
