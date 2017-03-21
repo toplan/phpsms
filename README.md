@@ -226,14 +226,14 @@ $scheme['SmsBao'] = Sms::scheme('SmsBao');
 ```php
 Sms::config([
    'SmsBao' => [
-       'smsUser' => ...,
-       'smsPassword' => ...,
+       'username' => ...,
+       'password' => ...,
    ]
 ]);
 //或
 Sms::config('SmsBao', [
-   'smsUser' => ...,
-   'smsPassword' => ...,
+   'username' => ...,
+   'password' => ...,
 ]);
 ```
 - 获取
