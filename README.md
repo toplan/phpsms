@@ -40,7 +40,7 @@
 # 安装
 
 ```php
-composer require toplan/phpsms:~1.7.0
+composer require toplan/phpsms:^1.7.0
 ```
 
 安装开发中版本:
@@ -524,44 +524,6 @@ Sms::scheme([
 
 新建一个继承`Toplan\PhpSms\Agent`抽象类的代理器类，建议代理器类名为`FooAgent`，建议命名空间为`Toplan\PhpSms`。
 如果类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，在使用该代理器时则需要指定代理器类，详见[高级调度配置](#高级调度配置)。
-
-# Change logs
-
-### v1.4.0
-
-该系列版本相较与之前版本在api的设计上有些变动，具体如下：
-
-- 修改原`enable`静态方法为`scheme`
-
-- 修改原`agents`静态方法为`config`
-
-- 修改原`cleanEnableAgents`静态方法为`cleanScheme`
-
-- 修改原`cleanAgentsConfig`静态方法为`cleanConfig`
-
-- 去掉`getEnableAgents`和`getAgentsConfig`静态方法
-
-### v1.5.0
-
-- 改进语音信息的发送接口以适应阿里大鱼的通过文本转语音和语音文件id两个接口的需求
-- 新加阿里大鱼(Alidayu)代理器
-
-### v1.7.0
-
-- 修复安装失败的问题(`SuperClosure`版本不兼容)
-- 兼容`Lumen`框架
-- 去掉代理器内置的`sockPost`方法，统一使用`curl`
-- `SubMail`支持语音验证码
-- 新加短信宝(`SmsBao`)代理器
-
-# 公告
-
-1. 如果在使用队列相关功能时出现如下错误:
-
-```php
-Fatal error：Maximum function nesting level of ‘100′ reached, aborting!
-```
-可在`/etc/php5/mods-available/xdebug.ini`(Linux)中新加`xdebug.max_nesting_level=500`
 
 # Todo list
 

@@ -24,7 +24,6 @@ class PhpSmsServiceProvider extends ServiceProvider
         } else {
             $publishPath = base_path('config/phpsms.php');
         }
-        //publish config files
         $this->publishes([
             __DIR__ . '/../config/phpsms.php' => $publishPath,
         ], 'config');
@@ -38,7 +37,6 @@ class PhpSmsServiceProvider extends ServiceProvider
         if ($this->app instanceof LumenApplication) {
             $this->app->configure('phpsms');
         }
-        //merge configs
         $this->mergeConfigFrom(
             __DIR__ . '/../config/phpsms.php', 'phpsms'
         );
@@ -46,7 +44,9 @@ class PhpSmsServiceProvider extends ServiceProvider
         Sms::scheme(config('phpsms.scheme', []));
         Sms::config(config('phpsms.agents', []));
 
-        $this->app->singleton('PhpSms', function () {
+        $this->app->singleton([
+            'Toplan\\PhpSms\\Sms' => 'phpsms.sms',
+        ], function () {
             return new Sms(false);
         });
     }
@@ -58,6 +58,6 @@ class PhpSmsServiceProvider extends ServiceProvider
      */
     public function provides()
     {
-        return ['PhpSms'];
+        return ['phpsms.sms', 'Toplan\\PhpSms\\Sms'];
     }
 }
