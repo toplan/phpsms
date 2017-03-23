@@ -59,7 +59,7 @@ class Sms
     protected static $howToUseQueue = null;
 
     /**
-     * The available hooks for balancing task.
+     * The available hooks.
      *
      * @var array
      */
@@ -126,7 +126,7 @@ class Sms
     }
 
     /**
-     * Boot balancing task for send SMS/voice verify.
+     * Bootstrap the task.
      */
     public static function bootstrap()
     {
@@ -137,7 +137,7 @@ class Sms
     }
 
     /**
-     * Whether task initialized.
+     * Whether the task initialized.
      *
      * Note: 判断drivers是否为空不能用'empty',因为在TaskBalance库的中Task类的drivers属性是受保护的(不可访问),
      * 虽然通过魔术方法可以获取到其值,但在其目前版本(v0.4.2)其内部却并没有使用'__isset'魔术方法对'empty'或'isset'函数进行逻辑补救.
@@ -152,7 +152,7 @@ class Sms
     }
 
     /**
-     * Get or generate a balancing task instance for send SMS/voice verify.
+     * Get the task instance.
      *
      * @return Task
      */
@@ -180,7 +180,7 @@ class Sms
     }
 
     /**
-     * Try to read the dispatch scheme of agent from config file.
+     * Initialize the dispatch scheme.
      *
      * @param array $config
      */
@@ -192,7 +192,7 @@ class Sms
     }
 
     /**
-     * Try to initialize the specified agents` configuration information.
+     * Initialize the configuration information.
      *
      * @param array $agents
      * @param array $config
@@ -211,14 +211,14 @@ class Sms
     }
 
     /**
-     * validate configuration.
+     * Validate the configuration.
      *
      * @throws PhpSmsException
      */
     protected static function validateConfig()
     {
         if (!count(self::scheme())) {
-            throw new PhpSmsException('Please configure at least one agent');
+            throw new PhpSmsException('Please configure at least one agent.');
         }
     }
 
@@ -256,8 +256,7 @@ class Sms
     }
 
     /**
-     * Parsing the dispatch scheme.
-     * 解析代理器的数组模式的调度配置
+     * Parse the dispatch scheme.
      *
      * @param array $options
      *
@@ -275,8 +274,8 @@ class Sms
     }
 
     /**
-     * Get a sms agent instance by agent name,
-     * if null, will try to create a new agent instance.
+     * Get the `Agent` instance by agent name,
+     * if null, will try to create one.
      *
      * @param string $name
      *
@@ -296,7 +295,7 @@ class Sms
             } elseif (class_exists($className)) {
                 self::$agents[$name] = new $className($data);
             } else {
-                throw new PhpSmsException("Dont support [$name] agent.");
+                throw new PhpSmsException("Do not support [$name] agent.");
             }
         }
 
@@ -304,7 +303,7 @@ class Sms
     }
 
     /**
-     * Whether to has specified agent.
+     * Whether has the specified agent.
      *
      * @param string $name
      *
@@ -316,7 +315,7 @@ class Sms
     }
 
     /**
-     * Set or get the dispatch scheme of agent by name.
+     * Set or get the dispatch scheme of agent.
      *
      * @param mixed $name
      * @param mixed $scheme
@@ -335,7 +334,7 @@ class Sms
     }
 
     /**
-     * Modify the dispatch scheme of agent by name.
+     * Modify the dispatch scheme of agent.
      *
      * @param $key
      * @param $value
@@ -352,7 +351,7 @@ class Sms
     }
 
     /**
-     * Set or get configuration information by agent name.
+     * Set or get the configuration information.
      *
      * @param mixed $name
      * @param mixed $config
@@ -383,7 +382,7 @@ class Sms
     }
 
     /**
-     * Modify the configuration information of agent by name.
+     * Modify the configuration information.
      *
      * @param string $key
      * @param array  $value
@@ -401,7 +400,7 @@ class Sms
 
     /**
      * Validate the agent name.
-     * Agent name must be a string, but not be a number string
+     * Expected type is string, except the string of number.
      *
      * @param string $name
      *
@@ -410,12 +409,12 @@ class Sms
     protected static function validateAgentName($name)
     {
         if (!$name || !is_string($name) || preg_match('/^[0-9]+$/', $name)) {
-            throw new PhpSmsException("The agent name [$name] is illegal. Agent name must be a string, but not be a number string.");
+            throw new PhpSmsException("Expected the agent name [$name] is a string, witch except the string of number.");
         }
     }
 
     /**
-     * Tear down agent use scheme and prepare to create and start a new balancing task,
+     * Tear down agent use scheme and prepare to create and start a new task,
      * so before do it must destroy old task instance.
      */
     public static function cleanScheme()
@@ -433,8 +432,8 @@ class Sms
     }
 
     /**
-     * Create a sms instance send SMS,
-     * your can also set SMS templates or content at the same time.
+     * Create a `Sms` instance to send sms,
+     * you can also set templates or content at the same time.
      *
      * @param mixed $agentName
      * @param mixed $tempId
@@ -459,8 +458,8 @@ class Sms
     }
 
     /**
-     * Create a sms instance send voice verify,
-     * your can also set verify code at the same time.
+     * Create a `Sms` instance to send voice verify,
+     * you can also set verify code at the same time.
      *
      * @param int|string|null $code
      *
@@ -476,7 +475,8 @@ class Sms
     }
 
     /**
-     * Set whether to use the queue system, and define how to use it.
+     * Set whether to use the queue system,
+     * and define how to use it.
      *
      * @param mixed $enable
      * @param mixed $handler
@@ -515,7 +515,7 @@ class Sms
     }
 
     /**
-     * Set the content for content SMS.
+     * Set the content.
      *
      * @param string $content
      *
@@ -529,7 +529,7 @@ class Sms
     }
 
     /**
-     * Set the template id for template SMS.
+     * Set the template id.
      *
      * @param mixed $name
      * @param mixed $tempId
@@ -544,7 +544,7 @@ class Sms
     }
 
     /**
-     * Set the template data for template SMS.
+     * Set the template data.
      *
      * @param array $data
      *
@@ -558,7 +558,7 @@ class Sms
     }
 
     /**
-     * Set the first agent by name.
+     * Set the first agent.
      *
      * @param string $name
      *
@@ -574,9 +574,9 @@ class Sms
     /**
      * Start send SMS/voice verify.
      *
-     * If give a true parameter, this system will immediately start request to send SMS/voice verify whatever whether to use the queue.
-     * if you are already pushed sms instance to the queue, you can recall the method `send()` in queue system without `true` parameter,
-     * so this mechanism in order to make you convenient use the method `send()` in queue system.
+     * If call with a `true` parameter, this system will immediately start request to send sms whatever whether to use the queue.
+     * if the current instance has pushed to the queue, you can recall this method in queue system without any parameter,
+     * so this mechanism in order to make you convenient to use this method in queue system.
      *
      * @param bool $immediately
      *
@@ -600,7 +600,7 @@ class Sms
     }
 
     /**
-     * Push to the queue by a custom method.
+     * Push to a queue system.
      *
      * @throws \Exception | PhpSmsException
      *
@@ -623,7 +623,7 @@ class Sms
     }
 
     /**
-     * Get all the data of SMS/voice verify.
+     * Get all the data of sms (voice).
      *
      * @param null|string $name
      *
@@ -639,7 +639,7 @@ class Sms
     }
 
     /**
-     * Overload static method.
+     * Define the static hook methods by overload static method.
      *
      * @param string $name
      * @param array  $args
@@ -667,7 +667,7 @@ class Sms
     }
 
     /**
-     * Overload method.
+     * Define the hook methods by overload method.
      *
      * @param string $name
      * @param array  $args
@@ -733,7 +733,7 @@ class Sms
     }
 
     /**
-     * Serialize or deserialize the agent use scheme.
+     * Serialize or deserialize the scheme.
      *
      * @param array $scheme
      *
@@ -752,7 +752,7 @@ class Sms
     }
 
     /**
-     * Serialize the hooks` handlers of balancing task
+     * Serialize the hooks` handlers.
      *
      * @return array
      */
@@ -770,7 +770,7 @@ class Sms
     }
 
     /**
-     * Reinstall hooks` handlers for balancing task.
+     * Reinstall hooks` handlers.
      *
      * @param array $handlers
      */
@@ -788,7 +788,7 @@ class Sms
     }
 
     /**
-     * Serialize/deserialize the specified closure and replace the origin value.
+     * Serialize or deserialize the specified closure and then replace the original value.
      *
      * @param array      $options
      * @param int|string $key

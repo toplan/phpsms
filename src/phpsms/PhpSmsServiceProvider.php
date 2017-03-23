@@ -3,26 +3,40 @@
 namespace Toplan\PhpSms;
 
 use Illuminate\Support\ServiceProvider;
+use Laravel\Lumen\Application as LumenApplication;
 
 class PhpSmsServiceProvider extends ServiceProvider
 {
     /**
-     * bootstrap
+     * Indicates if loading of the provider is deferred.
+     *
+     * @var bool
+     */
+    protected $defer = true;
+
+    /**
+     * Bootstrap the application events.
      */
     public function boot()
     {
-        //publish config files
+        if (function_exists('config_path')) {
+            $publishPath = config_path('phpsms.php');
+        } else {
+            $publishPath = base_path('config/phpsms.php');
+        }
         $this->publishes([
-            __DIR__ . '/../config/phpsms.php' => config_path('phpsms.php'),
+            __DIR__ . '/../config/phpsms.php' => $publishPath,
         ], 'config');
     }
 
     /**
-     * register service provider
+     * Register the service provider.
      */
     public function register()
     {
-        //merge configs
+        if ($this->app instanceof LumenApplication) {
+            $this->app->configure('phpsms');
+        }
         $this->mergeConfigFrom(
             __DIR__ . '/../config/phpsms.php', 'phpsms'
         );
@@ -30,8 +44,20 @@ class PhpSmsServiceProvider extends ServiceProvider
         Sms::scheme(config('phpsms.scheme', []));
         Sms::config(config('phpsms.agents', []));
 
-        $this->app->singleton('PhpSms', function () {
+        $this->app->singleton([
+            'Toplan\\PhpSms\\Sms' => 'phpsms.sms',
+        ], function () {
             return new Sms(false);
         });
+    }
+
+    /**
+     * Get the services provided by the provider.
+     *
+     * @return array
+     */
+    public function provides()
+    {
+        return ['phpsms.sms', 'Toplan\\PhpSms\\Sms'];
     }
 }

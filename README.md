@@ -9,6 +9,10 @@
 
 > phpsms的任务均衡调度功能由[toplan/task-balancer](https://github.com/toplan/task-balancer)提供。
 
+特别感谢以下赞助者:
+
+[![短信宝](http://toplan.github.io/img/smsbao-logo.png)](http://www.smsbao.com/)
+
 # 特点
 - 支持发送均衡调度，可按代理器权重值均衡选择服务商发送。
 - 支持语音验证码。
@@ -25,27 +29,28 @@
 | [Luosimao](http://luosimao.com)        | × | √ | √ | ￥850(1万条) | ￥0.085/条 |
 | [云片网络](http://www.yunpian.com)      | × | √ | √ | ￥55(1千条) | ￥0.055/条 |
 | [容联·云通讯](http://www.yuntongxun.com) | √ | × | √ | 充值￥500   | ￥0.055/条 |
-| [SUBMAIL](http://submail.cn)           | √ | × | × | ￥100(1千条) | ￥0.100/条 |
+| [SUBMAIL](http://submail.cn)           | √ | × | √ | ￥100(1千条) | ￥0.100/条 |
 | [云之讯](http://www.ucpaas.com/)        | √ | × | √ | -- | ￥0.050/条 |
 | [聚合数据](https://www.juhe.cn/)        | √ | × | √ | -- | ￥0.035/条 |
 | [阿里大鱼](https://www.alidayu.com/)    | √ | × | √ | -- | ￥0.045/条 |
-| [SendCloud](https://sendcloud.sohu.com/)    | √ | × | √ | -- | ￥0.048/条 |
+| [SendCloud](https://sendcloud.sohu.com/) | √ | × | √ | -- | ￥0.048/条 |
+| [短信宝](http://www.smsbao.com/)    | × | √ | √ | ￥5(50条) | ￥0.040/条(100万条) |
 
 
 # 安装
 
 ```php
-composer require 'toplan/phpsms:~1.6.0'
+composer require toplan/phpsms:^1.7.0
 ```
 
 安装开发中版本:
 ```php
-composer require 'toplan/phpsms:dev-master'
+composer require toplan/phpsms:dev-master
 ```
 
 # 快速上手
 
-###1. 配置
+### 1. 配置
 
 - 配置代理器所需参数
 
@@ -63,6 +68,12 @@ Sms::config([
     'YunPian'  => [
         //用户唯一标识，必须
         'apikey' => 'your api key',
+    ],
+    'SmsBao' => [
+        //在短信宝注册的用户名，必须
+        'username' => 'your username',
+        //在短信宝网站注册的密码（明文），必须
+        'password'  => 'your password'
     ]
 ]);
 ```
@@ -81,15 +92,15 @@ Sms::scheme([
     'YunPian' => '10 backup',
 
     //仅为备用代理器
-    'YunTongXun' => '0 backup',
+    'SmsBao' => '0 backup',
 ]);
 ```
 > **调度方案解析：**
 > 如果按照以上配置，那么系统首次会尝试使用`Luosimao`或`YunPian`发送短信，且它们被使用的概率分别为`2/3`和`1/3`。
-> 如果使用其中一个代理器发送失败，那么会启用备用代理器，按照配置可知备用代理器有`YunPian`和`YunTongXun`，那么会依次调用直到发送成功或无备用代理器可用。
-> 值得注意的是，如果首次尝试的是`YunPian`，那么备用代理器将会只使用`YunTongXun`，也就是会排除使用过的代理器。
+> 如果使用其中一个代理器发送失败，那么会启用备用代理器，按照配置可知备用代理器有`YunPian`和`SmsBao`，那么会依次调用直到发送成功或无备用代理器可用。
+> 值得注意的是，如果首次尝试的是`YunPian`，那么备用代理器将会只使用`SmsBao`，也就是会排除使用过的代理器。
 
-###2. Enjoy it!
+### 2. Enjoy it!
 
 ```php
 require('path/to/vendor/autoload.php');
@@ -113,7 +124,7 @@ $content = '【签名】这是短信内容...';
 // 只希望使用模板方式发送短信,可以不设置content(如:云通讯、Submail、Ucpaas)
 Sms::make()->to($to)->template($templates)->data($tempData)->send();
 
-// 只希望使用内容方式放送,可以不设置模板id和模板data(如:云片、luosimao)
+// 只希望使用内容方式放送,可以不设置模板id和模板data(如:短信宝、云片、luosimao)
 Sms::make()->to($to)->content($content)->send();
 
 // 同时确保能通过模板和内容方式发送,这样做的好处是,可以兼顾到各种类型服务商
@@ -133,7 +144,7 @@ Sms::voice('02343')
     ->to($to)->send();
 ```
 
-###3. 在laravel中使用
+### 3. 在laravel中使用
 
 如果你只想单纯的在laravel中使用phpsms的功能可以按如下步骤操作，
 当然也为你准备了基于phpsms开发的[laravel-sms](https://github.com/toplan/laravel-sms)
@@ -183,11 +194,11 @@ PhpSms::make()->to($to)->content($content)->send();
 手动设置代理器调度方案(优先级高于配置文件)，如：
 ```php
 Sms::scheme([
-    'Luosimao' => '80 backup'
+    'SmsBao' => '80 backup'
     'YunPian' => '100 backup'
 ]);
 //或
-Sms::scheme('Luosimao', '80 backup');
+Sms::scheme('SmsBao', '80 backup');
 Sms::scheme('YunPian', '100 backup');
 ```
 - 获取
@@ -198,7 +209,7 @@ Sms::scheme('YunPian', '100 backup');
 $scheme = Sms::scheme();
 
 //获取指定代理器的调度方案:
-$scheme['Luosimao'] = Sms::scheme('Luosimao');
+$scheme['SmsBao'] = Sms::scheme('SmsBao');
 ```
 
 > `scheme`静态方法的更多使用方法见[高级调度配置](#高级调度配置)
@@ -214,13 +225,15 @@ $scheme['Luosimao'] = Sms::scheme('Luosimao');
 手动设置代理器的配置数据(优先级高于配置文件)，如：
 ```php
 Sms::config([
-   'YunPian' => [
-       'apikey' => ...,
+   'SmsBao' => [
+       'username' => ...,
+       'password' => ...,
    ]
 ]);
 //或
-Sms::config('YunPian', [
-   'apikey' => ...,
+Sms::config('SmsBao', [
+   'username' => ...,
+   'password' => ...,
 ]);
 ```
 - 获取
@@ -231,16 +244,8 @@ Sms::config('YunPian', [
 $config = Sms::config();
 
 //获取指定代理器的配置:
-$config['Luosimao'] = Sms::config('Luosimao');
+$config['SmsBao'] = Sms::config('SmsBao');
 ```
-
-### Sms::cleanScheme()
-
-清空所有代理器的调度方案，请谨慎使用该接口。
-
-### Sms::cleanConfig()
-
-清空所有代理器的配置数据，请谨慎使用该接口。
 
 ### Sms::beforeSend($handler[, $override]);
 
@@ -256,7 +261,7 @@ Sms::beforeSend(function($task, $prev, $index, $handlers){
 ```
 > 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“beforeRun”钩子
 
-### Sms::beforeAgentSend($handler [, $override]);
+### Sms::beforeAgentSend($handler[, $override]);
 
 代理器发送前钩子，示例：
 ```php
@@ -271,7 +276,7 @@ Sms::beforeAgentSend(function($task, $driver, $prev, $index, $handlers){
 ```
 > 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“beforeDriverRun”钩子
 
-### Sms::afterAgentSend($handler [, $override]);
+### Sms::afterAgentSend($handler[, $override]);
 
 代理器发送后钩子，示例：
 ```php
@@ -409,7 +414,7 @@ $sms->data([
 
 ### $sms->content($text)
 
-设置内容短信的内容，并返回实例对象。一些内置的代理器(如YunPian,Luosimao)使用的是内容短信(即直接发送短信内容)，那么就需要为它们设置短信内容。
+设置内容短信的内容，并返回实例对象。一些内置的代理器(如SmsBao、YunPian、Luosimao)使用的是内容短信(即直接发送短信内容)，那么就需要为它们设置短信内容。
 ```php
 $sms->content('【签名】这是短信内容...');
 ```
@@ -432,7 +437,7 @@ $sms->content('【签名】这是短信内容...');
 
 临时设置发送时使用的代理器(不会影响备用代理器的正常使用)，并返回实例，`$name`为代理器名称。
 ```php
-$sms->agent('YunPian');
+$sms->agent('SmsBao');
 ```
 > 通过该方法设置的代理器将获得绝对优先权，但只对当前短信实例有效。
 
@@ -487,8 +492,7 @@ Sms::scheme([
             //获取配置(如果设置了的话):
             $key = $agent->key;
             ...
-            //内置方法:
-            Agent::sockPost(...);
+            //可使用的内置方法:
             Agent::curl(...);
             ...
             //更新发送结果:
@@ -520,36 +524,6 @@ Sms::scheme([
 
 新建一个继承`Toplan\PhpSms\Agent`抽象类的代理器类，建议代理器类名为`FooAgent`，建议命名空间为`Toplan\PhpSms`。
 如果类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，在使用该代理器时则需要指定代理器类，详见[高级调度配置](#高级调度配置)。
-
-# Change logs
-
-### v1.4.0
-
-该系列版本相较与之前版本在api的设计上有些变动，具体如下：
-
-- 修改原`enable`静态方法为`scheme`
-
-- 修改原`agents`静态方法为`config`
-
-- 修改原`cleanEnableAgents`静态方法为`cleanScheme`
-
-- 修改原`cleanAgentsConfig`静态方法为`cleanConfig`
-
-- 去掉`getEnableAgents`和`getAgentsConfig`静态方法
-
-### v1.5.0
-
-- 改进语音信息的发送接口以适应阿里大鱼的通过文本转语音和语音文件id两个接口的需求
-- 新加阿里大鱼(Alidayu)代理器
-
-# 公告
-
-1. 如果在使用队列相关功能时出现如下错误:
-
-```php
-Fatal error：Maximum function nesting level of ‘100′ reached, aborting!
-```
-可在`/etc/php5/mods-available/xdebug.ini`(Linux)中新加`xdebug.max_nesting_level=500`
 
 # Todo list
 

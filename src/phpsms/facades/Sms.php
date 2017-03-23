@@ -8,6 +8,6 @@ class Sms extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return 'PhpSms';
+        return 'Toplan\\PhpSms\\Sms';
     }
 }

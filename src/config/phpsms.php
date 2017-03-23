@@ -15,7 +15,7 @@ return [
      * 2. 'backup' (ignore upper/lower case)
      *
      * supported agents:
-     * 'Luosimao', 'YunTongXun', 'YunPian', 'SubMail', 'Ucpaas', 'JuHe', 'Alidayu', 'Log'
+     * 'Log', 'SmsBao', 'Luosimao', 'YunTongXun', 'YunPian', 'SubMail', 'Ucpaas', 'JuHe', 'Alidayu', 'SendCloud'
      */
     'scheme' => [
         'Log',
@@ -69,9 +69,6 @@ return [
             //请求端口，生产环境和沙盒环境一致
             'serverPort' => '8883',
 
-            //REST版本号，在官网文档REST介绍中获得。
-            'softVersion' => '2013-12-26',
-
             //被叫号显
             'displayNum' => null,
 
@@ -104,12 +101,12 @@ return [
          * support content sms.
          */
         'Luosimao' => [
-            // 短信 API key
-            // 在管理中心->短信->触发发送下查看
+            //短信 API key
+            //在管理中心->短信->触发发送下查看
             'apikey' => 'your api key',
 
-            // 语言验证 API key
-            // 在管理中心->语音->语音验证下查看
+            //语言验证 API key
+            //在管理中心->语音->语音验证下查看
             'voiceApikey' => 'your voice api key',
         ],
 
@@ -158,7 +155,7 @@ return [
          */
         'Alidayu' => [
             //请求地址
-            'sendUrl' => 'https://eco.taobao.com/router/rest',
+            'sendUrl' => 'http://gw.api.taobao.com/router/rest',
 
             //淘宝开放平台中，对应阿里大鱼短信应用的App Key
             'appKey' => 'your app key',
@@ -170,7 +167,7 @@ return [
             'smsFreeSignName' => 'your sms free sign name',
 
             //被叫号显(用于语音通知)，传入的显示号码必须是阿里大鱼“管理中心-号码管理”中申请或购买的号码
-            'calledShowNum' => 'your called show num',
+            'calledShowNum' => null,
         ],
 
         /*
@@ -185,7 +182,29 @@ return [
             'smsUser' => 'your SMS_USER',
 
             //SMS_KEY
-            'smsKey'  => 'your SMS_KEY',
+            'smsKey' => 'your SMS_KEY',
+        ],
+
+        /*
+         * -----------------------------------
+         * SmsBao
+         * -----------------------------------
+         * website: http://www.smsbao.com
+         * not support template sms.
+         * 不支持模板变量短信
+         * support content sms.
+         * 支持内容短信
+         * support voice sms.
+         * 支持语音验证码
+         * 支持自定义短信签名
+         * 最低消费5元(50条) 最低消费单价0.04元（100万条）
+         */
+        'SmsBao' => [
+            //username
+            'username' => 'your username',
+
+            //password
+            'password' => 'your password',
         ],
     ],
 ];
