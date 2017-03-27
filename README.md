@@ -40,7 +40,7 @@
 # 安装
 
 ```php
-composer require toplan/phpsms:^1.7.0
+composer require toplan/phpsms:^1.7
 ```
 
 安装开发中版本:
