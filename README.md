@@ -488,19 +488,19 @@ Sms::scheme('agentName', [
 Sms::scheme([
     'agentName' => [
         '20 backup',
-        'sendSms' => function($agent, $to, $content, $tempId, $tempData){
+        'sendSms' => function($to, $content, $tempId, $tempData){
             //获取配置(如果设置了的话):
-            $key = $agent->key;
+            $key = $this->key;
             ...
             //可使用的内置方法:
-            Agent::curl(...);
+            self::curl(...);
             ...
             //更新发送结果:
-            $agent->result(Agent::SUCCESS, true);
-            $agent->result(Agent::INFO, 'some info');
-            $agent->result(Agent::CODE, 'your code');
+            $agent->result(self::SUCCESS, true);
+            $agent->result(self::INFO, 'some info');
+            $agent->result(self::CODE, 'your code');
         },
-        'voiceVerify' => function($agent, $to, $code, $tempId, $tempData){
+        'voiceVerify' => function($to, $code, $tempId, $tempData){
             //发送语音验证码，同上
         }
     ]
