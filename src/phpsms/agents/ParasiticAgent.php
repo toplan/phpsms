@@ -18,15 +18,14 @@ class ParasiticAgent extends Agent
     public function sendSms($to, $content, $tempId, array $data)
     {
         if (!is_callable($this->sendSms)) {
-            throw new PhpSmsException('Expected the scheme option `sendSms` of the parasitic agent to be a closure.');
+            throw new PhpSmsException('Expected the higher-order scheme option `sendSms` to be a closure.');
         }
         if ($this->sendSmsRunning) {
             throw new PhpSmsException('Do not call `$this->sendSms()` in the closure.');
         }
         $this->sendSmsRunning = true;
         try {
-            $sendSms = $this->sendSms->bindTo($this, $this);
-            call_user_func_array($sendSms, [$this, $to, $content, $tempId, $data]);
+            call_user_func_array($this->sendSms, [$this, $to, $content, $tempId, $data]);
             $this->sendSmsRunning = false;
         } catch (\Exception $e) {
             $this->sendSmsRunning = false;
@@ -38,15 +37,14 @@ class ParasiticAgent extends Agent
     public function voiceVerify($to, $code, $tempId, array $data)
     {
         if (!is_callable($this->voiceVerify)) {
-            throw new PhpSmsException('Expected the scheme option `voiceVerify` of the parasitic agent to be a closure.');
+            throw new PhpSmsException('Expected the higher-order scheme option `voiceVerify` to be a closure.');
         }
         if ($this->voiceVerifyRunning) {
             throw new PhpSmsException('Do not call `$this->voiceVerify()` in the closure.');
         }
         $this->voiceVerifyRunning = true;
         try {
-            $voiceVerify = $this->voiceVerify->bindTo($this, $this);
-            call_user_func_array($voiceVerify, [$this, $to, $code, $tempId, $data]);
+            call_user_func_array($this->voiceVerify, [$this, $to, $code, $tempId, $data]);
             $this->voiceVerifyRunning = false;
         } catch (\Exception $e) {
             $this->voiceVerifyRunning = false;

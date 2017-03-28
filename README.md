@@ -306,7 +306,7 @@ Sms::afterSend(function($task, $result, $prev, $index, $handlers){
 
 `$handler`匿名函数可使用的参数:
 + `$sms` : Sms实例
-+ `$data` : Sms实例中的短信数据，等同于`$sms->getData()`
++ `$data` : Sms实例中的短信数据，等同于`$sms->all()`
 
 定义如何推送到队列：
 ```php
@@ -402,7 +402,7 @@ $sms->template([
 
 ### $sms->data($data)
 
-设置模板短信的模板数据，并返回实例对象，`$data`必须为数组。
+设置模板短信的模板数据，并返回实例对象。
 ```php
 $sms->data([
     'code' => $code,
@@ -419,7 +419,7 @@ $sms->data([
 $sms->content('【签名】这是短信内容...');
 ```
 
-### $sms->getData([$key])
+### $sms->all([$key])
 
 获取Sms实例中的短信数据，不带参数时返回所有数据，其结构如下：
 ```php
@@ -488,17 +488,17 @@ Sms::scheme('agentName', [
 Sms::scheme([
     'agentName' => [
         '20 backup',
-        'sendSms' => function($to, $content, $tempId, $tempData){
+        'sendSms' => function($agent, $to, $content, $tempId, $tempData){
             //获取配置(如果设置了的话):
-            $key = $this->key;
+            $key = $agent->key;
             ...
             //可使用的内置方法:
-            self::curl(...);
+            Agent::curl(...);
             ...
             //更新发送结果:
-            $agent->result(self::SUCCESS, true);
-            $agent->result(self::INFO, 'some info');
-            $agent->result(self::CODE, 'your code');
+            $agent->result(Agent::SUCCESS, true);
+            $agent->result(Agent::INFO, 'some info');
+            $agent->result(Agent::CODE, 'your code');
         },
         'voiceVerify' => function($to, $code, $tempId, $tempData){
             //发送语音验证码，同上

@@ -100,11 +100,11 @@ class Sms
     protected $pushedToQueue = false;
 
     /**
-     * Status container.
+     * State container.
      *
      * @var array
      */
-    protected $_status_before_enqueue_ = [];
+    protected $state = [];
 
     /**
      * Constructor
@@ -221,14 +221,15 @@ class Sms
     protected static function initTask()
     {
         foreach (self::scheme() as $name => $scheme) {
-            //解析代理器数组模式的调度配置
+            // parse higher-order scheme
+            $settings = [];
             if (is_array($scheme)) {
-                $data = self::parseScheme($scheme);
-                $scheme = $data['scheme'];
+                $settings = self::parseScheme($scheme);
+                $scheme = $settings['scheme'];
             }
-            //创建任务驱动器
-            self::getTask()->driver("$name $scheme")->work(function ($driver) {
-                $agent = self::getAgent($driver->name);
+            // create driver
+            self::getTask()->driver("$name $scheme")->work(function ($driver) use ($settings) {
+                $agent = self::getAgent($driver->name, $settings);
                 $smsData = $driver->getTaskData();
                 extract($smsData);
                 $template = isset($templates[$driver->name]) ? $templates[$driver->name] : 0;
@@ -249,7 +250,7 @@ class Sms
     }
 
     /**
-     * Parse the dispatch scheme.
+     * Parse the higher-order dispatch scheme.
      *
      * @param array $options
      *
@@ -270,22 +271,33 @@ class Sms
      * Get the agent instance by name.
      *
      * @param string $name
+     * @param array  $options
      *
      * @throws PhpSmsException
      *
      * @return mixed
      */
-    public static function getAgent($name)
+    public static function getAgent($name, array $options = [])
     {
         if (!self::hasAgent($name)) {
             $scheme = self::scheme($name);
-            $data = self::parseScheme(is_array($scheme) ? $scheme : [$scheme]);
-            $data = array_merge(self::config($name), $data);
-            $className = $data['agentClass'] ?: ('Toplan\\PhpSms\\' . $name . 'Agent');
-            if (is_callable($data['sendSms']) || is_callable($data['voiceVerify'])) {
-                self::$agents[$name] = new ParasiticAgent($data);
+            $config = self::config($name);
+            if (is_array($scheme) && empty($options)) {
+                $options = self::parseScheme($scheme);
+            }
+            if (isset($options['scheme'])) {
+                unset($options['scheme']);
+            }
+            $className = "Toplan\\PhpSms\\{$name}Agent";
+            if (isset($options['agentClass'])) {
+                $className = $options['agentClass'];
+                unset($options['agentClass']);
+            }
+            if (isset($options['sendSms']) || isset($options['voiceVerify'])) {
+                $config = array_merge($config, $options);
+                self::$agents[$name] = new ParasiticAgent($config);
             } elseif (class_exists($className)) {
-                self::$agents[$name] = new $className($data);
+                self::$agents[$name] = new $className($config);
             } else {
                 throw new PhpSmsException("Do not support `$name` agent.");
             }
@@ -538,13 +550,14 @@ class Sms
     /**
      * Set the template data.
      *
-     * @param array $data
+     * @param mixed $name
+     * @param mixed $value
      *
      * @return $this
      */
-    public function data(array $data)
+    public function data($name, $value = null)
     {
-        $this->smsData['templateData'] = $data;
+        Util::operateArray($this->smsData['templateData'], $name, $value);
 
         return $this;
     }
@@ -616,17 +629,29 @@ class Sms
     /**
      * Get all of the data.
      *
-     * @param null|string $name
+     * @param null|string $key
      *
      * @return mixed
      */
-    public function getData($name = null)
+    public function all($key = null)
     {
-        if (is_string($name) && isset($this->smsData["$name"])) {
-            return $this->smsData[$name];
+        if (is_string($key) && isset($this->smsData["$key"])) {
+            return $this->smsData[$key];
         }
 
         return $this->smsData;
+    }
+
+    /**
+     * The alias of `all` method.
+     *
+     * @param null|string $key
+     *
+     * @return mixed
+     */
+    public function getData($key = null)
+    {
+        return $this->all($key);
     }
 
     /**
@@ -681,14 +706,14 @@ class Sms
     public function __sleep()
     {
         try {
-            $this->_status_before_enqueue_['scheme'] = self::serializeOrDeserializeScheme(self::scheme());
-            $this->_status_before_enqueue_['agentsConfig'] = self::config();
-            $this->_status_before_enqueue_['handlers'] = self::serializeHandlers();
+            $this->state['scheme'] = self::serializeOrDeserializeScheme(self::scheme());
+            $this->state['agentsConfig'] = self::config();
+            $this->state['handlers'] = self::serializeHandlers();
         } catch (\Exception $e) {
             //swallow exception
         }
 
-        return ['smsData', 'firstAgent', 'pushedToQueue', '_status_before_enqueue_'];
+        return ['smsData', 'firstAgent', 'pushedToQueue', 'state'];
     }
 
     /**
@@ -696,15 +721,14 @@ class Sms
      */
     public function __wakeup()
     {
-        if (empty($this->_status_before_enqueue_)) {
+        if (empty($this->state)) {
             return;
         }
-        $status = $this->_status_before_enqueue_;
-        self::$scheme = self::serializeOrDeserializeScheme($status['scheme']);
-        self::$agentsConfig = $status['agentsConfig'];
+        self::$scheme = self::serializeOrDeserializeScheme($this->state['scheme']);
+        self::$agentsConfig = $this->state['agentsConfig'];
         Balancer::destroy(self::TASK_NAME);
         self::bootstrap();
-        self::reinstallHandlers($status['handlers']);
+        self::reinstallHandlers($this->state['handlers']);
     }
 
     /**
