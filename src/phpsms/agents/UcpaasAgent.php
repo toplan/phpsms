@@ -40,7 +40,7 @@ class UcpaasAgent extends Agent
 
     protected function setResult($result)
     {
-        $result = json_decode($result, true);
+        $result = json_decode($result);
         if (!$result) {
             return $this->result(Agent::INFO, 'request failed');
         }

@@ -21,7 +21,7 @@ class ParasiticAgent extends Agent
             throw new PhpSmsException('Expected the higher-order scheme option `sendSms` to be a closure.');
         }
         if ($this->sendSmsRunning) {
-            throw new PhpSmsException('Do not call `$this->sendSms()` in the closure.');
+            throw new PhpSmsException('Do not call `$agent->sendSms()` in the closure.');
         }
         $this->sendSmsRunning = true;
         try {
@@ -40,7 +40,7 @@ class ParasiticAgent extends Agent
             throw new PhpSmsException('Expected the higher-order scheme option `voiceVerify` to be a closure.');
         }
         if ($this->voiceVerifyRunning) {
-            throw new PhpSmsException('Do not call `$this->voiceVerify()` in the closure.');
+            throw new PhpSmsException('Do not call `$agent->voiceVerify()` in the closure.');
         }
         $this->voiceVerifyRunning = true;
         try {

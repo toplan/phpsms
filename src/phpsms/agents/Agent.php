@@ -96,9 +96,9 @@ abstract class Agent
      *
      * @codeCoverageIgnore
      *
-     * @param string $url    [请求的URL地址]
-     * @param array  $params [请求的参数]
-     * @param bool   $post   [是否采用POST形式]
+     * @param string $url    [请求地址]
+     * @param array  $params [请求参数]
+     * @param bool   $post   [是否post]
      * @param array  $opts   [curl设置项]
      *
      * @return array ['request', 'response']

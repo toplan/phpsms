@@ -500,7 +500,7 @@ Sms::scheme([
             $agent->result(Agent::INFO, 'some info');
             $agent->result(Agent::CODE, 'your code');
         },
-        'voiceVerify' => function($to, $code, $tempId, $tempData){
+        'voiceVerify' => function($agent, $to, $code, $tempId, $tempData){
             //发送语音验证码，同上
         }
     ]

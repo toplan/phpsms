@@ -593,15 +593,13 @@ class Sms
             $immediately = true;
         }
         if ($immediately) {
-            $result = Balancer::run(self::TASK_NAME, [
+            return Balancer::run(self::TASK_NAME, [
                 'data'   => $this->getData(),
                 'driver' => $this->firstAgent,
             ]);
-        } else {
-            $result = $this->push();
         }
 
-        return $result;
+        return $this->push();
     }
 
     /**
