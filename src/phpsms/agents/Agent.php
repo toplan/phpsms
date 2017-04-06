@@ -65,23 +65,6 @@ abstract class Agent
     abstract public function sendSms($to, $content, $tempId, array $tempData);
 
     /**
-     * Content SMS send process.
-     *
-     * @param $to
-     * @param $content
-     */
-    abstract public function sendContentSms($to, $content);
-
-    /**
-     * Template SMS send process.
-     *
-     * @param       $to
-     * @param       $tempId
-     * @param array $tempData
-     */
-    abstract public function sendTemplateSms($to, $tempId, array $tempData);
-
-    /**
      * Voice verify send process.
      *
      * @param       $to

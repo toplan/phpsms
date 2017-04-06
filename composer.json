@@ -21,7 +21,8 @@
     "psr-4": {
       "Toplan\\PhpSms\\": [
         "src/phpsms/",
-        "src/phpsms/agents/"
+        "src/phpsms/agents/",
+        "src/phpsms/interfaces/"
       ],
       "Toplan\\PhpSms\\Facades\\": [
         "src/phpsms/facades/"

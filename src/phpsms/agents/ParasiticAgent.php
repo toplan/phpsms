@@ -52,14 +52,4 @@ class ParasiticAgent extends Agent
             throw $e;
         }
     }
-
-    public function sendContentSms($to, $content)
-    {
-        throw new PhpSmsException('Parasitic agent does not support `sendContentSms` method.');
-    }
-
-    public function sendTemplateSms($to, $tempId, array $data)
-    {
-        throw new PhpSmsException('Parasitic agent does not support `sendTemplateSms` method.');
-    }
 }

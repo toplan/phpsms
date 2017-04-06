@@ -16,7 +16,7 @@ use REST;
  * @property string $voiceLang
  * @property string $displayNum
  */
-class YunTongXunAgent extends Agent
+class YunTongXunAgent extends Agent implements TemplateSms
 {
     public function sendSms($to, $content, $tempId, array $data)
     {
@@ -65,9 +65,5 @@ class YunTongXunAgent extends Agent
         $this->result(Agent::SUCCESS, $success);
         $this->result(Agent::CODE, $code);
         $this->result(Agent::INFO, $info);
-    }
-
-    public function sendContentSms($to, $content)
-    {
     }
 }

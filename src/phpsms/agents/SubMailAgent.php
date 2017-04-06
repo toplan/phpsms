@@ -8,7 +8,7 @@ namespace Toplan\PhpSms;
  * @property string $appid
  * @property string $signature
  */
-class SubMailAgent extends Agent
+class SubMailAgent extends Agent implements TemplateSms
 {
     public function sendSms($to, $content, $tempId, array $data)
     {
@@ -40,10 +40,6 @@ class SubMailAgent extends Agent
         ];
         $result = $this->curl($url, $params, true);
         $this->setResult($result);
-    }
-
-    public function sendContentSms($to, $content)
-    {
     }
 
     protected function setResult($result)

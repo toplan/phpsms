@@ -5,7 +5,7 @@ namespace Toplan\PhpSms;
 /**
  * Class LogAgent
  */
-class LogAgent extends Agent
+class LogAgent extends Agent implements TemplateSms, ContentSms
 {
     public function sendSms($to, $content, $tempId, array $data)
     {

@@ -8,7 +8,7 @@ namespace Toplan\PhpSms;
  * @property string $apikey
  * @property string $voiceApikey
  */
-class LuosimaoAgent extends Agent
+class LuosimaoAgent extends Agent implements ContentSms
 {
     public function sendSms($to, $content, $tempId, array $data)
     {
@@ -60,9 +60,5 @@ class LuosimaoAgent extends Agent
         } else {
             $this->result(Agent::INFO, 'request failed');
         }
-    }
-
-    public function sendTemplateSms($to, $tempId, array $data)
-    {
     }
 }

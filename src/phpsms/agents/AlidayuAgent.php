@@ -11,7 +11,7 @@ namespace Toplan\PhpSms;
  * @property string $smsFreeSignName
  * @property string $calledShowNum
  */
-class AlidayuAgent extends Agent
+class AlidayuAgent extends Agent implements TemplateSms
 {
     public function sendSms($to, $content, $tempId, array $data)
     {
@@ -117,9 +117,5 @@ class AlidayuAgent extends Agent
         }, $data);
 
         return json_encode($data);
-    }
-
-    public function sendContentSms($to, $content)
-    {
     }
 }
