@@ -7,40 +7,40 @@ class Util
     /**
      * 对数组进行赋值/取值操作
      *
-     * @param array         $arr
+     * @param array         $array
      * @param mixed         $key
      * @param mixed         $value
-     * @param mixed         $getDefault
-     * @param \Closure|null $setAction
+     * @param mixed         $default
+     * @param \Closure|null $setter
      * @param bool          $override
-     * @param \Closure|null $beforeOverride
+     * @param \Closure|null $willOverride
      * @param bool          $isSet
      *
      * @return mixed
      */
-    public static function operateArray(array &$arr, $key, $value = null, $getDefault = null, \Closure $setAction = null, $override = false, $beforeOverride = null, $isSet = false)
+    public static function operateArray(array &$array, $key, $value = null, $default = null, \Closure $setter = null, $override = false, $willOverride = null, $isSet = false)
     {
         if (!$isSet && ($key === null || is_string($key) || is_int($key)) && $value === null) {
-            return $key === null ? $arr :
-                (isset($arr[$key]) ? $arr[$key] : $getDefault);
+            return $key === null ? $array :
+                (isset($array[$key]) ? $array[$key] : $default);
         }
         if ($override) {
-            if (is_callable($beforeOverride)) {
-                call_user_func_array($beforeOverride, [$arr]);
+            if (is_callable($willOverride)) {
+                call_user_func_array($willOverride, [$array]);
             }
-            $arr = [];
+            $array = [];
         }
         if (is_array($key) || is_object($key)) {
             foreach ($key as $k => $v) {
-                self::operateArray($arr, $k, $v, $getDefault, $setAction, false, null, true);
+                self::operateArray($array, $k, $v, $default, $setter, false, null, true);
             }
-        } elseif (is_callable($setAction)) {
-            call_user_func_array($setAction, [$key, $value]);
+        } elseif (is_callable($setter)) {
+            call_user_func_array($setter, [$key, $value]);
         } else {
-            $arr[$key] = $value;
+            $array[$key] = $value;
         }
 
-        return $arr;
+        return $array;
     }
 
     /**

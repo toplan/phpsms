@@ -7,7 +7,7 @@ namespace Toplan\PhpSms;
  *
  * @property string $apikey
  */
-class YunPianAgent extends Agent
+class YunPianAgent extends Agent implements ContentSms
 {
     protected $headers = [
         'Accept:application/json;charset=utf-8',
@@ -47,10 +47,6 @@ class YunPianAgent extends Agent
             CURLOPT_POSTFIELDS => http_build_query($params),
         ]);
         $this->setResult($result);
-    }
-
-    public function sendTemplateSms($to, $tempId, array $data)
-    {
     }
 
     protected function setResult($result)

@@ -8,7 +8,7 @@ namespace Toplan\PhpSms;
  * @property string $username
  * @property string $password
  */
-class SmsBaoAgent extends Agent
+class SmsBaoAgent extends Agent implements ContentSms
 {
     protected $resultArr = [
         '0'  => '发送成功',
@@ -27,12 +27,6 @@ class SmsBaoAgent extends Agent
         $this->sendContentSms($to, $content);
     }
 
-    /**
-     * Content SMS send process.
-     *
-     * @param $to
-     * @param $content
-     */
     public function sendContentSms($to, $content)
     {
         $url = 'http://api.smsbao.com/sms';
@@ -46,25 +40,6 @@ class SmsBaoAgent extends Agent
         $this->setResult($result);
     }
 
-    /**
-     * Template SMS send process.
-     *
-     * @param       $to
-     * @param       $tempId
-     * @param array $tempData
-     */
-    public function sendTemplateSms($to, $tempId, array $tempData)
-    {
-    }
-
-    /**
-     * Voice verify send process.
-     *
-     * @param       $to
-     * @param       $code
-     * @param       $tempId
-     * @param array $tempData
-     */
     public function voiceVerify($to, $code, $tempId, array $tempData)
     {
         $url = 'http://api.smsbao.com/voice';

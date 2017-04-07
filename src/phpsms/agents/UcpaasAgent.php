@@ -9,7 +9,7 @@ namespace Toplan\PhpSms;
  * @property string $accountToken
  * @property string $appId
  */
-class UcpaasAgent extends Agent
+class UcpaasAgent extends Agent implements TemplateSms
 {
     public function sendSms($to, $content, $tempId, array $data)
     {
@@ -40,16 +40,12 @@ class UcpaasAgent extends Agent
 
     protected function setResult($result)
     {
-        $result = json_decode($result, true);
+        $result = json_decode($result);
         if (!$result) {
             return $this->result(Agent::INFO, 'request failed');
         }
         $this->result(Agent::SUCCESS, $result->resp->respCode === '000000');
         $this->result(Agent::CODE, $result->resp->respCode);
         $this->result(Agent::INFO, json_encode($result->resp));
-    }
-
-    public function sendContentSms($to, $content)
-    {
     }
 }

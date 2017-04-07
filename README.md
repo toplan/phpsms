@@ -24,17 +24,17 @@
 
 # 服务商
 
-| 服务商 | 模板短信 | 内容短信 | 语音验证码 | 最低消费  |  最低消费单价 |
-| ----- | :-----: | :-----: | :------: | :-------: | :-----: |
-| [Luosimao](http://luosimao.com)        | × | √ | √ | ￥850(1万条) | ￥0.085/条 |
-| [云片网络](http://www.yunpian.com)      | × | √ | √ | ￥55(1千条) | ￥0.055/条 |
-| [容联·云通讯](http://www.yuntongxun.com) | √ | × | √ | 充值￥500   | ￥0.055/条 |
-| [SUBMAIL](http://submail.cn)           | √ | × | √ | ￥100(1千条) | ￥0.100/条 |
-| [云之讯](http://www.ucpaas.com/)        | √ | × | √ | -- | ￥0.050/条 |
-| [聚合数据](https://www.juhe.cn/)        | √ | × | √ | -- | ￥0.035/条 |
-| [阿里大鱼](https://www.alidayu.com/)    | √ | × | √ | -- | ￥0.045/条 |
-| [SendCloud](https://sendcloud.sohu.com/) | √ | × | √ | -- | ￥0.048/条 |
-| [短信宝](http://www.smsbao.com/)    | × | √ | √ | ￥5(50条) | ￥0.040/条(100万条) |
+| 服务商 | 模板短信 | 内容短信 | 语音验证码 | 最低消费  |  最低消费单价 | 资费标准
+| ----- | :-----: | :-----: | :------: | :-------: | :-----: | :-----:
+| [Luosimao](http://luosimao.com)        | × | √ | √ | ￥850(1万条) | ￥0.085/条 | [资费标准](https://luosimao.com/service/sms#sms-price)
+| [云片网络](http://www.yunpian.com)      | × | √ | √ | ￥55(1千条) | ￥0.055/条 | [资费标准](http://www.yunpian.com/price.html)
+| [容联·云通讯](http://www.yuntongxun.com) | √ | × | √ | 充值￥500   | ￥0.055/条 | [资费标准](http://www.yuntongxun.com/price/price_sms.html)
+| [SUBMAIL](http://submail.cn)           | √ | × | √ | ￥100(1千条) | ￥0.100/条 | [资费标准](https://www.mysubmail.com/chs/store#/message)
+| [云之讯](http://www.ucpaas.com/)        | √ | × | √ | -- | ￥0.050/条 | [资费标准](http://www.ucpaas.com/service/sms.html)
+| [聚合数据](https://www.juhe.cn/)        | √ | × | √ | -- | ￥0.035/条 | [资费标准](https://www.juhe.cn/docs/api/id/54)
+| [阿里大鱼](https://www.alidayu.com/)    | √ | × | √ | -- | ￥0.045/条 | [资费标准](https://www.alidayu.com/service/price)
+| [SendCloud](https://sendcloud.sohu.com/) | √ | × | √ | -- | ￥0.048/条 | [资费标准](https://sendcloud.sohu.com/price.html)
+| [短信宝](http://www.smsbao.com/)    | × | √ | √ | ￥5(50条) | ￥0.040/条(100万条) | [资费标准](http://www.smsbao.com/fee/)
 
 
 # 安装
@@ -306,7 +306,7 @@ Sms::afterSend(function($task, $result, $prev, $index, $handlers){
 
 `$handler`匿名函数可使用的参数:
 + `$sms` : Sms实例
-+ `$data` : Sms实例中的短信数据，等同于`$sms->getData()`
++ `$data` : Sms实例中的短信数据，等同于`$sms->all()`
 
 定义如何推送到队列：
 ```php
@@ -402,7 +402,7 @@ $sms->template([
 
 ### $sms->data($data)
 
-设置模板短信的模板数据，并返回实例对象，`$data`必须为数组。
+设置模板短信的模板数据，并返回实例对象。
 ```php
 $sms->data([
     'code' => $code,
@@ -419,7 +419,7 @@ $sms->data([
 $sms->content('【签名】这是短信内容...');
 ```
 
-### $sms->getData([$key])
+### $sms->all([$key])
 
 获取Sms实例中的短信数据，不带参数时返回所有数据，其结构如下：
 ```php

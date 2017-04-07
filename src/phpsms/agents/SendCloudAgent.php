@@ -8,7 +8,7 @@ namespace Toplan\PhpSms;
  * @property string $smsUser
  * @property string $smsKey
  */
-class SendCloudAgent extends Agent
+class SendCloudAgent extends Agent implements TemplateSms
 {
     public function sendSms($to, $content, $tempId, array $data)
     {
@@ -82,9 +82,5 @@ class SendCloudAgent extends Agent
     protected function getTempDataString(array $data)
     {
         return json_encode(array_map('strval', $data));
-    }
-
-    public function sendContentSms($to, $content)
-    {
     }
 }

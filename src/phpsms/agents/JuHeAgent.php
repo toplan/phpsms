@@ -8,7 +8,7 @@ namespace Toplan\PhpSms;
  * @property string $key
  * @property string $times
  */
-class JuHeAgent extends Agent
+class JuHeAgent extends Agent implements TemplateSms
 {
     public function sendSms($to, $content, $tempId, array $data)
     {
@@ -62,9 +62,5 @@ class JuHeAgent extends Agent
         } else {
             $this->result(Agent::INFO, 'request failed');
         }
-    }
-
-    public function sendContentSms($to, $content)
-    {
     }
 }

@@ -65,23 +65,6 @@ abstract class Agent
     abstract public function sendSms($to, $content, $tempId, array $tempData);
 
     /**
-     * Content SMS send process.
-     *
-     * @param $to
-     * @param $content
-     */
-    abstract public function sendContentSms($to, $content);
-
-    /**
-     * Template SMS send process.
-     *
-     * @param       $to
-     * @param       $tempId
-     * @param array $tempData
-     */
-    abstract public function sendTemplateSms($to, $tempId, array $tempData);
-
-    /**
      * Voice verify send process.
      *
      * @param       $to
@@ -96,9 +79,9 @@ abstract class Agent
      *
      * @codeCoverageIgnore
      *
-     * @param string $url    [请求的URL地址]
-     * @param array  $params [请求的参数]
-     * @param bool   $post   [是否采用POST形式]
+     * @param string $url    [请求地址]
+     * @param array  $params [请求参数]
+     * @param bool   $post   [是否post]
      * @param array  $opts   [curl设置项]
      *
      * @return array ['request', 'response']
