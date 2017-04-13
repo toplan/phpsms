@@ -35,6 +35,7 @@
 | [阿里大鱼](https://www.alidayu.com/)    | √ | × | √ | -- | ￥0.045/条 | [资费标准](https://www.alidayu.com/service/price)
 | [SendCloud](https://sendcloud.sohu.com/) | √ | × | √ | -- | ￥0.048/条 | [资费标准](https://sendcloud.sohu.com/price.html)
 | [短信宝](http://www.smsbao.com/)    | × | √ | √ | ￥5(50条) | ￥0.040/条(100万条) | [资费标准](http://www.smsbao.com/fee/)
+| [阿里云短信服务](https://www.aliyun.com/product/sms)    | √ | × | × | -- | ￥0.045/条 | [资费标准](https://www.aliyun.com/price/product#/sms/detail)
 
 
 # 安装

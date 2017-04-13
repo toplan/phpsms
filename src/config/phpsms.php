@@ -15,7 +15,7 @@ return [
      * 2. 'backup' (ignore upper/lower case)
      *
      * supported agents:
-     * 'Log', 'SmsBao', 'Luosimao', 'YunTongXun', 'YunPian', 'SubMail', 'Ucpaas', 'JuHe', 'Alidayu', 'SendCloud'
+     * 'Log', 'SmsBao', 'Luosimao', 'YunTongXun', 'YunPian', 'SubMail', 'Ucpaas', 'JuHe', 'Alidayu', 'SendCloud', 'AliyunSms'
      */
     'scheme' => [
         'Log',
@@ -205,6 +205,23 @@ return [
 
             //password
             'password' => 'your password',
+        ],
+
+        /*
+         * -----------------------------------
+         * AliyunSms
+         * 阿里云短信服务代理器
+         * -----------------------------------
+         * website:https://www.aliyun.com/product/sms
+         * support template sms.
+         */
+        'AliyunSms' => [
+            //阿里云颁发给用户的访问服务所用的密钥ID
+            'accessKeyId' => 'your access key id',
+            //阿里云颁发给用户的，用于加密签名字符串和服务器端验证签名字符串的密钥
+            'accessKeySecret' => 'your access key secret',
+            //阿里云管理控制台中配置的短信签名（状态必须是验证通过）
+            'signName' => 'your sms sign name',
         ],
     ],
 ];
