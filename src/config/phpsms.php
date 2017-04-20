@@ -15,10 +15,10 @@ return [
      * 2. 'backup' (ignore upper/lower case)
      *
      * supported agents:
-     * 'Log', 'SmsBao', 'Luosimao', 'YunTongXun', 'YunPian', 'SubMail', 'Ucpaas', 'JuHe', 'Alidayu', 'SendCloud'
+     * 'Qcloud','Log', 'SmsBao', 'Luosimao', 'YunTongXun', 'YunPian', 'SubMail', 'Ucpaas', 'JuHe', 'Alidayu', 'SendCloud'
      */
     'scheme' => [
-        'Log',
+        'Qcloud',
     ],
 
     /*
@@ -28,7 +28,22 @@ return [
      *
      */
     'agents' => [
+        /*
+         * -----------------------------------
+         * Qcloud.com
+         * 腾讯云短信
+         * -----------------------------------
+         * website:http://www.qcloud.com
+         * support template sms.
+         */
+        'Qcloud' => [
 
+            //App ID
+            'appId' => 'your app id',
+
+            //App KEY
+            'appKey' => 'your app key',
+        ],
         /*
          * -----------------------------------
          * YunPian
