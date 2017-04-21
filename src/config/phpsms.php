@@ -15,10 +15,10 @@ return [
      * 2. 'backup' (ignore upper/lower case)
      *
      * supported agents:
-     * 'Qcloud','Log', 'SmsBao', 'Luosimao', 'YunTongXun', 'YunPian', 'SubMail', 'Ucpaas', 'JuHe', 'Alidayu', 'SendCloud'
+     * 'Log', 'SmsBao', 'Luosimao', 'YunTongXun', 'YunPian', 'SubMail', 'Ucpaas', 'JuHe', 'Alidayu', 'Qcloud','SendCloud'
      */
     'scheme' => [
-        'Qcloud',
+        'Log',
     ],
 
     /*
