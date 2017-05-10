@@ -1,49 +1,36 @@
 <?php
 
-/*
- * config file for PhpSms
- */
 return [
-
     /*
-     * agent use scheme
+     * The scheme information
      * -------------------------------------------------------------------
-     * Format: 'name' => scheme
      *
-     * The scheme value include:
-     * 1. weight (must be a positive integer)
-     * 2. 'backup' (ignore upper/lower case)
+     * The key-value paris: {name} => {value}
      *
-     * supported agents:
-     * 'Log', 'SmsBao', 'Luosimao', 'YunTongXun', 'YunPian', 'SubMail', 'Ucpaas', 'JuHe', 'Alidayu', 'Qcloud','SendCloud'
+     * Examples:
+     * 'Log' => '10 backup'
+     * 'SmsBao' => '100'
+     * 'CustomAgent' => [
+     *     '5 backup',
+     *     'agentClass' => '/Namespace/ClassName'
+     * ]
+     *
+     * Supported agents:
+     * 'Log', 'YunPian', 'YunTongXun', 'SubMail', 'Luosimao', 'Ucpaas', 'JuHe', 'Alidayu', 'SendCloud', 'SmsBao', 'Qcloud'
+     *
      */
     'scheme' => [
         'Log',
     ],
 
     /*
-     * agents config
+     * The configuration
      * -------------------------------------------------------------------
-     * Note: agent name must be string.
+     *
+     * Expected the name of agent to be a string.
      *
      */
     'agents' => [
-        /*
-         * -----------------------------------
-         * Qcloud.com
-         * 腾讯云短信
-         * -----------------------------------
-         * website:http://www.qcloud.com
-         * support template sms.
-         */
-        'Qcloud' => [
-
-            //App ID
-            'appId' => 'your app id',
-
-            //App KEY
-            'appKey' => 'your app key',
-        ],
         /*
          * -----------------------------------
          * YunPian
@@ -205,14 +192,7 @@ return [
          * SmsBao
          * -----------------------------------
          * website: http://www.smsbao.com
-         * not support template sms.
-         * 不支持模板变量短信
          * support content sms.
-         * 支持内容短信
-         * support voice sms.
-         * 支持语音验证码
-         * 支持自定义短信签名
-         * 最低消费5元(50条) 最低消费单价0.04元（100万条）
          */
         'SmsBao' => [
             //username
@@ -220,6 +200,23 @@ return [
 
             //password
             'password' => 'your password',
+        ],
+
+        /*
+         * -----------------------------------
+         * Qcloud
+         * 腾讯云短信
+         * -----------------------------------
+         * website:http://www.qcloud.com
+         * support template sms.
+         */
+        'Qcloud' => [
+
+            //App ID
+            'appId' => 'your app id',
+
+            //App KEY
+            'appKey' => 'your app key',
         ],
     ],
 ];

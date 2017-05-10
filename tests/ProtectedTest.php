@@ -16,7 +16,7 @@ class ProtectedTest extends PHPUnit_Framework_TestCase
 
     public function testConfiguration()
     {
-        $method = self::getPrivateMethod('configuration');
+        $method = self::getPrivateMethod('configure');
         $obj = new Sms(false);
         $method->invokeArgs($obj, []);
         $config = include __DIR__ . '/../src/config/phpsms.php';

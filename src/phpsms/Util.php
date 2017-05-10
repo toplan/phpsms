@@ -2,8 +2,17 @@
 
 namespace Toplan\PhpSms;
 
+use SuperClosure\Serializer;
+
 class Util
 {
+    /**
+     * Closure serializer.
+     *
+     * @var Serializer
+     */
+    protected static $closureSerializer = null;
+
     /**
      * 对数组进行赋值/取值操作
      *
@@ -60,5 +69,19 @@ class Util
         unset($options[$key]);
 
         return $value;
+    }
+
+    /**
+     * Get a closure serializer.
+     *
+     * @return Serializer
+     */
+    public static function getClosureSerializer()
+    {
+        if (empty(self::$closureSerializer)) {
+            self::$closureSerializer = new Serializer();
+        }
+
+        return self::$closureSerializer;
     }
 }

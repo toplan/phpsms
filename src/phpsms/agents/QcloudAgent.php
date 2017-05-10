@@ -1,66 +1,85 @@
 <?php
 
 namespace Toplan\PhpSms;
+
 /**
  * Class SendCloudAgent
  *
- * @property string $smsUser
- * @property string $smsKey
+ * @property string $appId
+ * @property string $appKey
  */
-class QcloudAgent extends Agent implements TemplateSms
+class QcloudAgent extends Agent implements TemplateSms, ContentSms
 {
-    protected $sendUrl = 'https://yun.tim.qq.com/v5/tlssmssvr/sendsms';
+    protected $sendSms = 'https://yun.tim.qq.com/v5/tlssmssvr/sendsms';
+    protected $sendVoiceCode = 'https://yun.tim.qq.com/v5/tlssmssvr/sendVoice';
+    protected $sendVoicePrompt = 'https://yun.tim.qq.com/v5/tlsvoicesvr/sendvoiceprompt';
     protected $random;
-    protected $content;
+
     public function sendSms($to, $content, $tempId, array $data)
     {
-        $this->content = $content;
-        $this->sendTemplateSms($to, $tempId, $data);
+        if ($content) {
+            $this->sendContentSms($to, $content);
+            $content = null;
+        } else if ($tempId) {
+            $this->sendTemplateSms($to, $tempId, $data);
+            $tempId = null;
+        }
+        if (!$this->result(Agent::SUCCESS) && ($content || $tempId)) {
+            $this->sendSms($to, $content, $tempId, $data);
+        }
+    }
+
+    public function sendContentSms($to, $content)
+    {
+        $params = [
+            'type'   => 0, // 0:普通短信 1:营销短信
+            'msg'    => $content,
+            'tel'    => ['nationcode' => '86', 'mobile' => $to],
+            'time'   => time(),
+            'extend' => '',
+            'ext'    => '',
+        ];
+        $this->random = $this->getRandom();
+        $sendUrl = "{$this->sendSms}?sdkappid={$this->appId}&random={$this->random}";
+        $this->request($sendUrl, $params);
     }
 
     public function sendTemplateSms($to, $tempId, array $data)
     {
         $params = [
-            'type'    => 0,//0:普通短信;1:营销短信
-            'msg'    => $this->content,//$this->getTempDataString($data)
-            'tel'   => ["nationcode"=> "86","mobile"=>$to],
-            'time' => time(),
-            'extend' => "",
-            'ext' => "",
+            'tel'    => ['nationcode' => '86', 'mobile' => $to],
+            'tpl_id' => $tempId,
+            'params' => array_values($data),
+            'time'   => time(),
+            'extend' => '',
+            'ext'    => '',
         ];
         $this->random = $this->getRandom();
-        $sendUrl =  $this->sendUrl.'?'.'sdkappid='.$this->appId.'&random='.$this->random;
+        $sendUrl = "{$this->sendSms}?sdkappid={$this->appId}&random={$this->random}";
         $this->request($sendUrl, $params);
     }
 
     public function voiceVerify($to, $code, $tempId, array $data)
     {
-        $params = [
+        $this->request($this->sendVoiceUrl, [
             'phone' => $to,
             'code'  => $code,
-        ];
-        $this->request('https://yun.tim.qq.com/v5/tlssmssvr/sendVoice', $params);
+        ]);
     }
 
     protected function request($sendUrl, array $params)
     {
-        $params = $this->createParams($params);
+        $params['sig'] = $this->genSign($params);
         $result = $this->curl($sendUrl, json_encode($params), true);
         $this->setResult($result);
     }
 
-    protected function createParams(array $params)
-    {
-        $params['sig'] = $this->genSign($params);
-
-        return $params;
-    }
-
     protected function genSign($params)
     {
-        $phone = $params['tel']["mobile"];
-        $signature = "appkey=".$this->appKey."&random=".$this->random."&time=".$params['time']."&mobile=".$phone;
-        return hash("sha256",$signature, FALSE);
+        $phone = $params['tel']['mobile'];
+        $signature = "appkey={$this->appKey}&random={$this->random}&time={$params['time']}&mobile={$phone}";
+
+        return hash('sha256', $signature, false);
     }
 
     protected function setResult($result)
@@ -69,7 +88,7 @@ class QcloudAgent extends Agent implements TemplateSms
             $this->result(Agent::INFO, $result['response']);
             $result = json_decode($result['response'], true);
             if (isset($result['result'])) {
-                $this->result(Agent::SUCCESS, (bool) ($result['result'] == 0));
+                $this->result(Agent::SUCCESS, $result['result'] === 0);
                 $this->result(Agent::CODE, $result['result']);
             }
         } else {
@@ -77,16 +96,8 @@ class QcloudAgent extends Agent implements TemplateSms
         }
     }
 
-    protected function getTempDataString(array $data)
+    protected function getRandom()
     {
-        $data = array_map(function ($value) {
-            return (string) $value;
-        }, $data);
-
-        return json_encode($data);
-    }
-
-    protected function getRandom() {
         return rand(100000, 999999);
     }
 }

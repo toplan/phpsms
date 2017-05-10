@@ -377,6 +377,8 @@ $sms = Sms::voice($code);
 > - **语音文件ID**即是在服务商配置的语音文件的唯一编号，比如阿里大鱼[语音通知](http://open.taobao.com/doc2/apiDetail.htm?spm=a219a.7395905.0.0.oORhh9&apiId=25445)的`voice_code`。
 > - **模版语音**是另一种语音请求方式，它是通过模版ID和模版数据进行的语音请求，比如阿里大鱼的[文本转语音通知](http://open.taobao.com/doc2/apiDetail.htm?spm=a219a.7395905.0.0.f04PJ3&apiId=25444)。
 
+### $sms->type($type)
+
 ### $sms->to($mobile)
 
 设置发送给谁，并返回实例。
@@ -419,17 +421,23 @@ $sms->data([
 $sms->content('【签名】这是短信内容...');
 ```
 
+### $sms->code($code)
+
+### $sms->file($id)
+
 ### $sms->all([$key])
 
 获取Sms实例中的短信数据，不带参数时返回所有数据，其结构如下：
 ```php
 [
-    'type'         => ...,
-    'to'           => ...,
-    'templates'    => [...],
-    'content'      => ...,
-    'templateData' => [...],
-    'voiceCode'    => ...,
+    'type'      => ...,
+    'to'        => ...,
+    'templates' => [...],
+    'data'      => [...],
+    'content'   => ...,
+    'voiceCode' => ...,
+    'voiceFile' => ...,
+    'params'    => [...],
 ]
 ```
 
