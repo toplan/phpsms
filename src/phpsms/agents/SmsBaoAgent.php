@@ -8,7 +8,7 @@ namespace Toplan\PhpSms;
  * @property string $username
  * @property string $password
  */
-class SmsBaoAgent extends Agent implements ContentSms
+class SmsBaoAgent extends Agent implements ContentSms, VoiceCode
 {
     protected $resultArr = [
         '0'  => '发送成功',
@@ -22,33 +22,28 @@ class SmsBaoAgent extends Agent implements ContentSms
         '51' => '手机号码不正确',
     ];
 
-    public function sendSms($to, $content, $tempId, array $data)
-    {
-        $this->sendContentSms($to, $content);
-    }
-
-    public function sendContentSms($to, $content)
+    public function sendContentSms($to, $content, array $params)
     {
         $url = 'http://api.smsbao.com/sms';
-        $params = [
+        $params = array_merge($params, [
             'u' => $this->username,
             'p' => md5($this->password),
             'm' => $to,
             'c' => $content,
-        ];
+        ]);
         $result = $this->curl($url, $params);
         $this->setResult($result);
     }
 
-    public function voiceVerify($to, $code, $tempId, array $tempData)
+    public function sendVoiceCode($to, $code, array $params)
     {
         $url = 'http://api.smsbao.com/voice';
-        $params = [
+        $params = array_merge($params, [
             'u' => $this->username,
             'p' => md5($this->password),
             'm' => $to,
             'c' => $code,
-        ];
+        ]);
         $result = $this->curl($url, $params);
         $this->setResult($result);
     }

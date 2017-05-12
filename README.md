@@ -187,7 +187,7 @@ PhpSms::make()->to($to)->content($content)->send();
 
 设置/获取代理器的调度方案。
 
-> 调度配置在调度系统启动后(创建`Sms`实例时会自动启动)就不能修改。
+> 调度配置在应用系统的整个运行过程中都能修改。
 
 - 设置
 
@@ -218,7 +218,7 @@ $scheme['SmsBao'] = Sms::scheme('SmsBao');
 
 设置/获取代理器的配置数据。
 
-> 代理器参数配置在应用系统的整个运行过程中都是能修改的，这点和调度配置有所不同。
+> 代理器参数配置在应用系统的整个运行过程中都能修改。
 
 - 设置
 
@@ -251,7 +251,7 @@ $config['SmsBao'] = Sms::config('SmsBao');
 
 发送前钩子，示例：
 ```php
-Sms::beforeSend(function($task, $prev, $index, $handlers){
+Sms::beforeSend(function($task, $index, $handlers, $prevReturn){
     //获取短信数据
     $smsData = $task->data;
     ...
@@ -259,13 +259,13 @@ Sms::beforeSend(function($task, $prev, $index, $handlers){
     return true;
 });
 ```
-> 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“beforeRun”钩子
+> 更多细节请查看 [task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle) 的 `beforeRun` 钩子
 
 ### Sms::beforeAgentSend($handler[, $override]);
 
 代理器发送前钩子，示例：
 ```php
-Sms::beforeAgentSend(function($task, $driver, $prev, $index, $handlers){
+Sms::beforeAgentSend(function($task, $driver, $index, $handlers, $prevReturn){
     //短信数据:
     $smsData = $task->data;
     //当前使用的代理器名称:
@@ -274,33 +274,33 @@ Sms::beforeAgentSend(function($task, $driver, $prev, $index, $handlers){
     return true;
 });
 ```
-> 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“beforeDriverRun”钩子
+> 更多细节请查看 [task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle) 的 `beforeDriverRun` 钩子
 
 ### Sms::afterAgentSend($handler[, $override]);
 
 代理器发送后钩子，示例：
 ```php
-Sms::afterAgentSend(function($task, $result, $prev, $index, $handlers){
+Sms::afterAgentSend(function($task, $agentResult, $index, $handlers, $prevReturn){
      //$result为代理器的发送结果数据
-     $agentName = $result['driver'];
+     $agentName = $agentResult['driver'];
      ...
 });
 ```
-> 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“afterDriverRun”钩子
+> 更多细节请查看 [task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle) 的 `afterDriverRun` 钩子
 
-### Sms::afterSend($handler [, $override]);
+### Sms::afterSend($handler[, $override]);
 
 发送后钩子，示例：
 ```php
-Sms::afterSend(function($task, $result, $prev, $index, $handlers){
+Sms::afterSend(function($task, $taskResult, $index, $handlers, $prevReturn){
     //$result为发送后获得的结果数组
-    $success = $result['success'];
+    $success = $taskResult['success'];
     ...
 });
 ```
-> 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“afterRun”钩子
+> 更多细节请查看 [task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle) 的 `afterRun` 钩子
 
-### Sms::queue($enable, $handler)
+### Sms::queue([$enable[, $handler]])
 
 该方法可以设置是否启用队列以及定义如何推送到队列。
 
@@ -369,7 +369,7 @@ $sms = Sms::make([
 ```php
 $sms = Sms::voice();
 
-//创建实例的同时设置验证码/语音文件ID
+//创建实例的同时设置验证码
 $sms = Sms::voice($code);
 ```
 
@@ -490,13 +490,18 @@ Sms::scheme('agentName', [
 * 配置方式：
 
 通过配置值中`sendSms`和`voiceVerify`键来设置发送短信和语音验证码的方式。
+可以配置的发送过程有:
+
+|  | |
+| ----- | :-----: |
+|       |         |
 
 * 示例：
 ```php
 Sms::scheme([
     'agentName' => [
         '20 backup',
-        'sendSms' => function($agent, $to, $content, $tempId, $tempData){
+        'sendContentSms' => function($agent, $to, $content, array $params){
             //获取配置(如果设置了的话):
             $key = $agent->key;
             ...
@@ -508,7 +513,7 @@ Sms::scheme([
             $agent->result(Agent::INFO, 'some info');
             $agent->result(Agent::CODE, 'your code');
         },
-        'voiceVerify' => function($agent, $to, $code, $tempId, $tempData){
+        'sendVoiceCode' => function($agent, $to, $code, array $params){
             //发送语音验证码，同上
         }
     ]

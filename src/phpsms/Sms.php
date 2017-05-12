@@ -44,7 +44,7 @@ class Sms
     protected static $agentsConfig = [];
 
     /**
-     * Whether to use the queue.
+     * Whether to use the queue system.
      *
      * @var bool
      */
@@ -221,13 +221,13 @@ class Sms
         // register
         self::getTask()->driver("$name $scheme")->work(function (Driver $driver) use ($settings) {
             $agent = self::getAgent($driver->name, $settings);
-            $smsData = $driver->getTaskData();
-            extract($smsData);
+            extract($driver->getTaskData());
             $template = isset($templates[$driver->name]) ? $templates[$driver->name] : null;
+            $params = isset($params[$driver->name]) ? $params[$driver->name] : [];
             if ($type === self::TYPE_VOICE) {
-                $agent->voiceVerify($to, $voiceCode, $template, $data);
+                $agent->sendVoice($to, $content, $template, $data, $voiceCode, $voiceFile, $params);
             } elseif ($type === self::TYPE_SMS) {
-                $agent->sendSms($to, $content, $template, $data);
+                $agent->sendSms($to, $content, $template, $data, $params);
             }
             $result = $agent->result();
             if ($result['success']) {
@@ -248,13 +248,14 @@ class Sms
      */
     protected static function parseScheme(array $options)
     {
-        $agentClass = Util::pullFromArrayByKey($options, 'agentClass');
-        $sendSms = Util::pullFromArrayByKey($options, 'sendSms');
-        $voiceVerify = Util::pullFromArrayByKey($options, 'voiceVerify');
+        $weight = Util::pullFromArrayByKey($options, 'weight');
         $backup = Util::pullFromArrayByKey($options, 'backup') ? 'backup' : '';
-        $scheme = implode(' ', array_values($options)) . " $backup";
+        $props = array_filter(array_values($options), function($prop) {
+            return is_numeric($prop) || is_string($prop);
+        });
+        $options['scheme'] = implode(' ', $props) . " $weight $backup";
 
-        return compact('agentClass', 'sendSms', 'voiceVerify', 'scheme');
+        return $options;
     }
 
     /**
@@ -283,9 +284,8 @@ class Sms
                 $className = $options['agentClass'];
                 unset($options['agentClass']);
             }
-            if (isset($options['sendSms']) || isset($options['voiceVerify'])) {
-                $config = array_merge($config, $options);
-                self::$agents[$name] = new ParasiticAgent($config);
+            if (!empty($options)) {
+                self::$agents[$name] = new ParasiticAgent($config, $options);
             } elseif (class_exists($className)) {
                 self::$agents[$name] = new $className($config);
             } else {
@@ -311,9 +311,9 @@ class Sms
     /**
      * Set or get the dispatch scheme.
      *
-     * @param mixed $name
-     * @param mixed $scheme
-     * @param bool  $override
+     * @param string|array|null         $name
+     * @param string|array|bool|null    $scheme
+     * @param bool                      $override
      *
      * @return mixed
      */
@@ -341,21 +341,25 @@ class Sms
     /**
      * Modify the dispatch scheme of agent.
      *
-     * @param $key
-     * @param $value
+     * @param string        $name
+     * @param string|array  $scheme
      *
      * @throws PhpSmsException
      */
-    protected static function modifyScheme($key, $value)
+    protected static function modifyScheme($name, $scheme)
     {
-        self::validateAgentName($key);
-        self::$scheme[$key] = $value;
+        self::validateAgentName($name);
+        self::$scheme[$name] = $scheme;
         if (self::isTaskBooted()) {
-            $driver = self::getTask()->getDriver($key);
+            $driver = self::getTask()->getDriver($name);
             if ($driver) {
-                $driver->reset($value);
+                if (is_array($scheme)) {
+                    $higherOrderScheme = self::parseScheme($scheme);
+                    $scheme = $higherOrderScheme['scheme'];
+                }
+                $driver->reset($scheme);
             } else {
-                self::registerDriver($key, $value);
+                self::registerDriver($name, $scheme);
             }
         }
     }
@@ -363,9 +367,9 @@ class Sms
     /**
      * Set or get the configuration information.
      *
-     * @param mixed $name
-     * @param mixed $config
-     * @param bool  $override
+     * @param string|array|null $name
+     * @param array|bool|null   $config
+     * @param bool              $override
      *
      * @throws PhpSmsException
      *
@@ -373,15 +377,11 @@ class Sms
      */
     public static function config($name = null, $config = null, $override = false)
     {
-        if (is_array($name) && is_bool($config)) {
-            $override = $config;
-        }
+        $overrideAll = (is_array($name) && is_bool($config)) ? $config : false;
 
-        return Util::operateArray(self::$agentsConfig, $name, $config, [], function ($key, $value) {
-            if (is_array($value)) {
-                self::modifyConfig($key, $value);
-            }
-        }, $override, function (array $origin) {
+        return Util::operateArray(self::$agentsConfig, $name, $config, [], function ($name, array $config) use ($override) {
+            self::modifyConfig($name, $config, $override);
+        }, $overrideAll, function (array $origin) {
             foreach (array_keys($origin) as $name) {
                 if (self::hasAgent("$name")) {
                     self::getAgent("$name")->config([], true);
@@ -393,17 +393,26 @@ class Sms
     /**
      * Modify the configuration information.
      *
-     * @param string $key
-     * @param array  $value
+     * @param string    $name
+     * @param array     $config
+     * @param bool      $override
      *
      * @throws PhpSmsException
      */
-    protected static function modifyConfig($key, array $value)
+    protected static function modifyConfig($name, array $config, $override = false)
     {
-        self::validateAgentName($key);
-        self::$agentsConfig[$key] = $value;
-        if (self::hasAgent($key)) {
-            self::getAgent($key)->config($value);
+        self::validateAgentName($name);
+        if (!isset(self::$agentsConfig[$name])) {
+            self::$agentsConfig[$name] = [];
+        }
+        $target = &self::$agentsConfig[$name];
+        if ($override) {
+            $target = $config;
+        } else {
+            $target = array_merge($target, $config);
+        }
+        if (self::hasAgent($name)) {
+            self::getAgent($name)->config($target);
         }
     }
 
@@ -483,8 +492,8 @@ class Sms
      * Set whether to use the queue system,
      * and define how to use it.
      *
-     * @param mixed $enable
-     * @param mixed $handler
+     * @param bool|\Closure|null    $enable
+     * @param \Closure|null         $handler
      *
      * @return bool
      */
@@ -569,14 +578,14 @@ class Sms
     /**
      * Set the template data.
      *
-     * @param mixed $name
+     * @param mixed $key
      * @param mixed $value
      *
      * @return $this
      */
-    public function data($name, $value = null)
+    public function data($key, $value = null)
     {
-        Util::operateArray($this->smsData['data'], $name, $value);
+        Util::operateArray($this->smsData['data'], $key, $value);
 
         return $this;
     }
@@ -605,6 +614,33 @@ class Sms
     public function file($id)
     {
         $this->smsData['voiceFile'] = $id;
+
+        return $this;
+    }
+
+    /**
+     * Set params of agent.
+     *
+     * @param string|array      $name
+     * @param array|bool|null   $params
+     * @param bool              $override
+     *
+     * @return $this
+     */
+    public function params($name, $params = null, $override = false)
+    {
+        $overrideAll = (is_array($name) && is_bool($params)) ? $params : false;
+        Util::operateArray($this->smsData['params'], $name, $params, [], function ($name, array $params) use ($override) {
+            if (!isset($this->smsData['params'][$name])) {
+                $this->smsData['params'][$name] = [];
+            }
+            $target = &$this->smsData['params'][$name];
+            if ($override) {
+                $target = $params;
+            } else {
+                $target = array_merge($target, $params);
+            }
+        }, $overrideAll);
 
         return $this;
     }
@@ -681,8 +717,8 @@ class Sms
      */
     public function all($key = null)
     {
-        if (is_string($key) && isset($this->smsData["$key"])) {
-            return $this->smsData[$key];
+        if ($key !== null) {
+            return isset($this->smsData[$key]) ? $this->smsData[$key] : null;
         }
 
         return $this->smsData;
@@ -770,8 +806,9 @@ class Sms
     {
         foreach ($scheme as $name => &$options) {
             if (is_array($options)) {
-                self::toggleSerializeClosure($options, 'sendSms');
-                self::toggleSerializeClosure($options, 'voiceVerify');
+                foreach (ParasiticAgent::methods() as $method) {
+                    self::toggleSerializeClosure($options, $method);
+                }
             }
         }
 

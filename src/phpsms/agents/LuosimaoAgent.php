@@ -8,9 +8,9 @@ namespace Toplan\PhpSms;
  * @property string $apikey
  * @property string $voiceApikey
  */
-class LuosimaoAgent extends Agent implements ContentSms
+class LuosimaoAgent extends Agent implements ContentSms, VoiceCode
 {
-    public function sendSms($to, $content, $tempId, array $data)
+    public function sendContentSms($to, $content, array $params)
     {
         // 签名必须在最后面
         if ($content && !preg_match('/】$/', $content)) {
@@ -19,31 +19,26 @@ class LuosimaoAgent extends Agent implements ContentSms
                 $content = str_replace($matches[0], '', $content) . $matches[0];
             }
         }
-        $this->sendContentSms($to, $content);
-    }
-
-    public function sendContentSms($to, $content)
-    {
         $url = 'http://sms-api.luosimao.com/v1/send.json';
-        $optData = [
+        $params = array_merge($params, [
             'mobile'  => $to,
             'message' => $content,
-        ];
-        $result = $this->curl($url, $optData, true, [
+        ]);
+        $result = $this->curl($url, $params, true, [
             CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
             CURLOPT_USERPWD  => "api:key-$this->apikey",
         ]);
         $this->setResult($result);
     }
 
-    public function voiceVerify($to, $code, $tempId, array $data)
+    public function sendVoiceCode($to, $code, array $params)
     {
         $url = 'http://voice-api.luosimao.com/v1/verify.json';
-        $optData = [
+        $params = array_merge($params, [
             'mobile' => $to,
             'code'   => $code,
-        ];
-        $result = $this->curl($url, $optData, true, [
+        ]);
+        $result = $this->curl($url, $params, true, [
             CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
             CURLOPT_USERPWD  => "api:key-$this->voiceApikey",
         ]);

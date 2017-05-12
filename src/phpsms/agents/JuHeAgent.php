@@ -8,14 +8,9 @@ namespace Toplan\PhpSms;
  * @property string $key
  * @property string $times
  */
-class JuHeAgent extends Agent implements TemplateSms
+class JuHeAgent extends Agent implements TemplateSms, VoiceCode
 {
-    public function sendSms($to, $content, $tempId, array $data)
-    {
-        $this->sendTemplateSms($to, $tempId, $data);
-    }
-
-    public function sendTemplateSms($to, $tempId, array $data)
+    public function sendTemplateSms($to, $tempId, array $data, array $params)
     {
         $sendUrl = 'http://v.juhe.cn/sms/send';
         $tplValue = '';
@@ -26,28 +21,27 @@ class JuHeAgent extends Agent implements TemplateSms
             $split = !$tplValue ? '' : '&';
             $tplValue .= "$split#$key#=$value";
         }
-        $tplValue = !$tplValue ?: urlencode($tplValue);
-        $smsConf = [
+        $params = array_merge($params, [
             'key'       => $this->key,
             'mobile'    => $to,
             'tpl_id'    => $tempId,
-            'tpl_value' => $tplValue,
+            'tpl_value' => urlencode($tplValue),
             'dtype'     => 'json',
-        ];
-        $result = $this->curl($sendUrl, $smsConf);
+        ]);
+        $result = $this->curl($sendUrl, $params);
         $this->setResult($result);
     }
 
-    public function voiceVerify($to, $code, $tempId, array $data)
+    public function sendVoiceCode($to, $code, array $params)
     {
         $url = 'http://op.juhe.cn/yuntongxun/voice';
-        $params = [
+        $params = array_merge($params, [
             'valicode'  => $code,
             'to'        => $to,
             'playtimes' => $this->times ?: 3,
             'key'       => $this->key,
             'dtype'     => 'json',
-        ];
+        ]);
         $result = $this->curl($url, $params);
         $this->setResult($result);
     }

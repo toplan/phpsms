@@ -20,11 +20,7 @@ abstract class Agent
      *
      * @var array
      */
-    protected $result = [
-        self::SUCCESS => false,
-        self::INFO    => null,
-        self::CODE    => 0,
-    ];
+    protected $result = [];
 
     /**
      * Constructor.
@@ -33,11 +29,24 @@ abstract class Agent
      */
     public function __construct(array $config = [])
     {
+        $this->reset();
         $this->config($config);
     }
 
     /**
-     * Get or set the configuration information of agent.
+     * Reset states.
+     */
+    public function reset()
+    {
+        $this->result = [
+            self::SUCCESS => false,
+            self::INFO    => null,
+            self::CODE    => 0,
+        ];
+    }
+
+    /**
+     * Get or set the configuration information.
      *
      * @param mixed $key
      * @param mixed $value
@@ -60,19 +69,52 @@ abstract class Agent
      * @param       $to
      * @param       $content
      * @param       $tempId
-     * @param array $tempData
+     * @param array $data
+     * @param array $params
      */
-    abstract public function sendSms($to, $content, $tempId, array $tempData);
+    public function sendSms($to, $content, $tempId = null, array $data = [], array $params = [])
+    {
+        $this->reset();
+        if ($content) {
+            if ($this instanceof ContentSms) {
+                $this->sendContentSms($to, $content, $params);
+            }
+            $content = null;
+        } elseif ($tempId) {
+            if ($this instanceof TemplateSms) {
+                $this->sendTemplateSms($to, $tempId, $data, $params);
+            }
+            $tempId = null;
+        }
+        if (!$this->result(self::SUCCESS) && ($content || $tempId)) {
+            $this->sendSms($to, $content, $tempId, $data, $params);
+        }
+    }
 
     /**
-     * Voice verify send process.
+     * Voice send process.
      *
      * @param       $to
-     * @param       $code
+     * @param       $content
      * @param       $tempId
-     * @param array $tempData
+     * @param array $data
+     * @param       $code
+     * @param       $fileId
+     * @param array $params
      */
-    abstract public function voiceVerify($to, $code, $tempId, array $tempData);
+    public function sendVoice($to, $content, $tempId = null, array $data = [], $code = null, $fileId = null, array $params = [])
+    {
+        $this->reset();
+        if ($code && $this instanceof VoiceCode) {
+            $this->sendVoiceCode($to, $code, $params);
+        } elseif ($content && $this instanceof ContentVoice) {
+            $this->sendContentVoice($to, $content, $params);
+        } elseif ($tempId && $this instanceof TemplateVoice) {
+            $this->sendTemplateVoice($to, $tempId, $data, $params);
+        } elseif ($fileId && $this instanceof FileVoice) {
+            $this->sendFileVoice($to, $fileId, $params);
+        }
+    }
 
     /**
      * cURl
@@ -144,9 +186,9 @@ abstract class Agent
         }
         if (array_key_exists($name, $this->result)) {
             if ($value === null) {
-                return $this->result["$name"];
+                return $this->result[$name];
             }
-            $this->result["$name"] = $value;
+            $this->result[$name] = $value;
         }
     }
 

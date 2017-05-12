@@ -11,42 +11,64 @@ namespace Toplan\PhpSms;
  * @property string $smsFreeSignName
  * @property string $calledShowNum
  */
-class AlidayuAgent extends Agent implements TemplateSms
+class AlidayuAgent extends Agent implements TemplateSms, VoiceCode, TemplateVoice
 {
-    public function sendSms($to, $content, $tempId, array $data)
+    /**
+     * Template SMS send process.
+     *
+     * @param string|array $to
+     * @param int|string   $tempId
+     * @param array        $tempData
+     * @param array        $params
+     */
+    public function sendTemplateSms($to, $tempId, array $tempData, array $params)
     {
-        $this->sendTemplateSms($to, $tempId, $data);
-    }
-
-    public function sendTemplateSms($to, $tempId, array $data)
-    {
-        $params = [
+        $params = array_merge($params, [
             'method'             => 'alibaba.aliqin.fc.sms.num.send',
             'sms_type'           => 'normal',
             'sms_free_sign_name' => $this->smsFreeSignName,
-            'sms_param'          => $this->getTempDataString($data),
+            'sms_param'          => $this->getTempDataString($tempData),
             'rec_num'            => $to,
             'sms_template_code'  => $tempId,
-        ];
+        ]);
         $this->request($params);
     }
 
-    public function voiceVerify($to, $code, $tempId, array $data)
+    /**
+     * Template voice send process.
+     *
+     * @param string|array $to
+     * @param int|string   $tempId
+     * @param array        $tempData
+     * @param array        $params
+     */
+    public function sendTemplateVoice($to, $tempId, array $tempData, array $params)
     {
-        $params = [
-            'called_num'      => $to,
-            'called_show_num' => $this->calledShowNum,
-        ];
-        if ($tempId) {
-            //文本转语音通知
-            $params['method'] = 'alibaba.aliqin.fc.tts.num.singlecall';
-            $params['tts_code'] = $tempId;
-            $params['tts_param'] = $this->getTempDataString($data);
-        } elseif ($code) {
-            //语音通知
-            $params['method'] = 'alibaba.aliqin.fc.voice.num.singlecall';
-            $params['voice_code'] = $code;
-        }
+        $params = array_merge($params, [
+            'called_num'        => $to,
+            'called_show_num'   => $this->calledShowNum,
+            'method'            => 'alibaba.aliqin.fc.tts.num.singlecall',
+            'tts_code'          => $tempId,
+            'tts_param'         => $this->getTempDataString($tempData),
+        ]);
+        $this->request($params);
+    }
+
+    /**
+     * Voice code send process.
+     *
+     * @param string|array $to
+     * @param int|string   $code
+     * @param array        $params
+     */
+    public function sendVoiceCode($to, $code, array $params)
+    {
+        $params = array_merge($params, [
+            'called_num'        => $to,
+            'called_show_num'   => $this->calledShowNum,
+            'method'            => 'alibaba.aliqin.fc.voice.num.singlecall',
+            'voice_code'        => $code,
+        ]);
         $this->request($params);
     }
 

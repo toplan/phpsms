@@ -7,64 +7,61 @@ namespace Toplan\PhpSms;
  *
  * @property string $appId
  * @property string $appKey
+ * @property string $nationCode
  */
-class QcloudAgent extends Agent implements TemplateSms, ContentSms
+class QcloudAgent extends Agent implements TemplateSms, ContentSms, VoiceCode, ContentVoice
 {
     protected $sendSms = 'https://yun.tim.qq.com/v5/tlssmssvr/sendsms';
-    protected $sendVoiceCode = 'https://yun.tim.qq.com/v5/tlssmssvr/sendVoice';
+    protected $sendVoiceCode = 'https://yun.tim.qq.com/v5/tlsvoicesvr/sendvoice';
     protected $sendVoicePrompt = 'https://yun.tim.qq.com/v5/tlsvoicesvr/sendvoiceprompt';
     protected $random;
 
-    public function sendSms($to, $content, $tempId, array $data)
+    public function sendContentSms($to, $content, array $params)
     {
-        if ($content) {
-            $this->sendContentSms($to, $content);
-            $content = null;
-        } else if ($tempId) {
-            $this->sendTemplateSms($to, $tempId, $data);
-            $tempId = null;
-        }
-        if (!$this->result(Agent::SUCCESS) && ($content || $tempId)) {
-            $this->sendSms($to, $content, $tempId, $data);
-        }
-    }
-
-    public function sendContentSms($to, $content)
-    {
-        $params = [
+        $params = array_merge($params, [
             'type'   => 0, // 0:普通短信 1:营销短信
             'msg'    => $content,
-            'tel'    => ['nationcode' => '86', 'mobile' => $to],
+            'tel'    => $to,
             'time'   => time(),
-            'extend' => '',
-            'ext'    => '',
-        ];
+        ]);
         $this->random = $this->getRandom();
         $sendUrl = "{$this->sendSms}?sdkappid={$this->appId}&random={$this->random}";
         $this->request($sendUrl, $params);
     }
 
-    public function sendTemplateSms($to, $tempId, array $data)
+    public function sendTemplateSms($to, $tempId, array $data, array $params)
     {
-        $params = [
-            'tel'    => ['nationcode' => '86', 'mobile' => $to],
+        $params = array_merge($params, [
+            'tel'    => $to,
             'tpl_id' => $tempId,
             'params' => array_values($data),
             'time'   => time(),
-            'extend' => '',
-            'ext'    => '',
-        ];
+        ]);
         $this->random = $this->getRandom();
         $sendUrl = "{$this->sendSms}?sdkappid={$this->appId}&random={$this->random}";
         $this->request($sendUrl, $params);
     }
 
-    public function voiceVerify($to, $code, $tempId, array $data)
+    public function sendVoiceCode($to, $code, array $params)
     {
-        $this->request($this->sendVoiceUrl, [
-            'phone' => $to,
-            'code'  => $code,
+        $params = array_merge($params, [
+            'tel'    => $to,
+            'msg'   => $code,
         ]);
+        $sendUrl = "{$this->sendVoiceCode}?sdkappid={$this->appId}&random={$this->random}";
+        $this->request($sendUrl, $params);
+    }
+
+    public function sendContentVoice($to, $content, array $params)
+    {
+        $params = array_merge([
+            'prompttype' => 2,
+        ], $params, [
+            'tel'        => $to,
+            'promptfile' => $content,
+        ]);
+        $sendUrl = "{$this->sendVoicePrompt}?sdkappid={$this->appId}&random={$this->random}";
+        $this->request($sendUrl, $params);
     }
 
     protected function request($sendUrl, array $params)

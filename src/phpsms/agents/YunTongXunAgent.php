@@ -16,21 +16,16 @@ use REST;
  * @property string $voiceLang
  * @property string $displayNum
  */
-class YunTongXunAgent extends Agent implements TemplateSms
+class YunTongXunAgent extends Agent implements TemplateSms, VoiceCode
 {
-    public function sendSms($to, $content, $tempId, array $data)
-    {
-        $this->sendTemplateSms($to, $tempId, $data);
-    }
-
-    public function sendTemplateSms($to, $tempId, array $data)
+    public function sendTemplateSms($to, $tempId, array $data, array $params)
     {
         $data = array_values($data);
         $result = $this->rest()->sendTemplateSMS($to, $data, $tempId);
         $this->setResult($result);
     }
 
-    public function voiceVerify($to, $code, $tempId, array $data)
+    public function sendVoiceCode($to, $code, array $params)
     {
         $playTimes = intval($this->playTimes ?: 3);
         $displayNum = $this->displayNum ?: null;

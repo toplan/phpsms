@@ -13,7 +13,7 @@ class SerializeTest extends PHPUnit_Framework_TestCase
         Sms::cleanScheme();
         Sms::scheme('TestAgent', [
             '100 backup',
-            'sendSms' => function ($agent) {
+            'sendContentSms' => function ($agent) {
                 $agent->result(Agent::SUCCESS, true);
                 $agent->result(Agent::INFO, 'some_info');
             },
