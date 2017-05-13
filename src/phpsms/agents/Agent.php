@@ -72,22 +72,13 @@ abstract class Agent
      * @param array $data
      * @param array $params
      */
-    public function sendSms($to, $content, $tempId = null, array $data = [], array $params = [])
+    public function sendSms($to, $content = null, $tempId = null, array $data = [], array $params = [])
     {
         $this->reset();
-        if ($content) {
-            if ($this instanceof ContentSms) {
-                $this->sendContentSms($to, $content, $params);
-            }
-            $content = null;
-        } elseif ($tempId) {
-            if ($this instanceof TemplateSms) {
-                $this->sendTemplateSms($to, $tempId, $data, $params);
-            }
-            $tempId = null;
-        }
-        if (!$this->result(self::SUCCESS) && ($content || $tempId)) {
-            $this->sendSms($to, $content, $tempId, $data, $params);
+        if ($tempId && $this instanceof TemplateSms) {
+            $this->sendTemplateSms($to, $tempId, $data, $params);
+        } elseif ($content && $this instanceof ContentSms) {
+            $this->sendContentSms($to, $content, $params);
         }
     }
 
@@ -102,17 +93,17 @@ abstract class Agent
      * @param       $fileId
      * @param array $params
      */
-    public function sendVoice($to, $content, $tempId = null, array $data = [], $code = null, $fileId = null, array $params = [])
+    public function sendVoice($to, $content = null, $tempId = null, array $data = [], $code = null, $fileId = null, array $params = [])
     {
         $this->reset();
-        if ($code && $this instanceof VoiceCode) {
-            $this->sendVoiceCode($to, $code, $params);
-        } elseif ($content && $this instanceof ContentVoice) {
-            $this->sendContentVoice($to, $content, $params);
-        } elseif ($tempId && $this instanceof TemplateVoice) {
+        if ($tempId && $this instanceof TemplateVoice) {
             $this->sendTemplateVoice($to, $tempId, $data, $params);
         } elseif ($fileId && $this instanceof FileVoice) {
             $this->sendFileVoice($to, $fileId, $params);
+        } elseif ($code && $this instanceof VoiceCode) {
+            $this->sendVoiceCode($to, $code, $params);
+        } elseif ($content && $this instanceof ContentVoice) {
+            $this->sendContentVoice($to, $content, $params);
         }
     }
 

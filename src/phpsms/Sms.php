@@ -80,8 +80,8 @@ class Sms
         'templates' => [],
         'data'      => [],
         'content'   => null,
-        'voiceCode' => null,
-        'voiceFile' => null,
+        'code' => null,
+        'files' => [],
         'params'    => [],
     ];
 
@@ -223,9 +223,10 @@ class Sms
             $agent = self::getAgent($driver->name, $settings);
             extract($driver->getTaskData());
             $template = isset($templates[$driver->name]) ? $templates[$driver->name] : null;
+            $file = isset($files[$driver->name]) ? $files[$driver->name] : null;
             $params = isset($params[$driver->name]) ? $params[$driver->name] : [];
             if ($type === self::TYPE_VOICE) {
-                $agent->sendVoice($to, $content, $template, $data, $voiceCode, $voiceFile, $params);
+                $agent->sendVoice($to, $content, $template, $data, $code, $file, $params);
             } elseif ($type === self::TYPE_SMS) {
                 $agent->sendSms($to, $content, $template, $data, $params);
             }
@@ -248,11 +249,12 @@ class Sms
      */
     protected static function parseScheme(array $options)
     {
-        $weight = Util::pullFromArrayByKey($options, 'weight');
-        $backup = Util::pullFromArrayByKey($options, 'backup') ? 'backup' : '';
+        $weight = Util::pullFromArray($options, 'weight');
+        $backup = Util::pullFromArray($options, 'backup') ? 'backup' : '';
         $props = array_filter(array_values($options), function($prop) {
             return is_numeric($prop) || is_string($prop);
         });
+
         $options['scheme'] = implode(' ', $props) . " $weight $backup";
 
         return $options;
@@ -599,21 +601,22 @@ class Sms
      */
     public function code($code)
     {
-        $this->smsData['voiceCode'] = $code;
+        $this->smsData['code'] = $code;
 
         return $this;
     }
 
     /**
-     * Set the id of voice file.
+     * Set voice files.
      *
-     * @param string|int $id
+     * @param string|array  $name
+     * @param string|int    $id
      *
      * @return $this
      */
-    public function file($id)
+    public function files($name, $id = null)
     {
-        $this->smsData['voiceFile'] = $id;
+        Util::operateArray($this->smsData['files'], $name, $id);
 
         return $this;
     }

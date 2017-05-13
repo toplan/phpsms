@@ -379,6 +379,8 @@ $sms = Sms::voice($code);
 
 ### $sms->type($type)
 
+设置实例类型，可选值有`Sms::TYPE_SMS`和`Sms::TYPE_VOICE`，返回实例对象。
+
 ### $sms->to($mobile)
 
 设置发送给谁，并返回实例。
@@ -423,7 +425,21 @@ $sms->content('【签名】这是短信内容...');
 
 ### $sms->code($code)
 
-### $sms->file($id)
+设置语音验证码，并返回实例对象。
+
+### $sms->files($files)
+
+设置语音文件，并返回实例对象。
+```php
+$sms->template('Agent1', 'file_1')
+    ->template('Agent2', 'file_222');
+
+$sms->template([
+    'Agent1' => 'file_1',
+    'Agent2' => 'file_222',
+    ...
+]);
+```
 
 ### $sms->all([$key])
 
@@ -433,10 +449,10 @@ $sms->content('【签名】这是短信内容...');
     'type'      => ...,
     'to'        => ...,
     'templates' => [...],
-    'data'      => [...],
+    'data'      => [...], // template data
     'content'   => ...,
-    'voiceCode' => ...,
-    'voiceFile' => ...,
+    'code'      => ...,   // voice code
+    'files'     => [...], // voice files
     'params'    => [...],
 ]
 ```
@@ -489,12 +505,16 @@ Sms::scheme('agentName', [
 
 * 配置方式：
 
-通过配置值中`sendSms`和`voiceVerify`键来设置发送短信和语音验证码的方式。
 可以配置的发送过程有:
 
-|  | |
-| ----- | :-----: |
-|       |         |
+| Send Process      | Arguments                              |
+| ----------------- | :------------------------------------: |
+| sendContentSms    | $agent, $to, $content, $params         |
+| sendTemplateSms   | $agent, $to, $tmpId, $tmpData, $params |
+| sendVoiceCode     | $agent, $to, $code, $params            |
+| sendContentVoice  | $agent, $to, $content, $params         |
+| sendTemplateVoice | $agent, $to, $tmpId, $tmpData, $params |
+| sendFileVoice     | $agent, $to, $fileId, $params           |
 
 * 示例：
 ```php
@@ -537,14 +557,6 @@ Sms::scheme([
 
 新建一个继承`Toplan\PhpSms\Agent`抽象类的代理器类，建议代理器类名为`FooAgent`，建议命名空间为`Toplan\PhpSms`。
 如果类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，在使用该代理器时则需要指定代理器类，详见[高级调度配置](#高级调度配置)。
-
-# Todo list
-
-- [ ] 可用代理器分组配置功能；短信发送时选择分组进行发送的功能。
-
-# Encourage
-
-hi, guys! 如果喜欢或者要收藏，欢迎star。如果要提供意见和bug，欢迎issue或提交pr。
 
 # License
 
