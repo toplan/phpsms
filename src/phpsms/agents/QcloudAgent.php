@@ -46,7 +46,7 @@ class QcloudAgent extends Agent implements TemplateSms, ContentSms, VoiceCode, C
     {
         $params = array_merge($params, [
             'tel'    => $to,
-            'msg'   => $code,
+            'msg'    => $code,
         ]);
         $sendUrl = "{$this->sendVoiceCode}?sdkappid={$this->appId}&random={$this->random}";
         $this->request($sendUrl, $params);

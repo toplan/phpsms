@@ -80,8 +80,8 @@ class Sms
         'templates' => [],
         'data'      => [],
         'content'   => null,
-        'code' => null,
-        'files' => [],
+        'code'      => null,
+        'files'     => [],
         'params'    => [],
     ];
 
@@ -207,8 +207,8 @@ class Sms
     /**
      * register driver.
      *
-     * @param string        $name
-     * @param string|array  $scheme
+     * @param string       $name
+     * @param string|array $scheme
      */
     protected static function registerDriver($name, $scheme)
     {
@@ -251,7 +251,7 @@ class Sms
     {
         $weight = Util::pullFromArray($options, 'weight');
         $backup = Util::pullFromArray($options, 'backup') ? 'backup' : '';
-        $props = array_filter(array_values($options), function($prop) {
+        $props = array_filter(array_values($options), function ($prop) {
             return is_numeric($prop) || is_string($prop);
         });
 
@@ -313,9 +313,9 @@ class Sms
     /**
      * Set or get the dispatch scheme.
      *
-     * @param string|array|null         $name
-     * @param string|array|bool|null    $scheme
-     * @param bool                      $override
+     * @param string|array|null      $name
+     * @param string|array|bool|null $scheme
+     * @param bool                   $override
      *
      * @return mixed
      */
@@ -343,8 +343,8 @@ class Sms
     /**
      * Modify the dispatch scheme of agent.
      *
-     * @param string        $name
-     * @param string|array  $scheme
+     * @param string       $name
+     * @param string|array $scheme
      *
      * @throws PhpSmsException
      */
@@ -395,9 +395,9 @@ class Sms
     /**
      * Modify the configuration information.
      *
-     * @param string    $name
-     * @param array     $config
-     * @param bool      $override
+     * @param string $name
+     * @param array  $config
+     * @param bool   $override
      *
      * @throws PhpSmsException
      */
@@ -494,8 +494,8 @@ class Sms
      * Set whether to use the queue system,
      * and define how to use it.
      *
-     * @param bool|\Closure|null    $enable
-     * @param \Closure|null         $handler
+     * @param bool|\Closure|null $enable
+     * @param \Closure|null      $handler
      *
      * @return bool
      */
@@ -521,8 +521,9 @@ class Sms
      *
      * @param $type
      *
-     * @return $this
      * @throws PhpSmsException
+     *
+     * @return $this
      */
     public function type($type)
     {
@@ -609,8 +610,8 @@ class Sms
     /**
      * Set voice files.
      *
-     * @param string|array  $name
-     * @param string|int    $id
+     * @param string|array $name
+     * @param string|int   $id
      *
      * @return $this
      */
@@ -624,9 +625,9 @@ class Sms
     /**
      * Set params of agent.
      *
-     * @param string|array      $name
-     * @param array|bool|null   $params
-     * @param bool              $override
+     * @param string|array    $name
+     * @param array|bool|null $params
+     * @param bool            $override
      *
      * @return $this
      */
@@ -653,8 +654,9 @@ class Sms
      *
      * @param string $name
      *
-     * @return $this
      * @throws PhpSmsException
+     *
+     * @return $this
      */
     public function agent($name)
     {
