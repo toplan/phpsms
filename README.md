@@ -34,16 +34,25 @@
 | [聚合数据](https://www.juhe.cn/)        | √ | × | √ | -- | ￥0.035/条 | [资费标准](https://www.juhe.cn/docs/api/id/54)
 | [阿里大鱼](https://www.alidayu.com/)    | √ | × | √ | -- | ￥0.045/条 | [资费标准](https://www.alidayu.com/service/price)
 | [SendCloud](https://sendcloud.sohu.com/) | √ | × | √ | -- | ￥0.048/条 | [资费标准](https://sendcloud.sohu.com/price.html)
-| [短信宝](http://www.smsbao.com/)    | × | √ | √ | ￥5(50条) | ￥0.040/条(100万条) | [资费标准](http://www.smsbao.com/fee/)
+| [短信宝](http://www.smsbao.com/)          | × | √ | √ | ￥5(50条) | ￥0.040/条(100万条) | [资费标准](http://www.smsbao.com/fee/)
+| [腾讯云](https://www.qcloud.com/product/sms) | √ | √ | √ | -- | ￥0.045/条 | [资费标准](https://www.qcloud.com/product/sms#price)
+| [阿里云](https://www.aliyun.com/product/sms) | √ | × | × | -- | ￥0.045/条 | [资费标准](https://cn.aliyun.com/price/product#/mns/detail)
 
+> 腾讯云和阿里云目前仅在公测版支持，欢迎使用并反馈测试结果和意见。
 
 # 安装
 
+稳定版
 ```php
 composer require toplan/phpsms:~1.7
 ```
 
-安装开发中版本:
+公测版
+```php
+composer require toplan/phpsms:1.8.0-beta.1
+```
+
+开发中版本
 ```php
 composer require toplan/phpsms:dev-master
 ```
@@ -441,6 +450,10 @@ $sms->template([
 ]);
 ```
 
+### $sms->params($name, array $params)
+
+为指定的代理器设置参数。
+
 ### $sms->all([$key])
 
 获取Sms实例中的短信数据，不带参数时返回所有数据，其结构如下：
@@ -507,34 +520,35 @@ Sms::scheme('agentName', [
 
 可以配置的发送过程有:
 
-| Send Process      | Arguments                              |
-| ----------------- | :------------------------------------: |
-| sendContentSms    | $agent, $to, $content, $params         |
-| sendTemplateSms   | $agent, $to, $tmpId, $tmpData, $params |
-| sendVoiceCode     | $agent, $to, $code, $params            |
-| sendContentVoice  | $agent, $to, $content, $params         |
-| sendTemplateVoice | $agent, $to, $tmpId, $tmpData, $params |
-| sendFileVoice     | $agent, $to, $fileId, $params           |
+| Send Process      | Arguments                     |
+| ----------------- | :---------------------------: |
+| sendContentSms    | $agent, $to, $content         |
+| sendTemplateSms   | $agent, $to, $tmpId, $tmpData |
+| sendVoiceCode     | $agent, $to, $code            |
+| sendContentVoice  | $agent, $to, $content         |
+| sendTemplateVoice | $agent, $to, $tmpId, $tmpData |
+| sendFileVoice     | $agent, $to, $fileId          |
 
 * 示例：
 ```php
 Sms::scheme([
     'agentName' => [
         '20 backup',
-        'sendContentSms' => function($agent, $to, $content, array $params){
-            //获取配置(如果设置了的话):
+        'sendContentSms' => function($agent, $to, $content){
+            // 获取配置(如果设置了的话):
             $key = $agent->key;
             ...
-            //可使用的内置方法:
-            Agent::curl(...);
+            // 可使用的内置方法:
+            $agent->curlGet($url, $params); //get
+            $agent->curlPost($url, $params); //post
             ...
-            //更新发送结果:
+            // 更新发送结果:
             $agent->result(Agent::SUCCESS, true);
             $agent->result(Agent::INFO, 'some info');
             $agent->result(Agent::CODE, 'your code');
         },
-        'sendVoiceCode' => function($agent, $to, $code, array $params){
-            //发送语音验证码，同上
+        'sendVoiceCode' => function($agent, $to, $code){
+            // 发送语音验证码，同上
         }
     ]
 ]);
