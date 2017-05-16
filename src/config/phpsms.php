@@ -53,29 +53,23 @@ return [
          * support template sms.
          */
         'YunTongXun' => [
-            //主帐号,对应开官网发者主账号下的 ACCOUNT SID
+            //主帐号
             'accountSid' => 'your account sid',
 
-            //主帐号令牌,对应官网开发者主账号下的 AUTH TOKEN
+            //主帐号令牌
             'accountToken' => 'your account token',
 
-            //应用Id，在官网应用列表中点击应用，对应应用详情中的APP ID
-            //在开发调试的时候，可以使用官网自动为您分配的测试Demo的APP ID
+            //应用Id
             'appId' => 'your app id',
 
             //请求地址
-            //沙盒环境（用于应用开发调试）：sandboxapp.cloopen.com
-            //生产环境（用户应用上线使用）：app.cloopen.com
             'serverIP' => 'app.cloopen.com',
 
-            //请求端口，生产环境和沙盒环境一致
+            //请求端口
             'serverPort' => '8883',
 
             //被叫号显
             'displayNum' => null,
-
-            //语音验证码使用的语言类型
-            'voiceLang' => 'zh',
 
             //语音验证码播放次数
             'playTimes' => 3,
@@ -217,8 +211,6 @@ return [
 
             //App KEY
             'appKey' => 'your app key',
-
-            'nationCode' => '86',
         ],
     ],
 ];

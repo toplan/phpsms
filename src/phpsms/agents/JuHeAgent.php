@@ -10,7 +10,7 @@ namespace Toplan\PhpSms;
  */
 class JuHeAgent extends Agent implements TemplateSms, VoiceCode
 {
-    public function sendTemplateSms($to, $tempId, array $data, array $params)
+    public function sendTemplateSms($to, $tempId, array $data)
     {
         $sendUrl = 'http://v.juhe.cn/sms/send';
         $tplValue = '';
@@ -21,28 +21,28 @@ class JuHeAgent extends Agent implements TemplateSms, VoiceCode
             $split = !$tplValue ? '' : '&';
             $tplValue .= "$split#$key#=$value";
         }
-        $params = array_merge($params, [
+        $params = [
             'key'       => $this->key,
             'mobile'    => $to,
             'tpl_id'    => $tempId,
             'tpl_value' => urlencode($tplValue),
             'dtype'     => 'json',
-        ]);
-        $result = $this->curl($sendUrl, $params);
+        ];
+        $result = $this->curlGet($sendUrl, $params);
         $this->setResult($result);
     }
 
-    public function sendVoiceCode($to, $code, array $params)
+    public function sendVoiceCode($to, $code)
     {
         $url = 'http://op.juhe.cn/yuntongxun/voice';
-        $params = array_merge($params, [
+        $params = [
             'valicode'  => $code,
             'to'        => $to,
             'playtimes' => $this->times ?: 3,
             'key'       => $this->key,
             'dtype'     => 'json',
-        ]);
-        $result = $this->curl($url, $params);
+        ];
+        $result = $this->curlGet($url, $params);
         $this->setResult($result);
     }
 

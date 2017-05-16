@@ -51,8 +51,8 @@ class SmsTest extends PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('templates', $data);
         $this->assertArrayHasKey('data', $data);
         $this->assertArrayHasKey('content', $data);
-        $this->assertArrayHasKey('voiceCode', $data);
-        $this->assertArrayHasKey('voiceFile', $data);
+        $this->assertArrayHasKey('code', $data);
+        $this->assertArrayHasKey('files', $data);
         $this->assertArrayHasKey('params', $data);
         self::$sms->to('...');
         $this->assertEquals('...', self::$sms->all('to'));
@@ -140,7 +140,7 @@ class SmsTest extends PHPUnit_Framework_TestCase
     {
         $sms = Sms::voice('code');
         $data = $sms->all();
-        $this->assertEquals('code', $data['voiceCode']);
+        $this->assertEquals('code', $data['code']);
     }
 
     public function testUseQueue()

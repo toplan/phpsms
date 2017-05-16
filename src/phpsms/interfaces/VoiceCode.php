@@ -9,7 +9,6 @@ interface VoiceCode
      *
      * @param string|array $to
      * @param int|string   $code
-     * @param array        $params
      */
-    public function sendVoiceCode($to, $code, array $params);
+    public function sendVoiceCode($to, $code);
 }

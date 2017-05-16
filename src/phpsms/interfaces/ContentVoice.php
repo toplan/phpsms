@@ -9,7 +9,6 @@ interface ContentVoice
      *
      * @param string|array $to
      * @param string       $content
-     * @param array        $params
      */
-    public function sendContentVoice($to, $content, array $params);
+    public function sendContentVoice($to, $content);
 }

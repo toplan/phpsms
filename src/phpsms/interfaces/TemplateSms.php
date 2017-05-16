@@ -10,7 +10,6 @@ interface TemplateSms
      * @param string|array $to
      * @param int|string   $tempId
      * @param array        $tempData
-     * @param array        $params
      */
-    public function sendTemplateSms($to, $tempId, array $tempData, array $params);
+    public function sendTemplateSms($to, $tempId, array $tempData);
 }

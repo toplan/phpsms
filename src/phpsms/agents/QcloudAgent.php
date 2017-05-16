@@ -16,50 +16,49 @@ class QcloudAgent extends Agent implements TemplateSms, ContentSms, VoiceCode, C
     protected $sendVoicePrompt = 'https://yun.tim.qq.com/v5/tlsvoicesvr/sendvoiceprompt';
     protected $random;
 
-    public function sendContentSms($to, $content, array $params)
+    public function sendContentSms($to, $content)
     {
-        $params = array_merge($params, [
+        $params = [
             'type'   => 0, // 0:普通短信 1:营销短信
             'msg'    => $content,
             'tel'    => $to,
             'time'   => time(),
-        ]);
+        ];
         $this->random = $this->getRandom();
         $sendUrl = "{$this->sendSms}?sdkappid={$this->appId}&random={$this->random}";
         $this->request($sendUrl, $params);
     }
 
-    public function sendTemplateSms($to, $tempId, array $data, array $params)
+    public function sendTemplateSms($to, $tempId, array $data)
     {
-        $params = array_merge($params, [
+        $params = [
             'tel'    => $to,
             'tpl_id' => $tempId,
             'params' => array_values($data),
             'time'   => time(),
-        ]);
+        ];
         $this->random = $this->getRandom();
         $sendUrl = "{$this->sendSms}?sdkappid={$this->appId}&random={$this->random}";
         $this->request($sendUrl, $params);
     }
 
-    public function sendVoiceCode($to, $code, array $params)
+    public function sendVoiceCode($to, $code)
     {
-        $params = array_merge($params, [
+        $params = [
             'tel'    => $to,
             'msg'    => $code,
-        ]);
+        ];
         $sendUrl = "{$this->sendVoiceCode}?sdkappid={$this->appId}&random={$this->random}";
         $this->request($sendUrl, $params);
     }
 
-    public function sendContentVoice($to, $content, array $params)
+    public function sendContentVoice($to, $content)
     {
-        $params = array_merge([
-            'prompttype' => 2,
-        ], $params, [
+        $params = [
             'tel'        => $to,
+            'prompttype' => 2,
             'promptfile' => $content,
-        ]);
+        ];
         $sendUrl = "{$this->sendVoicePrompt}?sdkappid={$this->appId}&random={$this->random}";
         $this->request($sendUrl, $params);
     }
@@ -67,7 +66,10 @@ class QcloudAgent extends Agent implements TemplateSms, ContentSms, VoiceCode, C
     protected function request($sendUrl, array $params)
     {
         $params['sig'] = $this->genSign($params);
-        $result = $this->curl($sendUrl, json_encode($params), true);
+        $params = $this->params($params);
+        $result = $this->curlPost($sendUrl, [], [
+            CURLOPT_POSTFIELDS => json_encode($params),
+        ]);
         $this->setResult($result);
     }
 

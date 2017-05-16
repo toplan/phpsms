@@ -10,7 +10,7 @@ namespace Toplan\PhpSms;
  */
 class LuosimaoAgent extends Agent implements ContentSms, VoiceCode
 {
-    public function sendContentSms($to, $content, array $params)
+    public function sendContentSms($to, $content)
     {
         // 签名必须在最后面
         if ($content && !preg_match('/】$/', $content)) {
@@ -20,25 +20,23 @@ class LuosimaoAgent extends Agent implements ContentSms, VoiceCode
             }
         }
         $url = 'http://sms-api.luosimao.com/v1/send.json';
-        $params = array_merge($params, [
+        $result = $this->curlPost($url, [
             'mobile'  => $to,
             'message' => $content,
-        ]);
-        $result = $this->curl($url, $params, true, [
+        ], [
             CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
             CURLOPT_USERPWD  => "api:key-$this->apikey",
         ]);
         $this->setResult($result);
     }
 
-    public function sendVoiceCode($to, $code, array $params)
+    public function sendVoiceCode($to, $code)
     {
         $url = 'http://voice-api.luosimao.com/v1/verify.json';
-        $params = array_merge($params, [
+        $result = $this->curlPost($url, [
             'mobile' => $to,
             'code'   => $code,
-        ]);
-        $result = $this->curl($url, $params, true, [
+        ], [
             CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
             CURLOPT_USERPWD  => "api:key-$this->voiceApikey",
         ]);

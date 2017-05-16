@@ -268,7 +268,7 @@ class Sms
      *
      * @throws PhpSmsException
      *
-     * @return mixed
+     * @return Agent
      */
     public static function getAgent($name, array $options = [])
     {

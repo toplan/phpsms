@@ -14,30 +14,30 @@ class YunPianAgent extends Agent implements ContentSms, VoiceCode
         'Content-Type:application/x-www-form-urlencoded;charset=utf-8',
     ];
 
-    public function sendContentSms($to, $content, array $params)
+    public function sendContentSms($to, $content)
     {
         $url = 'https://sms.yunpian.com/v1/sms/send.json';
-        $params = array_merge($params, [
+        $params = $this->params([
             'apikey' => $this->apikey,
             'mobile' => $to,
             'text'   => $content,
         ]);
-        $result = $this->curl($url, true, [
+        $result = $this->curlPost($url, [], [
             CURLOPT_HTTPHEADER => $this->headers,
             CURLOPT_POSTFIELDS => http_build_query($params),
         ]);
         $this->setResult($result);
     }
 
-    public function sendVoiceCode($to, $code, array $params)
+    public function sendVoiceCode($to, $code)
     {
         $url = 'https://voice.yunpian.com/v1/voice/send.json';
-        $params = array_merge($params, [
+        $params = $this->params([
             'apikey' => $this->apikey,
             'mobile' => $to,
             'code'   => $code,
         ]);
-        $result = $this->curl($url, true, [
+        $result = $this->curlPost($url, [], [
             CURLOPT_HTTPHEADER => $this->headers,
             CURLOPT_POSTFIELDS => http_build_query($params),
         ]);

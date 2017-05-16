@@ -83,17 +83,17 @@ class AgentTest extends PHPUnit_Framework_TestCase
     public function testParasitic()
     {
         $parasiticAgent = new ParasiticAgent([], [
-            'sendContentSms' => function ($agent, $to, $content, $params) {
+            'sendContentSms' => function ($agent, $to, $content) {
                 $agent->result(Agent::INFO, $content);
                 $agent->result(Agent::CODE, $to);
                 $agent->result(Agent::SUCCESS, true);
             },
-            'sendVoiceCode' => function ($agent, $to, $code, $params) {
+            'sendVoiceCode' => function ($agent, $to, $code) {
                 $agent->result(Agent::INFO, 'parasitic_voice_verify');
                 $agent->result(Agent::CODE, $code);
             },
         ]);
-        $parasiticAgent->sendSms('18280111111', 'parasitic_sms_content', 'template_id', []);
+        $parasiticAgent->sendSms('18280111111', 'parasitic_sms_content');
         $this->assertEquals('parasitic_sms_content', $parasiticAgent->result('info'));
         $this->assertEquals('18280111111', $parasiticAgent->result('code'));
 

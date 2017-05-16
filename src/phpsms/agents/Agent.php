@@ -16,6 +16,13 @@ abstract class Agent
     protected $config = [];
 
     /**
+     * The custom params of request.
+     *
+     * @var array
+     */
+    protected $params = [];
+
+    /**
      * The result data.
      *
      * @var array
@@ -48,9 +55,9 @@ abstract class Agent
     /**
      * Get or set the configuration information.
      *
-     * @param mixed $key
-     * @param mixed $value
-     * @param bool  $override
+     * @param string|array  $key
+     * @param mixed         $value
+     * @param bool          $override
      *
      * @return mixed
      */
@@ -61,6 +68,24 @@ abstract class Agent
         }
 
         return Util::operateArray($this->config, $key, $value, null, null, $override);
+    }
+
+    /**
+     * Get or set the custom params.
+     *
+     * @param string|array  $key
+     * @param mixed         $value
+     * @param bool          $override
+     *
+     * @return mixed
+     */
+    public function params($key = null, $value = null, $override = false)
+    {
+        if (is_array($key) && is_bool($value)) {
+            $override = $value;
+        }
+
+        return Util::operateArray($this->params, $key, $value, null, null, $override);
     }
 
     /**
@@ -75,10 +100,11 @@ abstract class Agent
     public function sendSms($to, $content = null, $tempId = null, array $data = [], array $params = [])
     {
         $this->reset();
+        $this->params($params, true);
         if ($tempId && $this instanceof TemplateSms) {
-            $this->sendTemplateSms($to, $tempId, $data, $params);
+            $this->sendTemplateSms($to, $tempId, $data);
         } elseif ($content && $this instanceof ContentSms) {
-            $this->sendContentSms($to, $content, $params);
+            $this->sendContentSms($to, $content);
         }
     }
 
@@ -96,15 +122,59 @@ abstract class Agent
     public function sendVoice($to, $content = null, $tempId = null, array $data = [], $code = null, $fileId = null, array $params = [])
     {
         $this->reset();
+        $this->params($params, true);
         if ($tempId && $this instanceof TemplateVoice) {
-            $this->sendTemplateVoice($to, $tempId, $data, $params);
+            $this->sendTemplateVoice($to, $tempId, $data);
         } elseif ($fileId && $this instanceof FileVoice) {
-            $this->sendFileVoice($to, $fileId, $params);
+            $this->sendFileVoice($to, $fileId);
         } elseif ($code && $this instanceof VoiceCode) {
-            $this->sendVoiceCode($to, $code, $params);
+            $this->sendVoiceCode($to, $code);
         } elseif ($content && $this instanceof ContentVoice) {
-            $this->sendContentVoice($to, $content, $params);
+            $this->sendContentVoice($to, $content);
         }
+    }
+
+    /**
+     * @codeCoverageIgnore
+     *
+     * @param       $url
+     * @param array $params
+     * @param array $opts
+     *
+     * @return array
+     */
+    public function curlPost($url, array $params = [], array $opts = [])
+    {
+        $params = $this->params($params);
+        $opts = array_merge([
+            CURLOPT_POSTFIELDS  => $params,
+        ], $opts, [
+            CURLOPT_POST    => true,
+            CURLOPT_URL     => $url,
+        ]);
+
+        return self::curl($opts);
+    }
+
+    /**
+     * @codeCoverageIgnore
+     *
+     * @param       $url
+     * @param array $params
+     * @param array $opts
+     *
+     * @return array
+     */
+    public function curlGet($url, array $params = [], array $opts = [])
+    {
+        $params = $this->params($params);
+        $queryStr = http_build_query($params);
+        $opts = array_merge($opts, [
+            CURLOPT_POST    => false,
+            CURLOPT_URL     => $queryStr ? "$url?$queryStr" : $url,
+        ]);
+
+        return self::curl($opts);
     }
 
     /**
@@ -112,26 +182,14 @@ abstract class Agent
      *
      * @codeCoverageIgnore
      *
-     * @param string $url    [请求地址]
-     * @param array  $params [请求参数]
-     * @param bool   $post   [是否post]
-     * @param array  $opts   [curl设置项]
+     * @param array  $opts   curl options
      *
      * @return array ['request', 'response']
-     *               request:是否请求成功
-     *               response:响应数据
+     *               request: Whether request success.
+     *               response: Response data.
      */
-    public static function curl($url, $params = [], $post = false, array $opts = [])
+    public static function curl(array $opts = [])
     {
-        if (is_array($post)) {
-            $opts = $post;
-            $post = false;
-        }
-        if (is_bool($params)) {
-            $post = $params;
-            $params = [];
-        }
-
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
         curl_setopt($ch, CURLOPT_HEADER, false);
@@ -140,19 +198,11 @@ abstract class Agent
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        if ($post) {
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
-            curl_setopt($ch, CURLOPT_URL, $url);
-        } else {
-            $params = http_build_query($params);
-            curl_setopt($ch, CURLOPT_URL, $params ? "$url?$params" : $url);
-        }
         foreach ($opts as $key => $value) {
             curl_setopt($ch, $key, $value);
         }
-        $response = curl_exec($ch);
 
+        $response = curl_exec($ch);
         $request = $response !== false;
         if (!$request) {
             $response = curl_getinfo($ch);

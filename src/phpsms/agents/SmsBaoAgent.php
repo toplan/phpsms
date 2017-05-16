@@ -22,29 +22,29 @@ class SmsBaoAgent extends Agent implements ContentSms, VoiceCode
         '51' => '手机号码不正确',
     ];
 
-    public function sendContentSms($to, $content, array $params)
+    public function sendContentSms($to, $content)
     {
         $url = 'http://api.smsbao.com/sms';
-        $params = array_merge($params, [
+        $params = [
             'u' => $this->username,
             'p' => md5($this->password),
             'm' => $to,
             'c' => $content,
-        ]);
-        $result = $this->curl($url, $params);
+        ];
+        $result = $this->curlGet($url, $params);
         $this->setResult($result);
     }
 
-    public function sendVoiceCode($to, $code, array $params)
+    public function sendVoiceCode($to, $code)
     {
         $url = 'http://api.smsbao.com/voice';
-        $params = array_merge($params, [
+        $params = [
             'u' => $this->username,
             'p' => md5($this->password),
             'm' => $to,
             'c' => $code,
-        ]);
-        $result = $this->curl($url, $params);
+        ];
+        $result = $this->curlGet($url, $params);
         $this->setResult($result);
     }
 

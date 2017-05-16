@@ -11,13 +11,13 @@ namespace Toplan\PhpSms;
  */
 class UcpaasAgent extends Agent implements TemplateSms, VoiceCode
 {
-    public function sendTemplateSms($to, $tempId, array $data, array $params)
+    public function sendTemplateSms($to, $tempId, array $data)
     {
         $response = $this->ucpass()->templateSMS($this->appId, $to, $tempId, implode(',', $data));
         $this->setResult($response);
     }
 
-    public function sendVoiceCode($to, $code, array $params)
+    public function sendVoiceCode($to, $code)
     {
         $response = $this->ucpass()->voiceCode($this->appId, $code, $to);
         $this->result($response);

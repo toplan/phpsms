@@ -10,30 +10,30 @@ namespace Toplan\PhpSms;
  */
 class SubMailAgent extends Agent implements TemplateSms, VoiceCode
 {
-    public function sendTemplateSms($to, $tempId, array $data, array $params)
+    public function sendTemplateSms($to, $tempId, array $data)
     {
         $url = 'https://api.mysubmail.com/message/xsend.json';
-        $params = array_merge($params, [
+        $params = [
             'appid'     => $this->appid,
             'project'   => $tempId,
             'to'        => $to,
             'signature' => $this->signature,
             'vars'      => json_encode($data),
-        ]);
-        $result = $this->curl($url, $params, true);
+        ];
+        $result = $this->curlPost($url, $params);
         $this->setResult($result);
     }
 
-    public function sendVoiceCode($to, $code, array $params)
+    public function sendVoiceCode($to, $code)
     {
         $url = 'https://api.mysubmail.com/voice/verify.json';
-        $params = array_merge($params, [
+        $params = [
             'appid'     => $this->appid,
             'to'        => $to,
             'code'      => $code,
             'signature' => $this->signature,
-        ]);
-        $result = $this->curl($url, $params, true);
+        ];
+        $result = $this->curlPost($url, $params);
         $this->setResult($result);
     }
 

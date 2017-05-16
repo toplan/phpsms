@@ -19,18 +19,17 @@ class AlidayuAgent extends Agent implements TemplateSms, VoiceCode, TemplateVoic
      * @param string|array $to
      * @param int|string   $tempId
      * @param array        $tempData
-     * @param array        $params
      */
-    public function sendTemplateSms($to, $tempId, array $tempData, array $params)
+    public function sendTemplateSms($to, $tempId, array $tempData)
     {
-        $params = array_merge($params, [
+        $params = [
             'method'             => 'alibaba.aliqin.fc.sms.num.send',
             'sms_type'           => 'normal',
             'sms_free_sign_name' => $this->smsFreeSignName,
             'sms_param'          => $this->getTempDataString($tempData),
             'rec_num'            => $to,
             'sms_template_code'  => $tempId,
-        ]);
+        ];
         $this->request($params);
     }
 
@@ -40,17 +39,16 @@ class AlidayuAgent extends Agent implements TemplateSms, VoiceCode, TemplateVoic
      * @param string|array $to
      * @param int|string   $tempId
      * @param array        $tempData
-     * @param array        $params
      */
-    public function sendTemplateVoice($to, $tempId, array $tempData, array $params)
+    public function sendTemplateVoice($to, $tempId, array $tempData)
     {
-        $params = array_merge($params, [
+        $params = [
             'called_num'        => $to,
             'called_show_num'   => $this->calledShowNum,
             'method'            => 'alibaba.aliqin.fc.tts.num.singlecall',
             'tts_code'          => $tempId,
             'tts_param'         => $this->getTempDataString($tempData),
-        ]);
+        ];
         $this->request($params);
     }
 
@@ -59,38 +57,36 @@ class AlidayuAgent extends Agent implements TemplateSms, VoiceCode, TemplateVoic
      *
      * @param string|array $to
      * @param int|string   $code
-     * @param array        $params
      */
-    public function sendVoiceCode($to, $code, array $params)
+    public function sendVoiceCode($to, $code)
     {
-        $params = array_merge($params, [
+        $params = [
             'called_num'        => $to,
             'called_show_num'   => $this->calledShowNum,
             'method'            => 'alibaba.aliqin.fc.voice.num.singlecall',
             'voice_code'        => $code,
-        ]);
+        ];
         $this->request($params);
     }
 
     protected function request(array $params)
     {
         $params = $this->createParams($params);
-        $result = $this->curl($this->sendUrl, $params, true);
+        $result = $this->curlPost($this->sendUrl, $params);
         $this->setResult($result, $this->genResponseName($params['method']));
     }
 
     protected function createParams(array $params)
     {
-        $params = array_merge([
+        return array_merge([
             'app_key'            => $this->appKey,
             'v'                  => '2.0',
             'format'             => 'json',
             'sign_method'        => 'md5',
             'timestamp'          => date('Y-m-d H:i:s'),
-        ], $params);
-        $params['sign'] = $this->genSign($params);
-
-        return $params;
+        ], $params, [
+            'sign'               => $this->genSign($params),
+        ]);
     }
 
     protected function genSign($params)

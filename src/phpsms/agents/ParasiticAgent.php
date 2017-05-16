@@ -24,9 +24,8 @@ class ParasiticAgent extends Agent implements ContentSms, TemplateSms, VoiceCode
      *
      * @param string|array $to
      * @param string       $content
-     * @param array        $params
      */
-    public function sendContentSms($to, $content, array $params)
+    public function sendContentSms($to, $content)
     {
         $this->handle(__FUNCTION__, func_get_args());
     }
@@ -36,9 +35,8 @@ class ParasiticAgent extends Agent implements ContentSms, TemplateSms, VoiceCode
      *
      * @param string|array $to
      * @param string       $content
-     * @param array        $params
      */
-    public function sendContentVoice($to, $content, array $params)
+    public function sendContentVoice($to, $content)
     {
         $this->handle(__FUNCTION__, func_get_args());
     }
@@ -48,9 +46,8 @@ class ParasiticAgent extends Agent implements ContentSms, TemplateSms, VoiceCode
      *
      * @param string|array $to
      * @param int|string   $fileId
-     * @param array        $params
      */
-    public function sendFileVoice($to, $fileId, array $params)
+    public function sendFileVoice($to, $fileId)
     {
         $this->handle(__FUNCTION__, func_get_args());
     }
@@ -61,9 +58,8 @@ class ParasiticAgent extends Agent implements ContentSms, TemplateSms, VoiceCode
      * @param string|array $to
      * @param int|string   $tempId
      * @param array        $tempData
-     * @param array        $params
      */
-    public function sendTemplateSms($to, $tempId, array $tempData, array $params)
+    public function sendTemplateSms($to, $tempId, array $tempData)
     {
         $this->handle(__FUNCTION__, func_get_args());
     }
@@ -74,9 +70,8 @@ class ParasiticAgent extends Agent implements ContentSms, TemplateSms, VoiceCode
      * @param string|array $to
      * @param int|string   $tempId
      * @param array        $tempData
-     * @param array        $params
      */
-    public function sendTemplateVoice($to, $tempId, array $tempData, array $params)
+    public function sendTemplateVoice($to, $tempId, array $tempData)
     {
         $this->handle(__FUNCTION__, func_get_args());
     }
@@ -86,9 +81,8 @@ class ParasiticAgent extends Agent implements ContentSms, TemplateSms, VoiceCode
      *
      * @param string|array $to
      * @param int|string   $code
-     * @param array        $params
      */
-    public function sendVoiceCode($to, $code, array $params)
+    public function sendVoiceCode($to, $code)
     {
         $this->handle(__FUNCTION__, func_get_args());
     }
@@ -116,7 +110,7 @@ class ParasiticAgent extends Agent implements ContentSms, TemplateSms, VoiceCode
     {
         if (!is_array(self::$methods)) {
             self::$methods = [];
-            $interfaces = class_implements(self::class);
+            $interfaces = class_implements('Toplan\\PhpSms\\ParasiticAgent');
             foreach ($interfaces as $interface) {
                 self::$methods = array_merge(self::$methods, get_class_methods($interface));
             }
