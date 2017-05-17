@@ -55,9 +55,9 @@ abstract class Agent
     /**
      * Get or set the configuration information.
      *
-     * @param string|array  $key
-     * @param mixed         $value
-     * @param bool          $override
+     * @param string|array $key
+     * @param mixed        $value
+     * @param bool         $override
      *
      * @return mixed
      */
@@ -73,9 +73,9 @@ abstract class Agent
     /**
      * Get or set the custom params.
      *
-     * @param string|array  $key
-     * @param mixed         $value
-     * @param bool          $override
+     * @param string|array $key
+     * @param mixed        $value
+     * @param bool         $override
      *
      * @return mixed
      */
@@ -182,7 +182,7 @@ abstract class Agent
      *
      * @codeCoverageIgnore
      *
-     * @param array  $opts   curl options
+     * @param array $opts curl options
      *
      * @return array ['request', 'response']
      *               request: Whether request success.
