@@ -191,10 +191,10 @@ return [
          * support content sms.
          */
         'SmsBao' => [
-            //username
+            //注册账号
             'username' => 'your username',
 
-            //password
+            //账号密码（明文）
             'password' => 'your password',
         ],
 
@@ -207,7 +207,6 @@ return [
          * support template sms.
          */
         'Qcloud' => [
-
             //App ID
             'appId' => 'your app id',
 
