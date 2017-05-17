@@ -8,13 +8,8 @@ namespace Toplan\PhpSms;
  * @property string $appid
  * @property string $signature
  */
-class SubMailAgent extends Agent implements TemplateSms
+class SubMailAgent extends Agent implements TemplateSms, VoiceCode
 {
-    public function sendSms($to, $content, $tempId, array $data)
-    {
-        $this->sendTemplateSms($to, $tempId, $data);
-    }
-
     public function sendTemplateSms($to, $tempId, array $data)
     {
         $url = 'https://api.mysubmail.com/message/xsend.json';
@@ -25,11 +20,11 @@ class SubMailAgent extends Agent implements TemplateSms
             'signature' => $this->signature,
             'vars'      => json_encode($data),
         ];
-        $result = $this->curl($url, $params, true);
+        $result = $this->curlPost($url, $params);
         $this->setResult($result);
     }
 
-    public function voiceVerify($to, $code, $tempId, array $data)
+    public function sendVoiceCode($to, $code)
     {
         $url = 'https://api.mysubmail.com/voice/verify.json';
         $params = [
@@ -38,7 +33,7 @@ class SubMailAgent extends Agent implements TemplateSms
             'code'      => $code,
             'signature' => $this->signature,
         ];
-        $result = $this->curl($url, $params, true);
+        $result = $this->curlPost($url, $params);
         $this->setResult($result);
     }
 

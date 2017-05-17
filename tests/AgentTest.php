@@ -1,5 +1,6 @@
 <?php
 
+use Toplan\PhpSms\Agent;
 use Toplan\PhpSms\LogAgent;
 use Toplan\PhpSms\ParasiticAgent;
 
@@ -72,30 +73,31 @@ class AgentTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('send content sms success', $r['info']);
     }
 
-    public function testSendVoiceVerify()
+    public function testSendVoice()
     {
-        $this->agent->voiceVerify('18280111111', '1111', 0, []);
+        $this->agent->sendVoice('18280111111', null, 0, [], '1111');
         $r = $this->agent->result();
         $this->assertTrue($r['success']);
     }
 
     public function testParasitic()
     {
-        $parasiticAgent = new ParasiticAgent([
-            'sendSms' => function ($agent, $to, $content, $tempId, $tempData) {
-                $agent->result('info', 'parasitic_sms');
-                $agent->result('code', $to);
+        $parasiticAgent = new ParasiticAgent([], [
+            'sendContentSms' => function ($agent, $to, $content) {
+                $agent->result(Agent::INFO, $content);
+                $agent->result(Agent::CODE, $to);
+                $agent->result(Agent::SUCCESS, true);
             },
-            'voiceVerify' => function ($agent, $to, $code, $tempId, $tempData) {
-                $agent->result('info', 'parasitic_voice_verify');
-                $agent->result('code', $code);
+            'sendVoiceCode' => function ($agent, $to, $code) {
+                $agent->result(Agent::INFO, 'parasitic_voice_verify');
+                $agent->result(Agent::CODE, $code);
             },
         ]);
-        $parasiticAgent->sendSms('18280111111', 'content', 'template_id', []);
-        $this->assertEquals('parasitic_sms', $parasiticAgent->result('info'));
+        $parasiticAgent->sendSms('18280111111', 'parasitic_sms_content');
+        $this->assertEquals('parasitic_sms_content', $parasiticAgent->result('info'));
         $this->assertEquals('18280111111', $parasiticAgent->result('code'));
 
-        $parasiticAgent->voiceVerify('18280111111', '2222', 'template_id', []);
+        $parasiticAgent->sendVoice('18280111111', null, null, [], '2222');
         $this->assertEquals('parasitic_voice_verify', $parasiticAgent->result('info'));
         $this->assertEquals('2222', $parasiticAgent->result('code'));
     }

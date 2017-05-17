@@ -5,17 +5,8 @@ namespace Toplan\PhpSms;
 /**
  * Class LogAgent
  */
-class LogAgent extends Agent implements TemplateSms, ContentSms
+class LogAgent extends Agent implements TemplateSms, ContentSms, VoiceCode
 {
-    public function sendSms($to, $content, $tempId, array $data)
-    {
-        if ($content) {
-            $this->sendContentSms($to, $content);
-        } else {
-            $this->sendTemplateSms($to, $tempId, $data);
-        }
-    }
-
     public function sendContentSms($to, $content)
     {
         $this->result(Agent::SUCCESS, true);
@@ -28,7 +19,7 @@ class LogAgent extends Agent implements TemplateSms, ContentSms
         $this->result(Agent::INFO, 'send template sms success');
     }
 
-    public function voiceVerify($to, $code, $tempId, array $data)
+    public function sendVoiceCode($to, $code)
     {
         $this->result(Agent::SUCCESS, true);
         $this->result(Agent::INFO, 'send voice verify success');

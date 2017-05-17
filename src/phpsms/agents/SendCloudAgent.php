@@ -8,13 +8,8 @@ namespace Toplan\PhpSms;
  * @property string $smsUser
  * @property string $smsKey
  */
-class SendCloudAgent extends Agent implements TemplateSms
+class SendCloudAgent extends Agent implements TemplateSms, VoiceCode
 {
-    public function sendSms($to, $content, $tempId, array $data)
-    {
-        $this->sendTemplateSms($to, $tempId, $data);
-    }
-
     public function sendTemplateSms($to, $tempId, array $data)
     {
         $params = [
@@ -26,7 +21,7 @@ class SendCloudAgent extends Agent implements TemplateSms
         $this->request('http://sendcloud.sohu.com/smsapi/send', $params);
     }
 
-    public function voiceVerify($to, $code, $tempId, array $data)
+    public function sendVoiceCode($to, $code)
     {
         $params = [
             'phone' => $to,
@@ -37,19 +32,10 @@ class SendCloudAgent extends Agent implements TemplateSms
 
     protected function request($sendUrl, array $params)
     {
-        $params = $this->createParams($params);
-        $result = $this->curl($sendUrl, $params, true);
-        $this->setResult($result);
-    }
-
-    protected function createParams(array $params)
-    {
-        $params = array_merge([
-            'smsUser' => $this->smsUser,
-            ], $params);
+        $params['smsUser'] = $this->smsUser;
         $params['signature'] = $this->genSign($params);
-
-        return $params;
+        $result = $this->curlPost($sendUrl, $params);
+        $this->setResult($result);
     }
 
     protected function genSign($params)

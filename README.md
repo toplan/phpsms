@@ -5,7 +5,7 @@
 [![Latest Stable Version](https://img.shields.io/packagist/v/toplan/phpsms.svg)](https://packagist.org/packages/toplan/phpsms)
 [![Total Downloads](https://img.shields.io/packagist/dt/toplan/phpsms.svg)](https://packagist.org/packages/toplan/phpsms)
 
-可能是目前最聪明、优雅的php短信发送库了。从此不再为各种原因造成的个别短信发送失败而烦忧！
+可能是目前最聪明、优雅的 php 短信发送库了。
 
 > phpsms的任务均衡调度功能由[toplan/task-balancer](https://github.com/toplan/task-balancer)提供。
 
@@ -34,16 +34,25 @@
 | [聚合数据](https://www.juhe.cn/)        | √ | × | √ | -- | ￥0.035/条 | [资费标准](https://www.juhe.cn/docs/api/id/54)
 | [阿里大鱼](https://www.alidayu.com/)    | √ | × | √ | -- | ￥0.045/条 | [资费标准](https://www.alidayu.com/service/price)
 | [SendCloud](https://sendcloud.sohu.com/) | √ | × | √ | -- | ￥0.048/条 | [资费标准](https://sendcloud.sohu.com/price.html)
-| [短信宝](http://www.smsbao.com/)    | × | √ | √ | ￥5(50条) | ￥0.040/条(100万条) | [资费标准](http://www.smsbao.com/fee/)
+| [短信宝](http://www.smsbao.com/)          | × | √ | √ | ￥5(50条) | ￥0.040/条(100万条) | [资费标准](http://www.smsbao.com/fee/)
+| [腾讯云](https://www.qcloud.com/product/sms) | √ | √ | √ | -- | ￥0.045/条 | [资费标准](https://www.qcloud.com/product/sms#price)
+| [阿里云](https://www.aliyun.com/product/sms) | √ | × | × | -- | ￥0.045/条 | [资费标准](https://cn.aliyun.com/price/product#/mns/detail)
 
+> 腾讯云和阿里云目前仅在**公测版**支持，欢迎使用并反馈测试结果和意见。
 
 # 安装
 
+稳定版
 ```php
 composer require toplan/phpsms:~1.7
 ```
 
-安装开发中版本:
+公测版
+```php
+composer require toplan/phpsms:~1.8.0-beta
+```
+
+开发中版本
 ```php
 composer require toplan/phpsms:dev-master
 ```
@@ -60,19 +69,14 @@ composer require toplan/phpsms:dev-master
 //example:
 Sms::config([
     'Luosimao' => [
-        //短信API key
         'apikey' => 'your api key',
-        //语音验证API key
         'voiceApikey' => 'your voice api key',
     ],
     'YunPian'  => [
-        //用户唯一标识，必须
         'apikey' => 'your api key',
     ],
     'SmsBao' => [
-        //在短信宝注册的用户名，必须
         'username' => 'your username',
-        //在短信宝网站注册的密码（明文），必须
         'password'  => 'your password'
     ]
 ]);
@@ -124,7 +128,7 @@ $content = '【签名】这是短信内容...';
 // 只希望使用模板方式发送短信,可以不设置content(如:云通讯、Submail、Ucpaas)
 Sms::make()->to($to)->template($templates)->data($tempData)->send();
 
-// 只希望使用内容方式放送,可以不设置模板id和模板data(如:短信宝、云片、luosimao)
+// 只希望使用内容方式发送,可以不设置模板id和模板data(如:短信宝、云片、luosimao)
 Sms::make()->to($to)->content($content)->send();
 
 // 同时确保能通过模板和内容方式发送,这样做的好处是,可以兼顾到各种类型服务商
@@ -146,10 +150,9 @@ Sms::voice('02343')
 
 ### 3. 在laravel中使用
 
-如果你只想单纯的在laravel中使用phpsms的功能可以按如下步骤操作，
-当然也为你准备了基于phpsms开发的[laravel-sms](https://github.com/toplan/laravel-sms)
+如果你只想单纯的在 laravel 中使用 phpsms 的功能可以按如下步骤操作。
 
-* 在config/app.php中引入服务提供器
+* 服务提供器
 
 ```php
 //服务提供器
@@ -187,7 +190,7 @@ PhpSms::make()->to($to)->content($content)->send();
 
 设置/获取代理器的调度方案。
 
-> 调度配置在调度系统启动后(创建`Sms`实例时会自动启动)就不能修改。
+> 调度配置在应用系统的整个运行过程中都能修改。
 
 - 设置
 
@@ -218,7 +221,7 @@ $scheme['SmsBao'] = Sms::scheme('SmsBao');
 
 设置/获取代理器的配置数据。
 
-> 代理器参数配置在应用系统的整个运行过程中都是能修改的，这点和调度配置有所不同。
+> 代理器参数配置在应用系统的整个运行过程中都能修改。
 
 - 设置
 
@@ -251,7 +254,7 @@ $config['SmsBao'] = Sms::config('SmsBao');
 
 发送前钩子，示例：
 ```php
-Sms::beforeSend(function($task, $prev, $index, $handlers){
+Sms::beforeSend(function($task, $index, $handlers, $prevReturn){
     //获取短信数据
     $smsData = $task->data;
     ...
@@ -259,13 +262,13 @@ Sms::beforeSend(function($task, $prev, $index, $handlers){
     return true;
 });
 ```
-> 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“beforeRun”钩子
+> 更多细节请查看 [task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle) 的 `beforeRun` 钩子
 
 ### Sms::beforeAgentSend($handler[, $override]);
 
 代理器发送前钩子，示例：
 ```php
-Sms::beforeAgentSend(function($task, $driver, $prev, $index, $handlers){
+Sms::beforeAgentSend(function($task, $driver, $index, $handlers, $prevReturn){
     //短信数据:
     $smsData = $task->data;
     //当前使用的代理器名称:
@@ -274,33 +277,33 @@ Sms::beforeAgentSend(function($task, $driver, $prev, $index, $handlers){
     return true;
 });
 ```
-> 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“beforeDriverRun”钩子
+> 更多细节请查看 [task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle) 的 `beforeDriverRun` 钩子
 
 ### Sms::afterAgentSend($handler[, $override]);
 
 代理器发送后钩子，示例：
 ```php
-Sms::afterAgentSend(function($task, $result, $prev, $index, $handlers){
+Sms::afterAgentSend(function($task, $agentResult, $index, $handlers, $prevReturn){
      //$result为代理器的发送结果数据
-     $agentName = $result['driver'];
+     $agentName = $agentResult['driver'];
      ...
 });
 ```
-> 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“afterDriverRun”钩子
+> 更多细节请查看 [task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle) 的 `afterDriverRun` 钩子
 
-### Sms::afterSend($handler [, $override]);
+### Sms::afterSend($handler[, $override]);
 
 发送后钩子，示例：
 ```php
-Sms::afterSend(function($task, $result, $prev, $index, $handlers){
+Sms::afterSend(function($task, $taskResult, $index, $handlers, $prevReturn){
     //$result为发送后获得的结果数组
-    $success = $result['success'];
+    $success = $taskResult['success'];
     ...
 });
 ```
-> 更多细节请查看[task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle)的“afterRun”钩子
+> 更多细节请查看 [task-balancer](https://github.com/toplan/task-balancer#2-task-lifecycle) 的 `afterRun` 钩子
 
-### Sms::queue($enable, $handler)
+### Sms::queue([$enable[, $handler]])
 
 该方法可以设置是否启用队列以及定义如何推送到队列。
 
@@ -369,7 +372,7 @@ $sms = Sms::make([
 ```php
 $sms = Sms::voice();
 
-//创建实例的同时设置验证码/语音文件ID
+//创建实例的同时设置验证码
 $sms = Sms::voice($code);
 ```
 
@@ -377,16 +380,20 @@ $sms = Sms::voice($code);
 > - **语音文件ID**即是在服务商配置的语音文件的唯一编号，比如阿里大鱼[语音通知](http://open.taobao.com/doc2/apiDetail.htm?spm=a219a.7395905.0.0.oORhh9&apiId=25445)的`voice_code`。
 > - **模版语音**是另一种语音请求方式，它是通过模版ID和模版数据进行的语音请求，比如阿里大鱼的[文本转语音通知](http://open.taobao.com/doc2/apiDetail.htm?spm=a219a.7395905.0.0.f04PJ3&apiId=25444)。
 
-### $sms->to($mobile)
+### type($type)
+
+设置实例类型，可选值有`Sms::TYPE_SMS`和`Sms::TYPE_VOICE`，返回实例对象。
+
+### to($mobile)
 
 设置发送给谁，并返回实例。
 ```php
 $sms->to('1828*******');
 ```
 
-### $sms->template($templates)
+### template($templates)
 
-指定代理器设置模版id或批量设置，并返回实例。
+指定代理器设置模版或批量设置，并返回实例。
 ```php
 //设置指定服务商的模板id
 $sms->template('YunTongXun', 'your_temp_id')
@@ -400,10 +407,14 @@ $sms->template([
 ]);
 ```
 
-### $sms->data($data)
+### data($data)
 
 设置模板短信的模板数据，并返回实例对象。
 ```php
+//单个数据
+$sms->data('code', $code);
+
+//同时设置多个数据
 $sms->data([
     'code' => $code,
     'minutes' => $minutes
@@ -412,28 +423,67 @@ $sms->data([
 
 > 通过`template`和`data`方法的组合除了可以实现模版短信的数据填充，还可以实现模版语音的数据填充。
 
-### $sms->content($text)
+### content($text)
 
 设置内容短信的内容，并返回实例对象。一些内置的代理器(如SmsBao、YunPian、Luosimao)使用的是内容短信(即直接发送短信内容)，那么就需要为它们设置短信内容。
 ```php
 $sms->content('【签名】这是短信内容...');
 ```
 
-### $sms->all([$key])
+### code($code)
+
+设置语音验证码，并返回实例对象。
+
+### files($files)
+
+设置语音文件，并返回实例对象。
+```php
+$sms->files('Agent1', 'agent1_file_id')
+    ->files('Agent2', 'agent2_file_id');
+
+$sms->files([
+    'Agent1' => 'agent1_file_id',
+    'Agent2' => 'agent2_fiile_id',
+]);
+```
+
+### params($params)
+
+设置代理器参数，并返回实例对象。
+```php
+$sms->params('Agent1', [
+    'callbackUrl' => ...,
+    'userData'    => ...,
+]);
+
+$sms->params([
+    'Agent1' => [
+        'callbackUrl' => ...,
+        'userData'    => ...,
+    ],
+    'Agent2' => [
+        ...
+    ],
+]);
+```
+
+### all([$key])
 
 获取Sms实例中的短信数据，不带参数时返回所有数据，其结构如下：
 ```php
 [
-    'type'         => ...,
-    'to'           => ...,
-    'templates'    => [...],
-    'content'      => ...,
-    'templateData' => [...],
-    'voiceCode'    => ...,
+    'type'      => ...,
+    'to'        => ...,
+    'templates' => [...],
+    'data'      => [...], // template data
+    'content'   => ...,
+    'code'      => ...,   // voice code
+    'files'     => [...], // voice files
+    'params'    => [...],
 ]
 ```
 
-### $sms->agent($name)
+### agent($name)
 
 临时设置发送时使用的代理器(不会影响备用代理器的正常使用)，并返回实例，`$name`为代理器名称。
 ```php
@@ -441,14 +491,14 @@ $sms->agent('SmsBao');
 ```
 > 通过该方法设置的代理器将获得绝对优先权，但只对当前短信实例有效。
 
-### $sms->send()
+### send()
 
 请求发送短信/语音验证码。
 ```php
-//会遵循是否使用队列:
+//会遵循是否使用队列
 $result = $sms->send();
 
-//忽略是否使用队列:
+//忽略是否使用队列
 $result = $sms->send(true);
 ```
 
@@ -481,27 +531,37 @@ Sms::scheme('agentName', [
 
 * 配置方式：
 
-通过配置值中`sendSms`和`voiceVerify`键来设置发送短信和语音验证码的方式。
+可以配置的发送过程有:
+
+| Send Process      | Arguments                     |
+| ----------------- | :---------------------------: |
+| sendContentSms    | $agent, $to, $content         |
+| sendTemplateSms   | $agent, $to, $tmpId, $tmpData |
+| sendVoiceCode     | $agent, $to, $code            |
+| sendContentVoice  | $agent, $to, $content         |
+| sendTemplateVoice | $agent, $to, $tmpId, $tmpData |
+| sendFileVoice     | $agent, $to, $fileId          |
 
 * 示例：
 ```php
 Sms::scheme([
     'agentName' => [
         '20 backup',
-        'sendSms' => function($agent, $to, $content, $tempId, $tempData){
-            //获取配置(如果设置了的话):
+        'sendContentSms' => function($agent, $to, $content){
+            // 获取配置(如果设置了的话):
             $key = $agent->key;
             ...
-            //可使用的内置方法:
-            Agent::curl(...);
+            // 可使用的内置方法:
+            $agent->curlGet($url, $params); //get
+            $agent->curlPost($url, $params); //post
             ...
-            //更新发送结果:
+            // 更新发送结果:
             $agent->result(Agent::SUCCESS, true);
             $agent->result(Agent::INFO, 'some info');
             $agent->result(Agent::CODE, 'your code');
         },
-        'voiceVerify' => function($agent, $to, $code, $tempId, $tempData){
-            //发送语音验证码，同上
+        'sendVoiceCode' => function($agent, $to, $code){
+            // 发送语音验证码，同上
         }
     ]
 ]);
@@ -524,14 +584,6 @@ Sms::scheme([
 
 新建一个继承`Toplan\PhpSms\Agent`抽象类的代理器类，建议代理器类名为`FooAgent`，建议命名空间为`Toplan\PhpSms`。
 如果类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，在使用该代理器时则需要指定代理器类，详见[高级调度配置](#高级调度配置)。
-
-# Todo list
-
-- [ ] 可用代理器分组配置功能；短信发送时选择分组进行发送的功能。
-
-# Encourage
-
-hi, guys! 如果喜欢或者要收藏，欢迎star。如果要提供意见和bug，欢迎issue或提交pr。
 
 # License
 

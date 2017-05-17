@@ -7,42 +7,37 @@ namespace Toplan\PhpSms;
  *
  * @property string $apikey
  */
-class YunPianAgent extends Agent implements ContentSms
+class YunPianAgent extends Agent implements ContentSms, VoiceCode
 {
     protected $headers = [
         'Accept:application/json;charset=utf-8',
         'Content-Type:application/x-www-form-urlencoded;charset=utf-8',
     ];
 
-    public function sendSms($to, $content, $tempId, array $data)
-    {
-        $this->sendContentSms($to, $content);
-    }
-
     public function sendContentSms($to, $content)
     {
         $url = 'https://sms.yunpian.com/v1/sms/send.json';
-        $params = [
+        $params = $this->params([
             'apikey' => $this->apikey,
             'mobile' => $to,
             'text'   => $content,
-        ];
-        $result = $this->curl($url, true, [
+        ]);
+        $result = $this->curlPost($url, [], [
             CURLOPT_HTTPHEADER => $this->headers,
             CURLOPT_POSTFIELDS => http_build_query($params),
         ]);
         $this->setResult($result);
     }
 
-    public function voiceVerify($to, $code, $tempId, array $data)
+    public function sendVoiceCode($to, $code)
     {
         $url = 'https://voice.yunpian.com/v1/voice/send.json';
-        $params = [
+        $params = $this->params([
             'apikey' => $this->apikey,
             'mobile' => $to,
             'code'   => $code,
-        ];
-        $result = $this->curl($url, true, [
+        ]);
+        $result = $this->curlPost($url, [], [
             CURLOPT_HTTPHEADER => $this->headers,
             CURLOPT_POSTFIELDS => http_build_query($params),
         ]);

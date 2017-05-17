@@ -46,32 +46,28 @@ class SmsTest extends PHPUnit_Framework_TestCase
 
     public function testGetSmsData()
     {
-        $data = self::$sms->getData();
+        $data = self::$sms->all();
         $this->assertArrayHasKey('to', $data);
         $this->assertArrayHasKey('templates', $data);
-        $this->assertArrayHasKey('templateData', $data);
+        $this->assertArrayHasKey('data', $data);
         $this->assertArrayHasKey('content', $data);
-        $this->assertArrayHasKey('voiceCode', $data);
+        $this->assertArrayHasKey('code', $data);
+        $this->assertArrayHasKey('files', $data);
+        $this->assertArrayHasKey('params', $data);
         self::$sms->to('...');
-        $this->assertEquals('...', self::$sms->getData('to'));
-    }
-
-    public function smsData()
-    {
-        return self::$sms->getData();
+        $this->assertEquals('...', self::$sms->all('to'));
     }
 
     public function testSetTo()
     {
         self::$sms->to('18280345...');
-        $smsData = $this->smsData();
-        $this->assertEquals('18280345...', $smsData['to']);
+        $this->assertEquals('18280345...', self::$sms->all('to'));
     }
 
     public function testSetTemplate()
     {
         self::$sms->template('Luosimao', '123');
-        $smsData = $this->smsData();
+        $smsData = self::$sms->all();
         $this->assertEquals([
                 'Luosimao' => '123',
             ], $smsData['templates']);
@@ -79,7 +75,7 @@ class SmsTest extends PHPUnit_Framework_TestCase
                 'Luosimao'   => '1234',
                 'YunTongXun' => '6789',
             ]);
-        $smsData = $this->smsData();
+        $smsData = self::$sms->all();
         $this->assertEquals([
             'Luosimao'   => '1234',
             'YunTongXun' => '6789',
@@ -92,17 +88,17 @@ class SmsTest extends PHPUnit_Framework_TestCase
                 'code' => '1',
                 'msg'  => 'msg',
             ]);
-        $smsData = $this->smsData();
+        $smsData = self::$sms->all();
         $this->assertEquals([
-                'code' => '1',
-                'msg'  => 'msg',
-            ], $smsData['templateData']);
+            'code' => '1',
+            'msg'  => 'msg',
+        ], $smsData['data']);
     }
 
     public function testSetContent()
     {
         self::$sms->content('this is content');
-        $smsData = $this->smsData();
+        $smsData = self::$sms->all();
         $this->assertEquals('this is content', $smsData['content']);
     }
 
@@ -143,8 +139,8 @@ class SmsTest extends PHPUnit_Framework_TestCase
     public function testVoice()
     {
         $sms = Sms::voice('code');
-        $data = $sms->getData();
-        $this->assertEquals('code', $data['voiceCode']);
+        $data = $sms->all();
+        $this->assertEquals('code', $data['code']);
     }
 
     public function testUseQueue()

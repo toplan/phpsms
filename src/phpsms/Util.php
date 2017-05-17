@@ -2,22 +2,12 @@
 
 namespace Toplan\PhpSms;
 
+use SuperClosure\Serializer;
+
 class Util
 {
-    /**
-     * 对数组进行赋值/取值操作
-     *
-     * @param array         $array
-     * @param mixed         $key
-     * @param mixed         $value
-     * @param mixed         $default
-     * @param \Closure|null $setter
-     * @param bool          $override
-     * @param \Closure|null $willOverride
-     * @param bool          $isSet
-     *
-     * @return mixed
-     */
+    protected static $closureSerializer = null;
+
     public static function operateArray(array &$array, $key, $value = null, $default = null, \Closure $setter = null, $override = false, $willOverride = null, $isSet = false)
     {
         if (!$isSet && ($key === null || is_string($key) || is_int($key)) && $value === null) {
@@ -43,22 +33,24 @@ class Util
         return $array;
     }
 
-    /**
-     * 从数组中根据指定键名拉取数据
-     *
-     * @param array      $options
-     * @param int|string $key
-     *
-     * @return mixed
-     */
-    public static function pullFromArrayByKey(array &$options, $key)
+    public static function pullFromArray(array &$options, $key)
     {
+        $value = null;
         if (!isset($options[$key])) {
-            return;
+            return $value;
         }
         $value = $options[$key];
         unset($options[$key]);
 
         return $value;
+    }
+
+    public static function getClosureSerializer()
+    {
+        if (empty(self::$closureSerializer)) {
+            self::$closureSerializer = new Serializer();
+        }
+
+        return self::$closureSerializer;
     }
 }

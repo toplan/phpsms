@@ -2,13 +2,13 @@
 
 namespace Toplan\PhpSms;
 
-interface ContentSms
+interface ContentVoice
 {
     /**
-     * Content SMS send process.
+     * Content voice send process.
      *
      * @param string|array $to
      * @param string       $content
      */
-    public function sendContentSms($to, $content);
+    public function sendContentVoice($to, $content);
 }

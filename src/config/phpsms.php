@@ -1,34 +1,38 @@
 <?php
 
-/*
- * config file for PhpSms
- */
 return [
-
     /*
-     * agent use scheme
+     * The scheme information
      * -------------------------------------------------------------------
-     * Format: 'name' => scheme
      *
-     * The scheme value include:
-     * 1. weight (must be a positive integer)
-     * 2. 'backup' (ignore upper/lower case)
+     * The key-value paris: {name} => {value}
      *
-     * supported agents:
-     * 'Log', 'SmsBao', 'Luosimao', 'YunTongXun', 'YunPian', 'SubMail', 'Ucpaas', 'JuHe', 'Alidayu', 'SendCloud'
+     * Examples:
+     * 'Log' => '10 backup'
+     * 'SmsBao' => '100'
+     * 'CustomAgent' => [
+     *     '5 backup',
+     *     'agentClass' => '/Namespace/ClassName'
+     * ]
+     *
+     * Supported agents:
+     * 'Log', 'YunPian', 'YunTongXun', 'SubMail', 'Luosimao',
+     * 'Ucpaas', 'JuHe', 'Alidayu', 'SendCloud', 'SmsBao',
+     * 'Qcloud', 'Aliyun'
+     *
      */
     'scheme' => [
         'Log',
     ],
 
     /*
-     * agents config
+     * The configuration
      * -------------------------------------------------------------------
-     * Note: agent name must be string.
+     *
+     * Expected the name of agent to be a string.
      *
      */
     'agents' => [
-
         /*
          * -----------------------------------
          * YunPian
@@ -51,29 +55,23 @@ return [
          * support template sms.
          */
         'YunTongXun' => [
-            //主帐号,对应开官网发者主账号下的 ACCOUNT SID
+            //主帐号
             'accountSid' => 'your account sid',
 
-            //主帐号令牌,对应官网开发者主账号下的 AUTH TOKEN
+            //主帐号令牌
             'accountToken' => 'your account token',
 
-            //应用Id，在官网应用列表中点击应用，对应应用详情中的APP ID
-            //在开发调试的时候，可以使用官网自动为您分配的测试Demo的APP ID
+            //应用Id
             'appId' => 'your app id',
 
             //请求地址
-            //沙盒环境（用于应用开发调试）：sandboxapp.cloopen.com
-            //生产环境（用户应用上线使用）：app.cloopen.com
             'serverIP' => 'app.cloopen.com',
 
-            //请求端口，生产环境和沙盒环境一致
+            //请求端口
             'serverPort' => '8883',
 
             //被叫号显
             'displayNum' => null,
-
-            //语音验证码使用的语言类型
-            'voiceLang' => 'zh',
 
             //语音验证码播放次数
             'playTimes' => 3,
@@ -190,21 +188,49 @@ return [
          * SmsBao
          * -----------------------------------
          * website: http://www.smsbao.com
-         * not support template sms.
-         * 不支持模板变量短信
          * support content sms.
-         * 支持内容短信
-         * support voice sms.
-         * 支持语音验证码
-         * 支持自定义短信签名
-         * 最低消费5元(50条) 最低消费单价0.04元（100万条）
          */
         'SmsBao' => [
-            //username
+            //注册账号
             'username' => 'your username',
 
-            //password
+            //账号密码（明文）
             'password' => 'your password',
+        ],
+
+        /*
+         * -----------------------------------
+         * Qcloud
+         * 腾讯云
+         * -----------------------------------
+         * website:http://www.qcloud.com
+         * support template sms.
+         */
+        'Qcloud' => [
+            //App ID
+            'appId' => 'your app id',
+
+            //App KEY
+            'appKey' => 'your app key',
+        ],
+
+        /*
+         * -----------------------------------
+         * Aliyun
+         * 阿里云
+         * -----------------------------------
+         * website:https://www.aliyun.com/product/sms
+         * support template sms.
+         */
+        'AliyunSms' => [
+            //阿里云颁发给用户的访问服务所用的密钥ID
+            'accessKeyId' => 'your access key id',
+
+            //阿里云颁发给用户的，用于加密签名字符串和服务器端验证签名字符串的密钥
+            'accessKeySecret' => 'your access key secret',
+
+            //阿里云管理控制台中配置的短信签名（状态必须是验证通过）
+            'signName' => 'your sms sign name',
         ],
     ],
 ];
