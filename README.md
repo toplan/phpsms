@@ -38,18 +38,10 @@
 | [腾讯云](https://www.qcloud.com/product/sms) | √ | √ | √ | -- | ￥0.045/条 | [资费标准](https://www.qcloud.com/product/sms#price)
 | [阿里云](https://www.aliyun.com/product/sms) | √ | × | × | -- | ￥0.045/条 | [资费标准](https://cn.aliyun.com/price/product#/mns/detail)
 
-> 腾讯云和阿里云目前仅在**公测版**支持，欢迎使用并反馈测试结果和意见。
-
 # 安装
 
-稳定版
 ```php
-composer require toplan/phpsms:~1.7
-```
-
-公测版
-```php
-composer require toplan/phpsms:~1.8.0-beta
+composer require toplan/phpsms:~1.8
 ```
 
 开发中版本
