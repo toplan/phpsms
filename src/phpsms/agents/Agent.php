@@ -146,12 +146,11 @@ abstract class Agent
     public function curlPost($url, array $params = [], array $opts = [])
     {
         $params = $this->params($params);
-        $opts = array_merge([
-            CURLOPT_POSTFIELDS  => $params,
-        ], $opts, [
-            CURLOPT_POST    => true,
-            CURLOPT_URL     => $url,
-        ]);
+        if (!array_key_exists(CURLOPT_POSTFIELDS, $opts)) {
+            $opts[CURLOPT_POSTFIELDS] = $params;
+        }
+        $opts[CURLOPT_POST] = true;
+        $opts[CURLOPT_URL]  = $url;
 
         return self::curl($opts);
     }
@@ -169,10 +168,8 @@ abstract class Agent
     {
         $params = $this->params($params);
         $queryStr = http_build_query($params);
-        $opts = array_merge($opts, [
-            CURLOPT_POST    => false,
-            CURLOPT_URL     => $queryStr ? "$url?$queryStr" : $url,
-        ]);
+        $opts[CURLOPT_POST] = false;
+        $opts[CURLOPT_URL]  = $queryStr ? "$url?$queryStr" : $url;
 
         return self::curl($opts);
     }

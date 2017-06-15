@@ -533,7 +533,7 @@ Sms::scheme('agentName', [
 
 可以配置的发送过程有:
 
-| Send Process      | Arguments                     |
+| 发送过程           | 参数列表                        |
 | ----------------- | :---------------------------: |
 | sendContentSms    | $agent, $to, $content         |
 | sendTemplateSms   | $agent, $to, $tmpId, $tmpData |
@@ -571,7 +571,8 @@ Sms::scheme([
 
 - step 1
 
-配置项加入到config/phpsms.php中键为`agents`的数组里。
+配置项(如果有用到)加入到config/phpsms.php中键为`agents`的数组里。
+
 ```php
 //example:
 'Foo' => [
@@ -583,7 +584,21 @@ Sms::scheme([
 - step 2
 
 新建一个继承`Toplan\PhpSms\Agent`抽象类的代理器类，建议代理器类名为`FooAgent`，建议命名空间为`Toplan\PhpSms`。
-如果类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，在使用该代理器时则需要指定代理器类，详见[高级调度配置](#高级调度配置)。
+
+> 如果类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，在使用该代理器时则需要指定代理器类，详见[高级调度配置](#高级调度配置)。
+
+- step 3
+
+实现相应的接口，可选的接口有:
+
+| 接口               | 说明         |
+| ----------------- | :----------: |
+| sendContentSms    | 发送内容短信   |
+| sendTemplateSms   | 发送模版短信   |
+| sendVoiceCode     | 发送语音验证码 |
+| sendContentVoice  | 发送内容语音   |
+| sendTemplateVoice | 发送模版语音   |
+| sendFileVoice     | 发送文件语音   |
 
 # License
 
