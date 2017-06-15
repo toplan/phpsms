@@ -14,12 +14,12 @@
 [![短信宝](http://toplan.github.io/img/smsbao-logo.png)](http://www.smsbao.com/)
 
 # 特点
+- 支持内容短信，模版短信，语音验证码，内容语音，模版语音，语音文件。
 - 支持发送均衡调度，可按代理器权重值均衡选择服务商发送。
-- 支持语音验证码。
 - 支持一个或多个备用代理器(服务商)。
 - 允许推入队列，并自定义队列实现逻辑(与队列系统松散耦合)。
-- 短信/语音发送前后钩子。
-- 支持国内[主流短信服务商](#服务商)。
+- 灵活的发送前后钩子。
+- 内置国内主流服务商的代理器。
 - [自定义代理器](#自定义代理器)和[寄生代理器](#寄生代理器)。
 
 # 服务商
@@ -125,13 +125,13 @@ $tempData = [
 // 短信内容
 $content = '【签名】这是短信内容...';
 
-// 只希望使用模板方式发送短信,可以不设置content(如:云通讯、Submail、Ucpaas)
+// 只希望使用模板方式发送短信，可以不设置content(如:云通讯、Submail、Ucpaas)
 Sms::make()->to($to)->template($templates)->data($tempData)->send();
 
-// 只希望使用内容方式发送,可以不设置模板id和模板data(如:短信宝、云片、luosimao)
+// 只希望使用内容方式发送，可以不设置模板id和模板data(如:短信宝、云片、luosimao)
 Sms::make()->to($to)->content($content)->send();
 
-// 同时确保能通过模板和内容方式发送,这样做的好处是,可以兼顾到各种类型服务商
+// 同时确保能通过模板和内容方式发送，这样做的好处是可以兼顾到各种类型服务商
 Sms::make()->to($to)
     ->template($templates)
     ->data($tempData)
@@ -149,8 +149,6 @@ Sms::voice('02343')
 ```
 
 ### 3. 在laravel中使用
-
-如果你只想单纯的在 laravel 中使用 phpsms 的功能可以按如下步骤操作。
 
 * 服务提供器
 
@@ -506,7 +504,7 @@ $result = $sms->send(true);
 
 # 高级调度配置
 
-代理器的高级调度配置可以通过配置文件(config/phpsms.php)中的`scheme`项目配置，也可以通过`scheme`静态方法设置。
+代理器的高级调度配置可以通过配置文件(`config/phpsms.php`)中的`scheme`项目配置，也可以通过`scheme`静态方法设置。
 值得注意的是，高级调度配置的值的数据结构是数组。
 
 ### 指定代理器类
@@ -533,14 +531,14 @@ Sms::scheme('agentName', [
 
 可以配置的发送过程有:
 
-| 发送过程           | 参数列表                        |
-| ----------------- | :---------------------------: |
-| sendContentSms    | $agent, $to, $content         |
-| sendTemplateSms   | $agent, $to, $tmpId, $tmpData |
-| sendVoiceCode     | $agent, $to, $code            |
-| sendContentVoice  | $agent, $to, $content         |
-| sendTemplateVoice | $agent, $to, $tmpId, $tmpData |
-| sendFileVoice     | $agent, $to, $fileId          |
+| 发送过程           | 参数列表                        | 说明         |
+| ----------------- | :---------------------------: | :----------: |
+| sendContentSms    | $agent, $to, $content         | 发送内容短信   |
+| sendTemplateSms   | $agent, $to, $tmpId, $tmpData | 发送模版短信   |
+| sendVoiceCode     | $agent, $to, $code            | 发送语音验证码  |
+| sendContentVoice  | $agent, $to, $content         | 发送内容语音   |
+| sendTemplateVoice | $agent, $to, $tmpId, $tmpData | 发送模版语音   |
+| sendFileVoice     | $agent, $to, $fileId          | 发送文件语音   |
 
 * 示例：
 ```php
@@ -571,7 +569,7 @@ Sms::scheme([
 
 - step 1
 
-配置项(如果有用到)加入到config/phpsms.php中键为`agents`的数组里。
+配置项(如果有用到)加入到`config/phpsms.php`中键为`agents`的数组里。
 
 ```php
 //example:
@@ -599,6 +597,12 @@ Sms::scheme([
 | sendContentVoice  | 发送内容语音   |
 | sendTemplateVoice | 发送模版语音   |
 | sendFileVoice     | 发送文件语音   |
+
+# Todo
+
+- [ ] 重新实现云通讯代理器，去掉`lib/CCPRestSmsSDK.php`
+- [ ] 重新实现云子讯代理器，去掉`lib/Ucpaas.php`
+- [ ] 升级云片接口到v2版本
 
 # License
 
