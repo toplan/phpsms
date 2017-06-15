@@ -150,7 +150,7 @@ abstract class Agent
             $opts[CURLOPT_POSTFIELDS] = $params;
         }
         $opts[CURLOPT_POST] = true;
-        $opts[CURLOPT_URL]  = $url;
+        $opts[CURLOPT_URL] = $url;
 
         return self::curl($opts);
     }
@@ -169,7 +169,7 @@ abstract class Agent
         $params = $this->params($params);
         $queryStr = http_build_query($params);
         $opts[CURLOPT_POST] = false;
-        $opts[CURLOPT_URL]  = $queryStr ? "$url?$queryStr" : $url;
+        $opts[CURLOPT_URL] = $queryStr ? "$url?$queryStr" : $url;
 
         return self::curl($opts);
     }
