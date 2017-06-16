@@ -64,7 +64,7 @@ return [
             //应用Id
             'appId' => 'your app id',
 
-            //请求地址
+            //请求地址(不加协议前缀)
             'serverIP' => 'app.cloopen.com',
 
             //请求端口

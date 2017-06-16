@@ -14,12 +14,13 @@
 [![短信宝](http://toplan.github.io/img/smsbao-logo.png)](http://www.smsbao.com/)
 
 # 特点
+- 支持内容短信，模版短信，语音验证码，内容语音，模版语音，语音文件。
 - 支持发送均衡调度，可按代理器权重值均衡选择服务商发送。
-- 支持语音验证码。
 - 支持一个或多个备用代理器(服务商)。
+- 支持代理器调度方案热更新，可随时更新/删除/新加代理器。
 - 允许推入队列，并自定义队列实现逻辑(与队列系统松散耦合)。
-- 短信/语音发送前后钩子。
-- 支持国内[主流短信服务商](#服务商)。
+- 灵活的发送前后钩子。
+- 内置国内主流服务商的代理器。
 - [自定义代理器](#自定义代理器)和[寄生代理器](#寄生代理器)。
 
 # 服务商
@@ -38,18 +39,10 @@
 | [腾讯云](https://www.qcloud.com/product/sms) | √ | √ | √ | -- | ￥0.045/条 | [资费标准](https://www.qcloud.com/product/sms#price)
 | [阿里云](https://www.aliyun.com/product/sms) | √ | × | × | -- | ￥0.045/条 | [资费标准](https://cn.aliyun.com/price/product#/mns/detail)
 
-> 腾讯云和阿里云目前仅在**公测版**支持，欢迎使用并反馈测试结果和意见。
-
 # 安装
 
-稳定版
 ```php
-composer require toplan/phpsms:~1.7
-```
-
-公测版
-```php
-composer require toplan/phpsms:~1.8.0-beta
+composer require toplan/phpsms:~1.8
 ```
 
 开发中版本
@@ -125,13 +118,13 @@ $tempData = [
 // 短信内容
 $content = '【签名】这是短信内容...';
 
-// 只希望使用模板方式发送短信,可以不设置content(如:云通讯、Submail、Ucpaas)
+// 只希望使用模板方式发送短信，可以不设置content(如:云通讯、Submail、Ucpaas)
 Sms::make()->to($to)->template($templates)->data($tempData)->send();
 
-// 只希望使用内容方式发送,可以不设置模板id和模板data(如:短信宝、云片、luosimao)
+// 只希望使用内容方式发送，可以不设置模板id和模板data(如:短信宝、云片、luosimao)
 Sms::make()->to($to)->content($content)->send();
 
-// 同时确保能通过模板和内容方式发送,这样做的好处是,可以兼顾到各种类型服务商
+// 同时确保能通过模板和内容方式发送，这样做的好处是可以兼顾到各种类型服务商
 Sms::make()->to($to)
     ->template($templates)
     ->data($tempData)
@@ -149,8 +142,6 @@ Sms::voice('02343')
 ```
 
 ### 3. 在laravel中使用
-
-如果你只想单纯的在 laravel 中使用 phpsms 的功能可以按如下步骤操作。
 
 * 服务提供器
 
@@ -190,7 +181,7 @@ PhpSms::make()->to($to)->content($content)->send();
 
 设置/获取代理器的调度方案。
 
-> 调度配置在应用系统的整个运行过程中都能修改。
+> 调度配置支持热更新，即在应用系统的整个运行过程中都能随时修改。
 
 - 设置
 
@@ -221,7 +212,7 @@ $scheme['SmsBao'] = Sms::scheme('SmsBao');
 
 设置/获取代理器的配置数据。
 
-> 代理器参数配置在应用系统的整个运行过程中都能修改。
+> 参数配置支持热更新，即在应用系统的整个运行过程中都能随时修改。
 
 - 设置
 
@@ -425,7 +416,10 @@ $sms->data([
 
 ### content($text)
 
-设置内容短信的内容，并返回实例对象。一些内置的代理器(如SmsBao、YunPian、Luosimao)使用的是内容短信(即直接发送短信内容)，那么就需要为它们设置短信内容。
+设置内容短信的内容，并返回实例对象。
+
+> 一些内置的代理器(如SmsBao、YunPian、Luosimao)使用的是内容短信(即直接发送短信内容)，那么就需要为它们设置短信内容。
+
 ```php
 $sms->content('【签名】这是短信内容...');
 ```
@@ -504,14 +498,48 @@ $result = $sms->send(true);
 
 > `$result`数据结构请参看[task-balancer](https://github.com/toplan/task-balancer)
 
+# 自定义代理器
+
+- step 1
+
+可将配置项(如果有用到)加入到`config/phpsms.php`中键为`agents`的数组里。
+
+```php
+//example:
+'Foo' => [
+    'key' => 'your api key',
+    ...
+]
+```
+
+- step 2
+
+新建一个继承`Toplan\PhpSms\Agent`抽象类的代理器类，建议代理器类名为`FooAgent`，建议命名空间为`Toplan\PhpSms`。
+
+> 如果类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，在使用该代理器时则需要指定代理器类，详见[高级调度配置](#高级调度配置)。
+
+- step 3
+
+实现相应的接口，可选的接口有:
+
+| 接口           | 说明         |
+| ------------- | :----------: |
+| ContentSms    | 发送内容短信   |
+| TemplateSms   | 发送模版短信   |
+| VoiceCode     | 发送语音验证码 |
+| ContentVoice  | 发送内容语音   |
+| TemplateVoice | 发送模版语音   |
+| FileVoice     | 发送文件语音   |
+
 # 高级调度配置
 
-代理器的高级调度配置可以通过配置文件(config/phpsms.php)中的`scheme`项目配置，也可以通过`scheme`静态方法设置。
+代理器的高级调度配置可以通过配置文件(`config/phpsms.php`)中的`scheme`项目配置，也可以通过`scheme`静态方法设置。
 值得注意的是，高级调度配置的值的数据结构是数组。
 
 ### 指定代理器类
 
-> 如果你自定义了一个代理器，类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，那么你还可以在调度配置时指定你的代理器使用的类。
+如果你自定义了一个代理器，类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，
+那么你还可以在调度配置时指定你的代理器使用的类。
 
 * 配置方式：
 
@@ -527,20 +555,21 @@ Sms::scheme('agentName', [
 
 ### 寄生代理器
 
-> 如果你既不想使用内置的代理器，也不想创建文件写自定义代理器，那么寄生代理器或许是个好的选择，无需定义代理器类，只需在调度配置时定义好发送短信和语音验证码的方式即可。
+如果你既不想使用内置的代理器，也不想创建文件写自定义代理器，那么寄生代理器或许是个好的选择，
+无需定义代理器类，只需在调度配置时定义好发送短信和语音验证码的方式即可。
 
 * 配置方式：
 
 可以配置的发送过程有:
 
-| Send Process      | Arguments                     |
-| ----------------- | :---------------------------: |
-| sendContentSms    | $agent, $to, $content         |
-| sendTemplateSms   | $agent, $to, $tmpId, $tmpData |
-| sendVoiceCode     | $agent, $to, $code            |
-| sendContentVoice  | $agent, $to, $content         |
-| sendTemplateVoice | $agent, $to, $tmpId, $tmpData |
-| sendFileVoice     | $agent, $to, $fileId          |
+| 发送过程           | 参数列表                        | 说明         |
+| ----------------- | :---------------------------: | :----------: |
+| sendContentSms    | $agent, $to, $content         | 发送内容短信   |
+| sendTemplateSms   | $agent, $to, $tmpId, $tmpData | 发送模版短信   |
+| sendVoiceCode     | $agent, $to, $code            | 发送语音验证码  |
+| sendContentVoice  | $agent, $to, $content         | 发送内容语音   |
+| sendTemplateVoice | $agent, $to, $tmpId, $tmpData | 发送模版语音   |
+| sendFileVoice     | $agent, $to, $fileId          | 发送文件语音   |
 
 * 示例：
 ```php
@@ -567,23 +596,11 @@ Sms::scheme([
 ]);
 ```
 
-# 自定义代理器
+# Todo
 
-- step 1
-
-配置项加入到config/phpsms.php中键为`agents`的数组里。
-```php
-//example:
-'Foo' => [
-    'key' => 'your api key',
-    ...
-]
-```
-
-- step 2
-
-新建一个继承`Toplan\PhpSms\Agent`抽象类的代理器类，建议代理器类名为`FooAgent`，建议命名空间为`Toplan\PhpSms`。
-如果类名不为`FooAgent`或者命名空间不为`Toplan\PhpSms`，在使用该代理器时则需要指定代理器类，详见[高级调度配置](#高级调度配置)。
+- [ ] 重新实现云通讯代理器，去掉`lib/CCPRestSmsSDK.php`
+- [ ] 重新实现云子讯代理器，去掉`lib/Ucpaas.php`
+- [ ] 升级云片接口到v2版本
 
 # License
 
