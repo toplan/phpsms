@@ -72,13 +72,15 @@ class AlidayuAgent extends Agent implements TemplateSms, VoiceCode, TemplateVoic
     protected function request(array $params)
     {
         $params = $this->createParams($params);
-        $result = $this->curlPost($this->sendUrl, $params);
+        $result = $this->curlPost($this->sendUrl, [], [
+            CURLOPT_POSTFIELDS => http_build_query($params),
+        ]);
         $this->setResult($result, $this->genResponseName($params['method']));
     }
 
     protected function createParams(array $params)
     {
-        return array_merge([
+        return $this->params(array_merge([
             'app_key'            => $this->appKey,
             'v'                  => '2.0',
             'format'             => 'json',
@@ -86,7 +88,7 @@ class AlidayuAgent extends Agent implements TemplateSms, VoiceCode, TemplateVoic
             'timestamp'          => date('Y-m-d H:i:s'),
         ], $params, [
             'sign'               => $this->genSign($params),
-        ]);
+        ]));
     }
 
     protected function genSign($params)

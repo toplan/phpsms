@@ -28,13 +28,15 @@ class AliyunAgent extends Agent implements TemplateSms
     protected function request(array $params)
     {
         $params = $this->createParams($params);
-        $result = $this->curlPost(self::$sendUrl, $params);
+        $result = $this->curlPost(self::$sendUrl, [], [
+            CURLOPT_POSTFIELDS => http_build_query($params),
+        ]);
         $this->setResult($result);
     }
 
     protected function createParams(array $params)
     {
-        return array_merge([
+        return $this->params(array_merge([
             'Format'            => 'JSON',
             'Version'           => '2016-09-27',
             'AccessKeyId'       => $this->accessKeyId,
@@ -44,7 +46,7 @@ class AliyunAgent extends Agent implements TemplateSms
             'SignatureNonce'    => uniqid(),
         ], $params, [
             'Signature'         => $this->computeSignature($params),
-        ]);
+        ]));
     }
 
     private function computeSignature($parameters)
