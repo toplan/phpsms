@@ -75,8 +75,7 @@ class QcloudAgent extends Agent implements TemplateSms, ContentSms, VoiceCode, C
 
     protected function genSign($params)
     {
-        $phone = $params['tel']['mobile'];
-        $signature = "appkey={$this->appKey}&random={$this->random}&time={$params['time']}&mobile={$phone}";
+        $signature = "appkey={$this->appKey}&random={$this->random}&time={$params['time']}&mobile={$params['tel']}";
 
         return hash('sha256', $signature, false);
     }
@@ -89,6 +88,9 @@ class QcloudAgent extends Agent implements TemplateSms, ContentSms, VoiceCode, C
             if (isset($result['result'])) {
                 $this->result(Agent::SUCCESS, $result['result'] === 0);
                 $this->result(Agent::CODE, $result['result']);
+            } elseif (isset($result['ErrorCode'])) {
+                $this->result(Agent::CODE, $result['ErrorCode']);
+                $this->result(Agent::INFO, $result['ErrorInfo']);
             }
         } else {
             $this->result(Agent::INFO, 'request failed');
