@@ -443,13 +443,14 @@ $sms->files([
 
 ### params($params)
 
-设置代理器参数，并返回实例对象。
+直接设置参数到服务商提供的原生接口上，并返回实例对象。
 ```php
 $sms->params('Agent1', [
     'callbackUrl' => ...,
     'userData'    => ...,
 ]);
 
+//或
 $sms->params([
     'Agent1' => [
         'callbackUrl' => ...,
