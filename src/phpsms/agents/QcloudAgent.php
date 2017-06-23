@@ -16,6 +16,20 @@ class QcloudAgent extends Agent implements TemplateSms, ContentSms, VoiceCode, C
     protected $sendVoicePrompt = 'https://yun.tim.qq.com/v5/tlsvoicesvr/sendvoiceprompt';
     protected $random;
 
+    public function formatMobile(array $list)
+    {
+        $list = array_map(function($value) {
+            return [
+                'nationcode'    => $value['nation'],
+                'mobile'        => $value['number'],
+            ];
+        }, array_filter($list, function($value) {
+            return is_array($value);
+        }));
+
+        return count($list) === 1 ? array_pop($list) : array_values($list);
+    }
+
     public function sendContentSms($to, $content)
     {
         $params = [
@@ -75,7 +89,15 @@ class QcloudAgent extends Agent implements TemplateSms, ContentSms, VoiceCode, C
 
     protected function genSign($params)
     {
-        $signature = "appkey={$this->appKey}&random={$this->random}&time={$params['time']}&mobile={$params['tel']}";
+        $mobileStr = null;
+        if (array_key_exists('mobile', $params['tel'])) {
+            $mobileStr = $params['tel']['mobile'];
+        } else {
+            $mobileStr = implode(',', array_map(function($value) {
+                return $value['mobile'];
+            }, $params['tel']));
+        }
+        $signature = "appkey={$this->appKey}&random={$this->random}&time={$params['time']}&mobile={$mobileStr}";
 
         return hash('sha256', $signature, false);
     }

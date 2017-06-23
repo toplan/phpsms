@@ -380,6 +380,9 @@ $sms = Sms::voice($code);
 设置发送给谁，并返回实例。
 ```php
 $sms->to('1828*******');
+
+//兼容腾讯云
+$sms->to([86, '1828*******'])
 ```
 
 ### template($templates)
