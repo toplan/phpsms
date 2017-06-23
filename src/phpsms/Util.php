@@ -82,6 +82,7 @@ class Util
                 array_push($list, $childListItem);
             }
         }
+
         return $list;
     }
 }
