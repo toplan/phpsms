@@ -18,12 +18,12 @@ class QcloudAgent extends Agent implements TemplateSms, ContentSms, VoiceCode, C
 
     public function formatMobile(array $list)
     {
-        $list = array_map(function($value) {
+        $list = array_map(function ($value) {
             return [
                 'nationcode'    => $value['nation'],
                 'mobile'        => $value['number'],
             ];
-        }, array_filter($list, function($value) {
+        }, array_filter($list, function ($value) {
             return is_array($value);
         }));
 
@@ -93,7 +93,7 @@ class QcloudAgent extends Agent implements TemplateSms, ContentSms, VoiceCode, C
         if (array_key_exists('mobile', $params['tel'])) {
             $mobileStr = $params['tel']['mobile'];
         } else {
-            $mobileStr = implode(',', array_map(function($value) {
+            $mobileStr = implode(',', array_map(function ($value) {
                 return $value['mobile'];
             }, $params['tel']));
         }

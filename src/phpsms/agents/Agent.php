@@ -147,7 +147,7 @@ abstract class Agent
      */
     public function formatMobile(array $list)
     {
-        return implode(',', array_unique(array_map(function($value) {
+        return implode(',', array_unique(array_map(function ($value) {
             return is_array($value) ? "{$value['number']}" : $value;
         }, $list)));
     }
