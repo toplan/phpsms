@@ -141,7 +141,7 @@ Sms::voice('02343')
     ->to($to)->send();
 ```
 
-### 3. 在laravel中使用
+### 3. 在laravel和lumen中使用
 
 * 服务提供器
 
@@ -438,6 +438,7 @@ $sms->content('【签名】这是短信内容...');
 $sms->files('Agent1', 'agent1_file_id')
     ->files('Agent2', 'agent2_file_id');
 
+//或
 $sms->files([
     'Agent1' => 'agent1_file_id',
     'Agent2' => 'agent2_fiile_id',
@@ -603,7 +604,7 @@ Sms::scheme([
 # Todo
 
 - [ ] 重新实现云通讯代理器，去掉`lib/CCPRestSmsSDK.php`
-- [ ] 重新实现云子讯代理器，去掉`lib/Ucpaas.php`
+- [ ] 重新实现云之讯代理器，去掉`lib/Ucpaas.php`
 - [ ] 升级云片接口到v2版本
 
 # License
