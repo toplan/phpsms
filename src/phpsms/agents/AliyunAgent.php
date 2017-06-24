@@ -36,7 +36,7 @@ class AliyunAgent extends Agent implements TemplateSms
 
     protected function createParams(array $params)
     {
-        return $this->params(array_merge([
+        $params = array_merge([
             'Format'            => 'JSON',
             'Version'           => '2016-09-27',
             'AccessKeyId'       => $this->accessKeyId,
@@ -44,9 +44,10 @@ class AliyunAgent extends Agent implements TemplateSms
             'Timestamp'         => date('Y-m-d\TH:i:s\Z'),
             'SignatureVersion'  => '1.0',
             'SignatureNonce'    => uniqid(),
-        ], $params, [
-            'Signature'         => $this->computeSignature($params),
-        ]));
+        ], $params);
+        $params['Signature'] = $this->computeSignature($params);
+
+        return $this->params($params);
     }
 
     private function computeSignature($parameters)

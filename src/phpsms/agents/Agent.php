@@ -101,6 +101,8 @@ abstract class Agent
     {
         $this->reset();
         $this->params($params, true);
+        $to = $this->formatMobile(Util::formatMobiles($to));
+
         if ($tempId && $this instanceof TemplateSms) {
             $this->sendTemplateSms($to, $tempId, $data);
         } elseif ($content && $this instanceof ContentSms) {
@@ -123,6 +125,8 @@ abstract class Agent
     {
         $this->reset();
         $this->params($params, true);
+        $to = $this->formatMobile(Util::formatMobiles($to));
+
         if ($tempId && $this instanceof TemplateVoice) {
             $this->sendTemplateVoice($to, $tempId, $data);
         } elseif ($fileId && $this instanceof FileVoice) {
@@ -132,6 +136,20 @@ abstract class Agent
         } elseif ($content && $this instanceof ContentVoice) {
             $this->sendContentVoice($to, $content);
         }
+    }
+
+    /**
+     * Formatting a mobile number from the list of mobile numbers.
+     *
+     * @param array $list
+     *
+     * @return string
+     */
+    public function formatMobile(array $list)
+    {
+        return implode(',', array_unique(array_map(function ($value) {
+            return is_array($value) ? "{$value['number']}" : $value;
+        }, $list)));
     }
 
     /**

@@ -53,4 +53,36 @@ class Util
 
         return self::$closureSerializer;
     }
+
+    public static function formatMobiles($target)
+    {
+        if (!is_array($target)) {
+            return [$target];
+        }
+        $list = [];
+        $nation = $number = null;
+        $count = count($target);
+        if ($count === 2) {
+            $firstItem = $target[0];
+            if (is_int($firstItem) && $firstItem > 0 && $firstItem <= 9999) {
+                $nation = $firstItem;
+                $number = $target[1];
+            }
+            if (is_string($firstItem) && strlen($firstItem = trim($firstItem)) <= 4) {
+                $nation = $firstItem;
+                $number = $target[1];
+            }
+        }
+        if (!is_null($nation)) {
+            return [compact('nation', 'number')];
+        }
+        foreach ($target as $childTarget) {
+            $childList = self::formatMobiles($childTarget);
+            foreach ($childList as $childListItem) {
+                array_push($list, $childListItem);
+            }
+        }
+
+        return $list;
+    }
 }

@@ -80,15 +80,16 @@ class AlidayuAgent extends Agent implements TemplateSms, VoiceCode, TemplateVoic
 
     protected function createParams(array $params)
     {
-        return $this->params(array_merge([
+        $params = array_merge([
             'app_key'            => $this->appKey,
             'v'                  => '2.0',
             'format'             => 'json',
             'sign_method'        => 'md5',
             'timestamp'          => date('Y-m-d H:i:s'),
-        ], $params, [
-            'sign'               => $this->genSign($params),
-        ]));
+        ], $params);
+        $params['sign'] = $this->genSign($params);
+
+        return $this->params($params);
     }
 
     protected function genSign($params)

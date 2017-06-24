@@ -538,13 +538,16 @@ class Sms
     /**
      * Set the recipient`s mobile number.
      *
-     * @param string $mobile
+     * @param string|array $mobile
      *
      * @return $this
      */
     public function to($mobile)
     {
-        $this->smsData['to'] = trim((string) $mobile);
+        if (is_string($mobile)) {
+            $mobile = trim($mobile);
+        }
+        $this->smsData['to'] = $mobile;
 
         return $this;
     }
