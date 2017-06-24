@@ -77,7 +77,7 @@ class AlidayuAgent extends Agent implements TemplateSms, VoiceCode, TemplateVoic
         ]);
         $this->setResult($result, $this->genResponseName($params['method']));
     }
-
+  
     protected function createParams(array $params)
     {
         $params = array_merge([
