@@ -10,8 +10,8 @@ namespace Toplan\PhpSms;
  */
 class LuosimaoAgent extends Agent implements ContentSms, VoiceCode
 {
-    static protected $smsUrl = 'http://sms-api.luosimao.com/v1/send.json';
-    static protected $voiceCodeUrl = 'http://voice-api.luosimao.com/v1/verify.json';
+    protected static $smsUrl = 'http://sms-api.luosimao.com/v1/send.json';
+    protected static $voiceCodeUrl = 'http://voice-api.luosimao.com/v1/verify.json';
 
     public function sendContentSms($to, $content)
     {
