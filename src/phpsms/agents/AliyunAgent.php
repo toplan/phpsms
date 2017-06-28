@@ -41,7 +41,7 @@ class AliyunAgent extends Agent implements TemplateSms
             'Version'           => '2016-09-27',
             'AccessKeyId'       => $this->accessKeyId,
             'SignatureMethod'   => 'HMAC-SHA1',
-            'Timestamp'         => date('Y-m-d\TH:i:s\Z'),
+            'Timestamp'         => gmdate('Y-m-d\TH:i:s\Z'),
             'SignatureVersion'  => '1.0',
             'SignatureNonce'    => uniqid(),
         ], $params);
