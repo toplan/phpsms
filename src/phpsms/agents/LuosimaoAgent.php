@@ -10,35 +10,35 @@ namespace Toplan\PhpSms;
  */
 class LuosimaoAgent extends Agent implements ContentSms, VoiceCode
 {
+    protected static $smsUrl = 'http://sms-api.luosimao.com/v1/send.json';
+    protected static $voiceCodeUrl = 'http://voice-api.luosimao.com/v1/verify.json';
+
     public function sendContentSms($to, $content)
     {
         // 签名必须在最后面
-        if ($content && !preg_match('/】$/', $content)) {
-            preg_match('/【([0-9a-zA-Z\W]+)】/', $content, $matches);
-            if (isset($matches[0])) {
+        if ($content && preg_match('/(【[\\s\\S]*】)/', $content, $matches)) {
+            if (isset($matches[0]) && strlen($matches[0])) {
                 $content = str_replace($matches[0], '', $content) . $matches[0];
             }
         }
-        $url = 'http://sms-api.luosimao.com/v1/send.json';
-        $result = $this->curlPost($url, [
+        $result = $this->curlPost(self::$smsUrl, [
             'mobile'  => $to,
             'message' => $content,
         ], [
-            CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
-            CURLOPT_USERPWD  => "api:key-$this->apikey",
+            CURLOPT_HTTPAUTH    => CURLAUTH_BASIC,
+            CURLOPT_USERPWD     => "api:key-{$this->apikey}",
         ]);
         $this->setResult($result);
     }
 
     public function sendVoiceCode($to, $code)
     {
-        $url = 'http://voice-api.luosimao.com/v1/verify.json';
-        $result = $this->curlPost($url, [
+        $result = $this->curlPost(self::$voiceCodeUrl, [
             'mobile' => $to,
             'code'   => $code,
         ], [
-            CURLOPT_HTTPAUTH => CURLAUTH_BASIC,
-            CURLOPT_USERPWD  => "api:key-$this->voiceApikey",
+            CURLOPT_HTTPAUTH    => CURLAUTH_BASIC,
+            CURLOPT_USERPWD     => "api:key-{$this->voiceApikey}",
         ]);
         $this->setResult($result);
     }
