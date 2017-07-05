@@ -78,7 +78,7 @@ class AliyunAgent extends Agent implements TemplateSms
         if ($result['request']) {
             $this->result(Agent::INFO, $result['response']);
             $result = json_decode($result['response'], true);
-            if ($result['Code'] == 'OK') {
+            if ($result['Code'] === 'OK') {
                 $this->result(Agent::SUCCESS, true);
                 $this->result(Agent::CODE, 0);
             }
