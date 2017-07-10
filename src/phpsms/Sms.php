@@ -419,8 +419,7 @@ class Sms
     }
 
     /**
-     * Validate the agent name.
-     * Expected type is string, except the string of number.
+     * Validate the name of agent.
      *
      * @param string $name
      *
@@ -429,7 +428,7 @@ class Sms
     protected static function validateAgentName($name)
     {
         if (empty($name) || !is_string($name) || preg_match('/^[0-9]+$/', $name)) {
-            throw new PhpSmsException('Expected the parameter to be string which except the string of number.');
+            throw new PhpSmsException('Expected the name of agent to be a string which except the digital string.');
         }
     }
 

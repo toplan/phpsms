@@ -8,18 +8,19 @@ namespace Toplan\PhpSms;
  * @property string $accessKeyId
  * @property string $accessKeySecret
  * @property string $signName
+ * @property string $regionId
  */
 class AliyunAgent extends Agent implements TemplateSms
 {
-    protected static $sendUrl = 'https://sms.aliyuncs.com';
+    protected static $sendUrl = 'https://dysmsapi.aliyuncs.com/';
 
     public function sendTemplateSms($to, $tempId, array $data)
     {
         $params = [
-            'Action'            => 'SingleSendSms',
+            'Action'            => 'SendSms',
             'SignName'          => $this->signName,
-            'ParamString'       => $this->getTempDataString($data),
-            'RecNum'            => $to,
+            'TemplateParam'     => $this->getTempDataString($data),
+            'PhoneNumbers'      => $to,
             'TemplateCode'      => $tempId,
         ];
         $this->request($params);
@@ -37,8 +38,9 @@ class AliyunAgent extends Agent implements TemplateSms
     protected function createParams(array $params)
     {
         $params = array_merge([
+            'RegionId'          => $this->regionId ?: 'cn-shenzhen',
             'Format'            => 'JSON',
-            'Version'           => '2016-09-27',
+            'Version'           => '2017-05-25',
             'AccessKeyId'       => $this->accessKeyId,
             'SignatureMethod'   => 'HMAC-SHA1',
             'Timestamp'         => gmdate('Y-m-d\TH:i:s\Z'),
@@ -77,9 +79,8 @@ class AliyunAgent extends Agent implements TemplateSms
         if ($result['request']) {
             $this->result(Agent::INFO, $result['response']);
             $result = json_decode($result['response'], true);
-            if (isset($result['Message'])) {
-                $this->result(Agent::CODE, $result['Code']);
-            } else {
+            $this->result(Agent::CODE, $result['Code']);
+            if ($result['Code'] === 'OK') {
                 $this->result(Agent::SUCCESS, true);
             }
         } else {

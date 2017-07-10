@@ -7,7 +7,6 @@ namespace Toplan\PhpSms;
  *
  * @property string $appId
  * @property string $appKey
- * @property string $nationCode
  */
 class QcloudAgent extends Agent implements TemplateSms, ContentSms, VoiceCode, ContentVoice
 {
