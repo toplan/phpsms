@@ -199,6 +199,7 @@ return [
             'accessKeyId'       => 'your_access_key_id',
             'accessKeySecret'   => 'your_access_key_secret',
             'signName'          => 'your_sms_sign_name',
+            'regionId'          => 'cn-shenzhen',
         ],
     ],
 ];

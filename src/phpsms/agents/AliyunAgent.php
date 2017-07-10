@@ -8,6 +8,7 @@ namespace Toplan\PhpSms;
  * @property string $accessKeyId
  * @property string $accessKeySecret
  * @property string $signName
+ * @property string $regionId
  */
 class AliyunAgent extends Agent implements TemplateSms
 {
@@ -37,7 +38,7 @@ class AliyunAgent extends Agent implements TemplateSms
     protected function createParams(array $params)
     {
         $params = array_merge([
-            'RegionId'          => 'cn-shenzhen',
+            'RegionId'          => $this->regionId ?: 'cn-shenzhen',
             'Format'            => 'JSON',
             'Version'           => '2017-05-25',
             'AccessKeyId'       => $this->accessKeyId,
@@ -78,11 +79,10 @@ class AliyunAgent extends Agent implements TemplateSms
         if ($result['request']) {
             $this->result(Agent::INFO, $result['response']);
             $result = json_decode($result['response'], true);
+            $this->result(Agent::CODE, $result['Code']);
             if ($result['Code'] === 'OK') {
                 $this->result(Agent::SUCCESS, true);
-                $this->result(Agent::CODE, 0);
             }
-            $this->result(Agent::INFO, json_encode($result));
         } else {
             $this->result(Agent::INFO, 'request failed');
         }
