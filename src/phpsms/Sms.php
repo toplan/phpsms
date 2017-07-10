@@ -610,14 +610,14 @@ class Sms
     }
 
     /**
-     * Set voice files.
+     * Set voice file.
      *
      * @param string|array $name
      * @param string|int   $id
      *
      * @return $this
      */
-    public function files($name, $id = null)
+    public function file($name, $id = null)
     {
         Util::operateArray($this->smsData['files'], $name, $id);
 

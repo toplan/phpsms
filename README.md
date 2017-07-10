@@ -138,7 +138,8 @@ Sms::voice('02343')->to($to)->send();
 Sms::voice('02343')
     ->template('Alidayu', 'your_tts_code')
     ->data(['code' => '02343'])
-    ->to($to)->send();
+    ->to($to)
+    ->send();
 ```
 
 ### 3. 在laravel和lumen中使用
@@ -385,7 +386,7 @@ $sms->to('1828*******');
 $sms->to([86, '1828*******'])
 ```
 
-### template($templates)
+### template($agentName, $id)
 
 指定代理器设置模版或批量设置，并返回实例。
 ```php
@@ -401,7 +402,7 @@ $sms->template([
 ]);
 ```
 
-### data($data)
+### data($key, $value)
 
 设置模板短信的模板数据，并返回实例对象。
 ```php
@@ -431,21 +432,21 @@ $sms->content('【签名】这是短信内容...');
 
 设置语音验证码，并返回实例对象。
 
-### files($files)
+### file($agentName, $id)
 
 设置语音文件，并返回实例对象。
 ```php
-$sms->files('Agent1', 'agent1_file_id')
-    ->files('Agent2', 'agent2_file_id');
+$sms->file('Agent1', 'agent1_file_id')
+    ->file('Agent2', 'agent2_file_id');
 
 //或
-$sms->files([
+$sms->file([
     'Agent1' => 'agent1_file_id',
     'Agent2' => 'agent2_fiile_id',
 ]);
 ```
 
-### params($params)
+### params($agentName, $params)
 
 直接设置参数到服务商提供的原生接口上，并返回实例对象。
 ```php
